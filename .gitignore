@@ -1,0 +1,43 @@
+# Ignore environment files
+.env
+
+# Ignore log files
+*.log
+
+# Ignore compiled binaries
+*.class
+*.jar
+*.war
+*.pyc
+*.o
+
+# Ignore Docker images and containers
+#*.dockerfile
+#*.dockerignore
+#docker-compose.yml
+#docker-compose.yaml
+
+
+# Ignore IDE files and directories
+.idea/
+.vscode/
+*.iml
+
+# Ignore JSON files generated during runtime
+*.json
+
+# Ignore minified JavaScript files
+*.min.js
+
+# Ignore generated build files
+/build/
+
+# Ignore dependencies installed through package manager
+/node_modules/
+
+# Ignore build artifacts and other temporary files
+*.swp
+.DS_Store
+
+#Virtual env
+/venv
