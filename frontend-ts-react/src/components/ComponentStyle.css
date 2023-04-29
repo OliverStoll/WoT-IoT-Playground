@@ -1,0 +1,9 @@
+.file-upload-container {
+    border-width: 2px;
+    border-radius: 5px;
+    border-color: #666;
+    border-style: dashed;
+    padding: 20px;
+    text-align: center;
+    color: #666;
+}
