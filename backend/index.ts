@@ -16,7 +16,8 @@ app.get('/', (req, res) => {
 });
 
 app.post('/api/config', (req, res) => {
-    const { config } = req.body;
+
+    const  config  = req.body;
     // Hier kannst du den config-JSON-String weiterverarbeiten
     console.log(config);
     res.send('Config was processed!');
