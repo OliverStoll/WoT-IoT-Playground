@@ -1,0 +1,10 @@
+{
+    "kaffeemaschine": {
+        "name": "Coffee-machine",
+        "type": "Thing"
+    },
+    "smartphone": {
+        "name": "Smartphone",
+        "type": "Thing"
+    }
+}

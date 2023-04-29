@@ -8,11 +8,9 @@ function App() {
   return (
       <>
         <Heading title={"WoT Playground"}></Heading>
-        <Section title={"Simulation via Configuration"}>Upload YAML config</Section>
-        {/*<Counter/>
-          <List items={["Thing1", "Thing2", "Thing3"]} render={(item: string) =>
-              <span className="bold">{item}</span>}/>*/}
-        <FileUpload allowedFileTypes={['application/x-yaml', 'text/yaml']} onFilesAdded={handleFilesAdded}/>
+        <Section title={"Simulation via Configuration"}>Upload json config</Section>
+          {/*<FileUpload allowedFileTypes={['application/x-yaml', 'text/yaml']} onFilesAdded={handleFilesAdded}/>*/}
+        <FileUpload allowedFileTypes={['application/json']} onFilesAdded={handleFilesAdded}/>
 
 
       </>
@@ -20,8 +18,16 @@ function App() {
 }
 
 function handleFilesAdded(files: File[]) {
-    console.log(files);
-    // do something with the files
+    console.log(files)
+    if (validateJson(files)){
+        // toDo: post request to backend
+        console.log("Sending JSON to backend")
+
+    } else console.log("ERROR: Not a valid JSON")
+}
+
+function validateJson (files: File[]){
+    return true
 }
 
 
