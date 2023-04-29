@@ -24,7 +24,7 @@
 *.iml
 
 # Ignore JSON files generated during runtime
-*.json
+# *.json
 
 # Ignore minified JavaScript files
 *.min.js
