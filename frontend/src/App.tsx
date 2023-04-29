@@ -1,15 +1,14 @@
 import Heading from "./components/Heading.tsx";
 import {Section} from "./components/Section.tsx";
-/*import Counter from "./components/Counter.tsx";
-import List from "./components/List.tsx";*/
 import FileUpload from "./components/FileUpload.tsx";
+
+const url = 'http://localhost:5000/api/config';
 
 function App() {
   return (
       <>
         <Heading title={"WoT Playground"}></Heading>
         <Section title={"Simulation via Configuration"}>Upload json config</Section>
-          {/*<FileUpload allowedFileTypes={['application/x-yaml', 'text/yaml']} onFilesAdded={handleFilesAdded}/>*/}
         <FileUpload allowedFileTypes={['application/json']} onFilesAdded={handleFilesAdded}/>
 
 
@@ -20,14 +19,29 @@ function App() {
 function handleFilesAdded(files: File[]) {
     console.log(files)
     if (validateJson(files)){
-        // toDo: post request to backend
         console.log("Sending JSON to backend")
+        sendPostRequest(url, files);
 
     } else console.log("ERROR: Not a valid JSON")
 }
 
 function validateJson (files: File[]){
     return true
+}
+
+async function sendPostRequest(url: string, data: any) {
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const responseData = await response.json();
+        console.log(responseData);
+        return responseData;
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 
