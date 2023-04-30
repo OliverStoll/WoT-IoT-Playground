@@ -4,6 +4,9 @@
 # Ignore log files
 *.log
 
+#ignore config.json
+*config.json
+
 # Ignore compiled binaries
 *.class
 *.jar

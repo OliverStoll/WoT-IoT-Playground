@@ -7,21 +7,21 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5000;
+const configRouter = require('./routes/config.ts');
 
 app.use(cors());
 app.use(bodyParser.json());
 
+app.use((req, res, next) => {
+    console.log(`${req.method} request received for URL: ${req.url}`);
+    next();
+});
+
 app.get('/', (req, res) => {
-    res.send('Hello from the backend!');
+    res.send('Success. This is the backend.');
 });
 
-app.post('/api/config', (req, res) => {
-
-    const  config  = req.body;
-    // Hier kannst du den config-JSON-String weiterverarbeiten
-    console.log(config);
-    res.send('Config was processed!');
-});
+app.use('/api/config', configRouter);
 
 app.listen(port, () => {
     console.log(`Server running on port: ${port}`);
