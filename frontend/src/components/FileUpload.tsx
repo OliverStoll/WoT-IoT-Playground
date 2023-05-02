@@ -1,69 +1,55 @@
-import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import './ComponentStyle.css'
 
 const url: string = 'http://localhost:5000/api/config'
+const allowedFileTypes: {'': string[]} = {'application/json': ['.json']}
+let type: string
 
-type FileUploadProps = {
-    onFilesAdded: (files: File[]) => void
-    allowedFileTypes?: string[]
-};
-
-function FileUpload(props: FileUploadProps) {
-    const { onFilesAdded, allowedFileTypes } = props
-
-    const onDrop = useCallback(
-        (acceptedFiles: File[]) => {
-            const filteredFiles = allowedFileTypes
-                ? acceptedFiles.filter((file) =>
-                    allowedFileTypes.includes(file.type)
-                )
-                : acceptedFiles
-
-            onFilesAdded(filteredFiles)
-        },
-        [allowedFileTypes, onFilesAdded]
-    )
-
+function FileUpload() {
     const { getRootProps, getInputProps} = useDropzone({
         multiple: false,
         onDragEnter: undefined,
         onDragLeave: undefined,
         onDragOver: undefined,
-        onDrop})
+        onDrop: handleFilesAdded,
+        accept: allowedFileTypes
+    })
 
 
     return (
         <div {...getRootProps()} className="file-upload-container">
             <input {...getInputProps()} />
             <p>
-                Drag 'n' drop a {allowedFileTypes?.join(" or ")} file here, or click to select file
+                Drag 'n' drop a configuration file here, or click to select file
             </p>
         </div>
     )
 }
 
 function handleFilesAdded(files: File[]) {
-    console.log(files[0])
+    console.log()
     if (typeof files[0] !== "undefined") {
-        files[0].text().then(function (json) {
-            if (validateJson(json)) {
-                console.log("Sending JSON to backend!")
-                console.log(json)
-                sendPostRequest(url, json).then(r => console.log(r))
-            } else console.log("ERROR: Not a valid JSON!")
+        files[0].text().then(function (conf) {
+            type = files[0].type
+            if (validateConfig(conf)) {
+                console.log("Sending configuration file to backend!")
+                console.log(conf)
+                sendPostRequest(url, conf).then(r => console.log(r))
+            } else console.log("ERROR: Not a valid configuration file!")
         })
-    } else console.log("ERROR: Not a valid JSON!")
+    } else console.log("ERROR: Not a valid configuration file!")
 }
 
-function validateJson (json: string){
-    try {
-        let o = JSON.parse(json)
-        if (o && typeof o === "object" && o !== "") {
-            return true
+function validateConfig (conf: string){
+    if (type === "application/json") {
+        try {
+            let o = JSON.parse(conf)
+            if (o && typeof o === "object" && o !== "") {
+                return true
+            }
+        } catch {
         }
     }
-    catch {}
     return false
 }
 
@@ -71,7 +57,7 @@ async function sendPostRequest(url: string, data: string) {
     try {
         const response = await fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': type },
             body: data
         })
         if (response.ok) return response.text()
@@ -81,4 +67,4 @@ async function sendPostRequest(url: string, data: string) {
     }
 }
 
-export {FileUpload, handleFilesAdded}
+export default FileUpload

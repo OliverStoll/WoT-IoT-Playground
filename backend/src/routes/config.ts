@@ -4,15 +4,19 @@ const fs = require('fs')
 
 const router = express.Router();
 
-router.post('/', (req, res) => {
-    const config = req.body;
-    console.log(config);
-    const fileName = 'config.json';
+let fileName = ""
+let config = ""
 
-    fs.writeFile(fileName, JSON.stringify(config), (err) => {
-        if (err) {
-            console.error(err);
-            res.status(500).send('Error saving configuration file');
+router.post('/', (req, res) => {
+    if (req.get("Content-Type") === "application/json"){
+        fileName = 'config.json';
+        config = JSON.stringify(req.body)
+    }
+    console.log(req.body);
+    fs.writeFile(fileName, config, (err) => {
+        if (err || config === "") {
+            console.log("Error: Could not save configuration file!");
+            res.status(500).send("Error: Could not save configuration file!");
             return;
         }
 
