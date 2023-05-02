@@ -1,4 +1,8 @@
 # Web of Things playground
+Zoom-Meeting beitreten:
+
+https://tu-berlin.zoom.us/j/68314260453?pwd=bFZkV3VDU0pJd0NXYXVCQlNBNlNGUT09
+
 ## Installation
 
 ```
