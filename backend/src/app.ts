@@ -21,6 +21,10 @@ app.get('/', (req, res) => {
     res.send('Success. This is the backend.');
 });
 
+app.get('/api/logs', (req, res) => {
+    res.send('Request sent to logs-endpoint');
+});
+
 app.use('/api/config', configRouter);
 
 app.listen(port, () => {
