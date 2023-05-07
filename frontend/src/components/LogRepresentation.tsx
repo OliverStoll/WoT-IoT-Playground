@@ -1,86 +1,91 @@
 import React, { useEffect, useState } from 'react';
+import './LogRepresentationStyle.css';
 
+/**
+ * Component that displays logs fetched from the server.
+ */
 const LogRepresentation = () => {
   const [logs, setLogs] = useState([]);
   const [deviceColors, setDeviceColors] = useState(new Map());
 
-  useEffect(() => {
-    fetchLogs();
-    const interval = setInterval(fetchLogs, 5000); // Daten alle 5 Sekunden aktualisieren
-
-    return () => {
-      clearInterval(interval); // Aufräumen beim Unmount
-    };
-  }, []);
-
+  /**
+   * Fetches logs from the server and updates the logs state.
+   */
   const fetchLogs = async () => {
     try {
       const response = await fetch('http://localhost:5000/api/logs');
       const data = await response.text();
-      const logArray = data.split(';'); // Text mit Semikolon trennen und in ein Array aufteilen
+      const logArray = data.split(';');
       setLogs(logArray);
     } catch (error) {
-      console.error('Fehler beim Abrufen der Logs:', error);
+      console.error('Error fetching logs:', error);
     }
   };
 
+  /**
+   * Gets the color for a given device ID. If the device ID doesn't have a color assigned, assigns a color from a predefined list.
+   * @param {string} deviceId - The device ID.
+   * @returns {string} The color associated with the device ID.
+   */
   const getLogColor = (deviceId: string) => {
     if (deviceColors.has(deviceId)) {
-      // Wenn die Geräte-ID bereits in der Map vorhanden ist, dieselbe Farbe zurückgeben
       return deviceColors.get(deviceId);
     } else {
-      // Wenn die Geräte-ID noch nicht in der Map vorhanden ist, eine neue Farbe generieren
-      const color = generateRandomColor();
-      // Die Geräte-ID und die generierte Farbe zur Map hinzufügen
+      const colors = [
+        'blue',
+        'red',
+        'yellow',
+        'green',
+        'purple',
+        'orange',
+        'pink',
+        'cyan',
+        'magenta',
+        'lime',
+      ]; // Array with the desired colors
+      const colorIndex = deviceColors.size % colors.length;
+      const color = colors[colorIndex];
       setDeviceColors(new Map(deviceColors.set(deviceId, color)));
       return color;
     }
   };
 
-  const generateRandomColor = () => {
-    // Funktion zum Generieren einer zufälligen Farbe
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
+  useEffect(() => {
+    fetchLogs();
+    const interval = setInterval(fetchLogs, 5000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
+  useEffect(() => {
+    const storedColors = localStorage.getItem('deviceColors');
+    if (storedColors) {
+      setDeviceColors(new Map(JSON.parse(storedColors)));
     }
-    return color;
-  };
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('deviceColors', JSON.stringify(Array.from(deviceColors)));
+  }, [deviceColors]);
 
   return (
-    <div style={{
-      backgroundColor: 'black',
-      border: '1px solid gray',
-      padding: '10px',
-      width: 'fit-content',
-      maxWidth: '80%',
-      margin: '10px'
-    }}>
-      <h1 style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center'
-    }} className="log-respresentation">Logs</h1>
-      <div style={{
-        height: '300px',
-        width: '500px',
-        overflow: 'auto'
-      }}
-      className="log-window">
+    <div className="log-wrapper">
+      <h1 className="log-heading">Logs</h1>
+      <div className="log-window">
         {logs.map((log: string, index) => {
-          const deviceId = log.match(/\[(.*?)\]/)[1]; // Geräte-ID aus dem Log-Eintrag extrahieren
-          const logText = log.replace(/\[(.*?)\]/, ''); // Geräte-ID aus dem Log-Eintrag entfernen
-          const logColor = getLogColor(deviceId); // Farbe für den Log-Eintrag ermitteln
+          const deviceId = log.match(/\[(.*?)\]/)[1];
+          const logText = log.replace(/\[(.*?)\]/, '');
+          const logColor = getLogColor(deviceId);
 
           return (
-            <div key={index} 
-            style={{ 
-              color: logColor,
-              padding: '0.5px',
-              fontSize: '14px'
-             }}>
-              <span>{deviceId}: </span>
-              <span>{logText}</span>
+            <div
+              key={index}
+              className="log-entry"
+              style={{ color: logColor }}
+            >
+              <span className="device-id">{deviceId}: </span>
+              <span className="log-text">{logText}</span>
             </div>
           );
         })}
