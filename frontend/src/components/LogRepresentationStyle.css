@@ -1,0 +1,53 @@
+.log-wrapper {
+    background-color: black;
+    padding: 20px;
+  }
+  
+  .card {
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 0;
+  }
+  
+  .card-header {
+    background-color: #555;
+    border-bottom: none;
+  }
+  
+  .card-body {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .card-title {
+    margin-bottom: 20px;
+  }
+  
+  .log-window {
+    background-color: black;
+    overflow-y: scroll;
+    height: 300px;
+    margin-bottom: 10px;
+  }
+  
+  .log-entry {
+    
+    font-size: 14px;
+  }
+  
+  .btn-primary {
+    align-self: flex-end;
+    border-radius: 20px;
+    background-color: green;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    font-size: 14px;
+  }
+  
+  .btn-primary:hover {
+    background-color: darkgreen;
+  }
+  
+  
+  

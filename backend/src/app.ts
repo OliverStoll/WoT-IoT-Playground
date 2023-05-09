@@ -22,7 +22,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api/logs', (req, res) => {
-    res.send('Request sent to logs-endpoint');
+    res.send('[Kaffeemaschine]Request sent to logs-endpoint;[Kühlschrank]Uga1;[Lampe]Uga2;[Kühlschrank]Uga33;[Kaffeemaschine]Request sent to logs-endpoint;[Kühlschrank]Uga1;[Lampe]Uga2;[Kühlschrank]Uga33;[Kaffeemaschine]Request sent to logs-endpoint;[Kühlschrank]Uga1;[Lampe]Uga2;[Kühlschrank]Uga33;[Kaffeemaschine]Request sent to logs-endpoint;[Kühlschrank]Uga1;[Lampe]Uga2;[Kühlschrank]Uga33');
 });
 
 app.use('/api/config', configRouter);
