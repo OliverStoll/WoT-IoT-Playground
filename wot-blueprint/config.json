@@ -22,21 +22,31 @@
           "id": "brew_coffee",
           "actions": [
             {
-              "set": "temperature",
+              "action": "set",
+              "property": "temperature",
               "value": 99
             },
             {
-              "increment": "coffee_counter",
+              "action": "increment",
+              "property": "coffee_counter",
               "value": 1
             },
             {
-              "trigger_event": "coffee_brewed"
+              "action": "trigger_event",
+              "event": "coffee_brewed"
             },
             {
-              "if": "coffee_ground > 10",
+              "action": "condition",
+              "condition":
+                {
+                  "property": "coffee_counter",
+                  "operator": ">",
+                  "value": 10
+                  },
               "actions": [
                 {
-                  "trigger_event": "coffe_ground_full"
+                  "action": "trigger_event",
+                  "event": "coffee_ground_full"
                 }
               ]
             }
