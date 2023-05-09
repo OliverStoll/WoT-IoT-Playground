@@ -39,8 +39,20 @@ router.post('/', (req, res) => {
             console.log(`child process exited with code ${code}`);
             res.status(200).send('Config was processed!');
         });
-
     });
 });
+
+router.get('/', (req, res) => {
+    if (fs.existsSync(fileName)) {
+        // send config.json if is exists
+        const fileContent = fs.readFileSync(fileName, 'utf8');
+        const config = JSON.parse(fileContent);
+        res.send(config);
+    } else {
+        // send 404 if config was not uploaded yet
+        res.status(404).send('No config file found');
+    }
+});
+
 
 module.exports = router;

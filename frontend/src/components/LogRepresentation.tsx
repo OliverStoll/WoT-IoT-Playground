@@ -8,25 +8,25 @@ const LogRepresentation = () => {
   const [logs, setLogs] = useState([]);
   const [deviceColors, setDeviceColors] = useState(new Map());
 
-const downloadLogs = () => {
-  // Create a string from the logs array
-  const logString = logs.join('\n');
+  const downloadLogs = () => {
+    // Create a string from the logs array
+    const logString = logs.join('\n');
 
-  // Create a Blob object with the log string
-  const blob = new Blob([logString], { type: 'text/plain' });
+    // Create a Blob object with the log string
+    const blob = new Blob([logString], { type: 'text/plain' });
 
-  // Create a temporary URL for the Blob object
-  const url = URL.createObjectURL(blob);
+    // Create a temporary URL for the Blob object
+    const url = URL.createObjectURL(blob);
 
-  // Create a link element and simulate a click to trigger the download
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'logs.txt';
-  link.click();
+    // Create a link element and simulate a click to trigger the download
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'logs.txt';
+    link.click();
 
-  // Clean up the temporary URL
-  URL.revokeObjectURL(url);
-};
+    // Clean up the temporary URL
+    URL.revokeObjectURL(url);
+  };
 
   /**
    * Fetches logs from the server and updates the logs state.
@@ -47,7 +47,7 @@ const downloadLogs = () => {
    * @param {string} deviceId - The device ID.
    * @returns {string} The color associated with the device ID.
    */
-  const getLogColor = (deviceId: string) => {
+  const getLogColor = (deviceId) => {
     if (deviceColors.has(deviceId)) {
       return deviceColors.get(deviceId);
     } else {
@@ -90,38 +90,36 @@ const downloadLogs = () => {
   }, [deviceColors]);
 
   return (
-    
     <div className="log-wrapper">
       <div className="card">
         <div className="card-header">Logs</div>
         <div className="card-body">
           <h5 className="card-title">View WoT Playground Logs</h5>
           <div className="log-window  card-text">
-            {logs.map((log: string, index) => {
-              const deviceId = log.match(/\[(.*?)\]/)[1];
-              const logText = log.replace(/\[(.*?)\]/, '');
+            {logs.map((log, index) => {
+              const logParts = log.split(',');
+              const timestamp = logParts[0];
+              const deviceId = logParts[1];
+              const logText = logParts.slice(2).join(',');
+
               const logColor = getLogColor(deviceId);
 
               return (
-                <div
-                  key={index}
-                  className="log-entry"
-                  style={{ color: logColor }}
-                >
+                <div key={index} className="log-entry" style={{ color: logColor }}>
+                  <span className="timestamp">{timestamp}: </span>
                   <span className="device-id">{deviceId}: </span>
                   <span className="log-text">{logText}</span>
                 </div>
-                );
-              })}
+              );
+            })}
           </div>
           <button className="btn btn-primary" onClick={downloadLogs}>
-              Download Logs
+            Download Logs
           </button>
         </div>
       </div>
     </div>
-      
   );
 };
 
-export default LogRepresentation;
+export default LogRepresentation
