@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './LogRepresentationStyle.css';
 
 /**
  * Component that displays logs fetched from the server.
  */
 const LogRepresentation = () => {
-  const [logs, setLogs] = useState([]);
+  const [logs, setLogs] = useState<string[]>([]);
   const [deviceColors, setDeviceColors] = useState(new Map());
 
   const downloadLogs = () => {
@@ -47,7 +47,7 @@ const LogRepresentation = () => {
    * @param {string} deviceId - The device ID.
    * @returns {string} The color associated with the device ID.
    */
-  const getLogColor = (deviceId) => {
+  const getLogColor = (deviceId: string) => {
     if (deviceColors.has(deviceId)) {
       return deviceColors.get(deviceId);
     } else {
@@ -76,14 +76,14 @@ const LogRepresentation = () => {
     return () => {
       clearInterval(interval);
     };
-  }, []);
+  },[]);
 
   useEffect(() => {
     const storedColors = localStorage.getItem('deviceColors');
     if (storedColors) {
       setDeviceColors(new Map(JSON.parse(storedColors)));
     }
-  }, []);
+  },[]);
 
   useEffect(() => {
     localStorage.setItem('deviceColors', JSON.stringify(Array.from(deviceColors)));

@@ -2,7 +2,7 @@ import { useDropzone } from "react-dropzone";
 import './ComponentStyle.css'
 
 const url: string = 'http://localhost:5000/api/config'
-const allowedFileTypes: {'': string[]} = {'application/json': ['.json']}
+const allowedFileTypes:{} = {'application/json': ['.json']}
 let type: string
 
 function FileUpload() {
@@ -15,7 +15,6 @@ function FileUpload() {
         accept: allowedFileTypes
     })
 
-
     return (
         <div {...getRootProps()} className="file-upload-container">
             <input {...getInputProps()} />
@@ -27,7 +26,6 @@ function FileUpload() {
 }
 
 function handleFilesAdded(files: File[]) {
-    console.log()
     if (typeof files[0] !== "undefined") {
         files[0].text().then(function (conf) {
             type = files[0].type
@@ -39,6 +37,7 @@ function handleFilesAdded(files: File[]) {
         })
     } else console.log("ERROR: Not a valid configuration file!")
 }
+
 
 function validateConfig (conf: string){
     if (type === "application/json") {
