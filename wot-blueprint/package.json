@@ -2,11 +2,11 @@
   "name": "my-typescript-app",
   "version": "1.0.0",
   "description": "A basic TypeScript Node.js app",
-  "main": "wot_device.ts",
+  "main": "src/wot_device.ts",
   "scripts": {
-    "start": "node wot_device.js",
-    "build": "tsc wot_device.ts",
-    "dev": "nodemon wot_device.ts"
+    "start": "node src/wot_device.js",
+    "build": "tsc",
+    "dev": "nodemon src/wot_device.ts"
   },
   "keywords": [
     "typescript",
