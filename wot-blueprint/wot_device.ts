@@ -57,7 +57,7 @@ function sendLog(log_type: string, req: any, payload: any) {
 
   // send the log to the log server
   const log_server = scenario.log_server
-  putDataToApi(log_server, log)
+  postDataToApi(log_server, log)
     .then(() => {
       console.log("Log sent to log server");
     })
@@ -66,12 +66,10 @@ function sendLog(log_type: string, req: any, payload: any) {
     });
 }
 
-async function putDataToApi(url: string, payload: any): Promise<void> {
+async function postDataToApi(url: string, payload: any): Promise<void> {
   const response = await fetch(url, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    method: 'POST',
+    headers: {'Content-Type': 'application/json',},
     body: JSON.stringify(payload),
   });
 

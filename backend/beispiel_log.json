@@ -1,5 +1,5 @@
 {
-  "type": "property",
+  "type": "property_called",
   "host": {
     "ip": "localhost",
     "port": 3000,

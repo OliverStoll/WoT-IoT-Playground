@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start_backend": "node src/app.js",
+    "build_backend": "tsc src/app.ts",
+    "dev": "nodemon wot_device.ts"
   },
   "keywords": [],
   "author": "",
