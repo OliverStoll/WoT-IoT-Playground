@@ -1,30 +1,45 @@
 {
+  "log_server": "http://localhost:4000/api/logs",
   "devices": [
     {
+      "@context": [
+        "http://w3.org/ns/td",
+        { "htv": "http://www.w3.org/2011/http#" }
+      ],
+      "@type": [ "Thing" ],
       "id": "kaffee01",
       "name": "Kaffeemaschine",
-      "properties": [
-        {
-          "name": "temperature",
-          "start_value": 30
-        },
-        {
-          "name": "coffee_counter",
-          "start_value": 0
-        },
-        {
-          "name": "coffee_ground",
-          "start_value": 0
+      "securityDefinitions": {
+        "basic_sc": {"scheme": "basic", "in":"header"}
+      },
+      "security": ["basic_sc"],
+      "credentials": {
+        "basic_sc": {
+          "username": "admin",
+          "password": "adminpw"
         }
-      ],
-      "methods": [
-        {
-          "id": "brew_coffee",
+      },
+      "properties": {
+        "temperature": {
+          "start_value": 30,
+          "type": "number"
+        },
+        "coffee_counter": {
+          "start_value": 0,
+          "type": "number"
+        },
+        "coffee_ground": {
+          "start_value": 0,
+          "type": "number"
+        }
+      },
+      "methods": {
+        "brew_coffee": {
           "actions": [
             {
               "action": "set",
               "property": "temperature",
-              "value": 99
+              "value": 97
             },
             {
               "action": "increment",
@@ -37,13 +52,12 @@
             },
             {
               "action": "condition",
-              "condition":
-                {
-                  "property": "coffee_counter",
-                  "operator": ">",
-                  "value": 10
-                  },
-              "actions": [
+              "property": "coffee_counter",
+              "condition": {
+                "operator": ">",
+                "value": 3
+              },
+              "actions_true": [
                 {
                   "action": "trigger_event",
                   "event": "coffee_ground_full"
@@ -52,10 +66,12 @@
             }
           ]
         }
-      ],
-      "events": [
-        "coffee_brewed"
-      ]
+      },
+      "events": {
+        "coffee_brewed": {
+
+        }
+      }
     },
     {
       "id": "waschmaschine01",

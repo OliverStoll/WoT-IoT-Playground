@@ -4,8 +4,8 @@
   "description": "A basic TypeScript Node.js app",
   "main": "wot_device.ts",
   "scripts": {
-    "start": "node wot_device.ts",
-    "build": "tsc",
+    "start": "node wot_device.js",
+    "build": "tsc wot_device.ts",
     "dev": "nodemon wot_device.ts"
   },
   "keywords": [

@@ -1,0 +1,17 @@
+{
+  "type": "property",
+  "host": {
+    "ip": "localhost",
+    "port": 3000,
+    "id": "kaffee01"
+  },
+  "caller":
+    {
+        "ip": "localhost",
+        "port": 3002
+    },
+  "payload": {
+    "name": "temperature",
+    "value": 0
+  }
+}
