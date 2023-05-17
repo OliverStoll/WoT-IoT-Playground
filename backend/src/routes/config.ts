@@ -10,9 +10,11 @@ let config = ""
 router.post('/', (req, res) => {
     if (req.get("Content-Type") === "application/json"){
         fileName = 'config.json';
-        config = JSON.stringify(req.body)
+        let config_raw = req.body
+        //TODO add log_server URL dynamically
+        config_raw['log_server'] = "http://host.docker.internal:5000/api/logs"
+        config = JSON.stringify(config_raw)
     }
-    console.log(req.body);
     fs.writeFile(fileName, config, (err) => {
         if (err || config === "") {
             console.log("Error: Could not save configuration file!");

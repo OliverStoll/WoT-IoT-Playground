@@ -3,6 +3,7 @@ const createLog  = require('../utils/logger.ts')
 const router = express.Router();
 
 let logs = [];
+let thingDescriptions = [];
 
 
 router.post('/', (req, res) => {
@@ -11,6 +12,11 @@ router.post('/', (req, res) => {
         return;
     }
     const jsonData = req.body;
+    const { type } = jsonData;
+    if(type == 'created'){
+        thingDescriptions.push(jsonData.payload)
+        console.log(thingDescriptions)
+    }
     const logText = createLog(jsonData)
     if(!logText){
         res.status(400).send('Unknown type')
@@ -32,6 +38,10 @@ router.get('/', (req, res) => {
         res.send("No logs available yet")
     }
 });
+
+router.get('/thingDescriptions', (req, res)=>{
+    res.send(thingDescriptions)
+})
 
 
 module.exports = router;
