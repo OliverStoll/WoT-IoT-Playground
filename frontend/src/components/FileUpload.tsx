@@ -1,5 +1,5 @@
 import { useDropzone } from "react-dropzone";
-import './ComponentStyle.css'
+import './component_css/ComponentStyle.css'
 
 const url: string = 'http://localhost:5000/api/config'
 const allowedFileTypes:{} = {'application/json': ['.json']}

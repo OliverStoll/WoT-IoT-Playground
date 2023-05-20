@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import './component_css/ThingRepresentationStyle.css'
 
 const url: string = 'http://localhost:5000/api/logs/thingDescriptions'
 
@@ -24,7 +25,7 @@ const ThingRepresentation = () => {
             clearInterval(interval);
         };
     },[]);
-    return <div>{things}</div>
+    return <div className={"thing-container"}>{things}</div>
 }
 
 /**
@@ -42,12 +43,12 @@ function getThings(conf: string[]): JSX.Element[] {
             .filter(function (key: string){ return attToShow.includes(key)})
         //create a div for the important attributes of every thing description
         let attributes: JSX.Element[] = Array.from({length: att_keys.length}, (_, ind: number) => (
-            <div key={thing["id"] + "-" + att_keys[ind]}>
+            <div key={thing["id"] + "-" + att_keys[ind]} className={"thing-attributes"}>
                 {att_keys[ind]}: {JSON.stringify(thing[att_keys[ind]]).replaceAll("\"", "")}
             </div>))
         // create div for every thing description with a symbol and all attributes
         return (
-            <div key={thing["id"]}>
+            <div key={thing["id"]} className={"thing"}>
                 <img src="../../resources/wot_icon.png" alt="Thing icon" height={"100"}/>
                 <div>{attributes}</div>
             </div>

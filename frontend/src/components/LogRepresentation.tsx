@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import './LogRepresentationStyle.css';
+import './component_css/LogRepresentationStyle.css';
 
 /**
  * Component that displays logs fetched from the server.
