@@ -1,47 +1,190 @@
 const express = require('express');
 const fs = require('fs');
 const app = express();
-const { sendLog } = require('./util/requests');
-const { extractThingDescription } = require('./util/thing_utility');
+const {sendLog, fetchData} = require('./util/requests');
+const {extractThingDescription, evaluateCondition} = require('./util/thing_utility');
+const {checkAuthentication} = require('./util/authentication');
+
+
+class Device {
+    config: any;
+    ip: string;
+    port: number;
+    logging_info: any;
+    properties: any;
+    credentials_basic: any;
+    thing_description: any;
+    methods: any;
+    events: any;
+
+    // constructor that takes device json as input
+    constructor(device_config: any) {
+
+        // set all the properties of the class
+        this.config = device_config;
+        this.ip = process.env.IP || 'localhost';
+        this.port = Number(process.env.PORT) || 3000;
+        this.thing_description = extractThingDescription(device_config, this.ip + ':' + this.port);
+        this.credentials_basic = device_config.credentials.basic_sc;
+        this.properties = device_config.properties;
+        this.methods = device_config.methods;
+        this.events = device_config.events;
+        this.logging_info = {
+            log_server: process.env.LOG_SERVER || 'http://host.docker.internal:5000/api/logs',
+            device_id: device_config.id,
+            ip: this.ip,
+            port: this.port
+        }
+
+        console.log("Device Config:", device_config);
+
+        // set initial values for thing properties
+        for (let property_name in this.properties) {
+            this.properties[property_name].value = this.properties[property_name].start_value;
+        }
+
+        // create all the endpoints
+        this.createPropertyEndpoints();
+        this.createMethodEndpoints();
+        this.createCommandEndpoint();
+        this.createDescriptionEndpoint();
+
+
+        // start the server
+        app.listen(this.port, () => {
+            console.log(`Server listening on port ${this.port}`);
+            // send the created log info to the log server
+            sendLog("created", null, this.thing_description, this.logging_info);
+        });
+
+
+    }
+
+
+    /** FUNCTIONS THAT CREATE ENDPOINTS **/
+
+    createPropertyEndpoints() {
+        // iterate over all entries in properties dictionary
+        for (const property_name in this.properties) {
+            const property = this.properties[property_name];
+            console.log(`Creating property endpoint: ${property_name}`);
+            app.get(`/property/${property_name}`, (req, res) => {
+                console.log(`GET /property/${property_name}`);
+                if (!checkAuthentication(req, this.credentials_basic, this.config.security)) {
+                    console.log(`Authentication check failed`);
+                }
+                res.send(`{"message": "This is ${property_name}", "value": ${property.value}}`);
+            });
+        }
+    }
+
+    createMethodEndpoints() {
+        for (const method_name in this.methods) {
+            let method = this.methods[method_name];
+            console.log(`Creating method endpoint: ${method_name}`);
+            app.get(`/method/${method_name}`, (req, res) => {
+                console.log(`GET /method/${method_name}`);
+                if (!checkAuthentication(req, this.credentials_basic, this.config.security)) {
+                    console.log(`Authentication check failed`);
+                }
+                this.executeMethod(method, method_name);
+                res.send(`This is ${method_name}`);
+            });
+        }
+    }
+
+    createEventEndpoints() {
+        // TODO: understand long polling
+    }
+
+    createCommandEndpoint() {
+        // create a command endpoint that can be used to send commands to the device
+        app.get(`/command`, async (req, res) => {
+            console.log(`GET /command`);
+            if (!checkAuthentication(req, this.credentials_basic, this.config.security)) {
+                console.log(`Authentication check failed`);
+            }
+
+            const command_response = await fetchData(req.query.url);
+
+            res.send(`This is the command endpoint. You sent ${req.query.url}. The answer was ${JSON.stringify(command_response, null, 2)}`);
+
+        });
+    }
+
+    createDescriptionEndpoint() {
+        // create a description endpoint that can be used to get the description of the device
+        app.get(`/description`, (req, res) => {
+            console.log(`GET /description`);
+            if (!checkAuthentication(req, this.credentials_basic, this.config.security)) {
+                console.log(`Authentication check failed`);
+            }
+
+            // send the thing description object
+            res.send(this.thing_description);
+            // TODO: create full thing description and return it
+        });
+    }
+
+
+    // function that evaluates and executes the methods action list according to the configuration
+    executeMethod(method: any, method_name: string) {
+        // get the method with property id=method_name
+        console.log(method);
+        console.log(`Executing method ${method_name} with ${method.actions.length} actions`);
+
+        // iterate over the actions and execute them
+        this.executeMethodActions(method.actions)
+    }
+
+    executeMethodActions(actions: any) {
+        for (const action of actions) {
+            const property = this.properties[action.property];
+            switch (action.action) {
+                case 'set':
+                    console.log(`Setting property ${action.property} to ${action.value}`);
+                    property.value = action.value;
+                    break;
+                case 'increment':
+                    console.log(`Incrementing property ${action.property} by ${action.value}`);
+                    property.value += action.value;
+                    break;
+                case 'wait':
+                    console.log(`Waiting for ${action.duration} seconds`);
+                    setTimeout(() => {
+                        console.log(`Done waiting`);
+                    }, action.duration * 1000);
+                    break;
+                case 'trigger_event':
+                    console.log(`Sending event ${action.event}`);
+                    // TODO: understand event handling and implement it
+                    break;
+                case 'condition':
+                    console.log(`Evaluating condition ${action.property} ${action.condition.operator} ${action.condition.value}`);
+                    if (evaluateCondition(action.condition, property)) {
+                        console.log(`Condition is true`);
+                        this.executeMethodActions(action.actions_true);
+                    } else {
+                        console.log(`Condition is false`);
+                        // check if actions_false is defined
+                        if (action.actions_false) {
+                            this.executeMethodActions(action.actions_false);
+                        }
+                    }
+                    break;
+                default:
+                    console.log(`Unknown action type: ${action.action}`);
+            }
+        }
+    }
+}
+
 
 // get the environment variable for the port and convert to number
-let IP = process.env.IP || 'localhost';
-const PORT = Number(process.env.PORT) || 3000;
-const IP_PORT = `${IP}:${PORT}`;
 const DEVICE_IDX = Number(process.env.DEVICE_IDX) || 0;
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 const device_config = config.devices[DEVICE_IDX];
-const thing_description = extractThingDescription(device_config, IP_PORT);
-let logging_info = {
-    log_server: config.log_server || 'http://host.docker.internal:5000/api/logs',
-    device_id: device_config.id,
-    ip: IP,
-    port: PORT
-}
-
-console.log(config);
-console.log(logging_info);
-app.listen(PORT, () => {console.log(`Server listening on port ${PORT}`);});
-
-
-// log the creation of the device
-sendLog('created', null, thing_description, logging_info);
-
-const properties = device_config.properties;
-
-for (const property in properties) {
-  console.log(`Adding property ${property}`);
-  app.get('/property/' + property, (req, res) => {
-    res.send(`This is ${property}`);
-    let payload = {
-      property: property,
-      value: "This is " + property  // TODO: get the actual value
-    }
-    sendLog('property_called', req, payload, logging_info);
-  });
-}
-
-
-
-
+// log info and start server
+console.log("Log Server address:", config.log_server);
+new Device(device_config);
 

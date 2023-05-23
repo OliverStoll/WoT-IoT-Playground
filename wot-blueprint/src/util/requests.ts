@@ -20,7 +20,7 @@ export function sendLog(log_type: string, request: any, payload: any, logging_in
             port: request.headers['x-forwarded-port'] || request.connection.remotePort
         }
     }
-    console.log(log);
+    console.log(`Sending Log ${log_type} with payload: ${JSON.stringify(log)}`);
 
     // send the log to the log server
     sendPostRequest(logging_info.log_server, log);
@@ -35,5 +35,16 @@ async function sendPostRequest(url: string, payload: any): Promise<void> {
 
     if (!response.ok) {
         console.log(response.status, response.statusText);
+    }
+}
+
+export async function fetchData(url: string) {
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        console.log(data);
+        return data;
+    } catch (error) {
+        console.error(error);
     }
 }
