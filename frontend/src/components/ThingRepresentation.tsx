@@ -42,10 +42,25 @@ function getThings(conf: string[]): JSX.Element[] {
         let att_keys: string[] = Object.keys(thing)
             .filter(function (key: string){ return attToShow.includes(key)})
         //create a div for the important attributes of every thing description
-        let attributes: JSX.Element[] = Array.from({length: att_keys.length}, (_, ind: number) => (
-            <div key={thing["id"] + "-" + att_keys[ind]} className={"thing-attributes"}>
-                {att_keys[ind]}: {JSON.stringify(thing[att_keys[ind]]).replaceAll("\"", "")}
-            </div>))
+        let attributes: JSX.Element[] = Array.from({length: att_keys.length}, function (_, ind: number): JSX.Element {
+            // show id and title
+            if (att_keys[ind] === "id" || att_keys[ind] === "title" ){
+                return (
+                    <div key={thing["id"] + "-" + att_keys[ind]} className={"thing-attributes"}>
+                        {att_keys[ind]}: {thing[att_keys[ind]]}
+                    </div>
+                )
+            }
+            // show other attributes with nice JSON format
+            let value: string= JSON.stringify(thing[att_keys[ind]],null, " ")
+                .replaceAll(/["{}\[\]]/g, "")
+                .replaceAll(/^\s*$(?:\r\n?|\n)/gm, "")
+            return (
+                <div key={thing["id"] + "-" + att_keys[ind]} className={"thing-attributes"}>
+                    {att_keys[ind]}: <pre>{value}</pre>
+                </div>
+            )
+        })
         // create div for every thing description with a symbol and all attributes
         return (
             <div key={thing["id"]} className={"thing"}>
