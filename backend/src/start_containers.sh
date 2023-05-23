@@ -18,7 +18,7 @@ for (( i=0; i<$num_devices; i++ ))
 do
   echo "Running docker id $i"
   # execute docker run command detached with port mapping and environment variable
-  docker run -d -p 300$i:300$i -e PORT=300$i wot-device
+  docker run -d -p 300$i:300$i -e PORT=300$i -e DEVICE_IDX=$i wot-device
 done
 
 sleep 10

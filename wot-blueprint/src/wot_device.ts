@@ -12,22 +12,15 @@ const DEVICE_IDX = Number(process.env.DEVICE_IDX) || 0;
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 const device_config = config.devices[DEVICE_IDX];
 const thing_description = extractThingDescription(device_config, IP_PORT);
-const logging_info = {
-    log_server: config.log_server,
+let logging_info = {
+    log_server: config.log_server || 'http://host.docker.internal:5000/api/logs',
     device_id: device_config.id,
     ip: IP,
     port: PORT
 }
 
-// check if run in docker or not
-if (process.env.DOCKER === 'true') {
-    console.log('Running in docker environment');
-}
-else {
-    console.log('Running in local environment');
-}
-
-console.log(device_config);
+console.log(config);
+console.log(logging_info);
 app.listen(PORT, () => {console.log(`Server listening on port ${PORT}`);});
 
 
