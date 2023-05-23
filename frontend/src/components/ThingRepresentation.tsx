@@ -18,6 +18,7 @@ const ThingRepresentation = () => {
                 // if an error occurred, the list is empty or nothing has changed -> return
                 if (res === "Error" || res === "[]" || res === oldConf) return
                 oldConf = res
+                console.log(res)
                 setThings(getThings(JSON.parse(res)))
             })
         }, 5000);

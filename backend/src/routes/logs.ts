@@ -14,7 +14,7 @@ router.post('/', (req, res) => {
     const jsonData = req.body;
     const { type } = jsonData;
     if(type == 'created'){
-        thingDescriptions.push(jsonData.payload)
+        thingDescriptions.push(JSON.stringify(jsonData.payload))
         console.log(thingDescriptions)
     }
     const logText = createLog(jsonData)
