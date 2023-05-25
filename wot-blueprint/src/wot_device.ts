@@ -19,7 +19,6 @@ class Device {
 
     // constructor that takes device json as input
     constructor(device_config: any) {
-
         // set all the properties of the class
         this.config = device_config;
         this.ip = process.env.IP || 'localhost';
@@ -56,8 +55,6 @@ class Device {
             // send the created log info to the log server
             sendLog("created", null, this.thing_description, this.logging_info);
         });
-
-
     }
 
 
