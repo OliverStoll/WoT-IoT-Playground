@@ -73,12 +73,164 @@
       }
     },
     {
-      "id": "waschmaschine01",
-      "name": "Waschmaschine"
+      "@context": [
+        "http://w3.org/ns/td",
+        {
+          "htv": "http://www.w3.org/2011/http#"
+        }
+      ],
+      "@type": [
+        "Thing"
+      ],
+      "id": "kaffee02",
+      "name": "Zweite Kaffeemaschine",
+      "securityDefinitions": {
+        "basic_sc": {
+          "scheme": "basic",
+          "in": "header"
+        }
+      },
+      "security": [
+        "basic_sc"
+      ],
+      "credentials": {
+        "basic_sc": {
+          "username": "admin",
+          "password": "adminpw"
+        }
+      },
+      "properties": {
+        "temperature": {
+          "start_value": 30,
+          "type": "number"
+        },
+        "coffee_counter": {
+          "start_value": 0,
+          "type": "number"
+        },
+        "coffee_ground": {
+          "start_value": 0,
+          "type": "number"
+        }
+      },
+      "methods": {
+        "brew_coffee": {
+          "actions": [
+            {
+              "action": "set",
+              "property": "temperature",
+              "value": 97
+            },
+            {
+              "action": "increment",
+              "property": "coffee_counter",
+              "value": 1
+            },
+            {
+              "action": "trigger_event",
+              "event": "coffee_brewed"
+            },
+            {
+              "action": "condition",
+              "property": "coffee_counter",
+              "condition": {
+                "operator": ">",
+                "value": 3
+              },
+              "actions_true": [
+                {
+                  "action": "trigger_event",
+                  "event": "coffee_ground_full"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "events": {
+        "coffee_brewed": {
+        }
+      }
     },
     {
-      "id": "garagentür01",
-      "name": "Garagentür"
+      "@context": [
+        "http://w3.org/ns/td",
+        {
+          "htv": "http://www.w3.org/2011/http#"
+        }
+      ],
+      "@type": [
+        "Thing"
+      ],
+      "id": "kaffee03",
+      "name": "Kaffeevollautomat",
+      "securityDefinitions": {
+        "basic_sc": {
+          "scheme": "basic",
+          "in": "header"
+        }
+      },
+      "security": [
+        "basic_sc"
+      ],
+      "credentials": {
+        "basic_sc": {
+          "username": "admin",
+          "password": "adminpw"
+        }
+      },
+      "properties": {
+        "temperature": {
+          "start_value": 30,
+          "type": "number"
+        },
+        "coffee_counter": {
+          "start_value": 0,
+          "type": "number"
+        },
+        "coffee_ground": {
+          "start_value": 0,
+          "type": "number"
+        }
+      },
+      "methods": {
+        "brew_coffee": {
+          "actions": [
+            {
+              "action": "set",
+              "property": "temperature",
+              "value": 97
+            },
+            {
+              "action": "increment",
+              "property": "coffee_counter",
+              "value": 1
+            },
+            {
+              "action": "trigger_event",
+              "event": "coffee_brewed"
+            },
+            {
+              "action": "condition",
+              "property": "coffee_counter",
+              "condition": {
+                "operator": ">",
+                "value": 3
+              },
+              "actions_true": [
+                {
+                  "action": "trigger_event",
+                  "event": "coffee_ground_full"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "events": {
+        "coffee_brewed": {
+        }
+      }
     }
   ]
 }
