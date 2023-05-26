@@ -4,15 +4,15 @@ function createLog(logData) {
     let logMessage = `${timestamp},${host.id},`;
     switch (type){
         case 'property_called': {
-            logMessage += `property ${payload.name} was changed to ${payload.value} by ${caller.ip}:${caller.port}`
+            logMessage += `property ${payload.name} with a value of ${payload.value} was accessed by ${caller.ip}:${caller.port}`
             break;
         }
         case 'action_called': {
-            logMessage += `action ${payload.name} was initiated by ${caller.ip}:${caller.port}`
+            logMessage += `action ${payload.name} was called by ${caller.ip}:${caller.port}`
             break;
         }
         case 'event_called': {
-            logMessage += `event ${payload.name} was triggered by ${caller.ip}:${caller.port}`
+            logMessage += `event ${payload.name} was registered to by ${caller.ip}:${caller.port}`
             break;
         }
         case 'event_triggered': {

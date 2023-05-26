@@ -14,7 +14,7 @@ class Device {
     properties: any;
     credentials_basic: any;
     thing_description: any;
-    methods: any;
+    actions: any;
     events: any;
 
     // constructor that takes device json as input
@@ -26,7 +26,7 @@ class Device {
         this.thing_description = extractThingDescription(device_config, this.ip + ':' + this.port);
         this.credentials_basic = device_config.credentials.basic_sc;
         this.properties = device_config.properties;
-        this.methods = device_config.methods;
+        this.actions = device_config.actions;
         this.events = device_config.events;
         this.logging_info = {
             log_server: process.env.LOG_SERVER || 'http://host.docker.internal:5000/api/logs',
@@ -44,7 +44,7 @@ class Device {
 
         // create all the endpoints
         this.createPropertyEndpoints();
-        this.createMethodEndpoints();
+        this.createActionEndpoints();
         this.createCommandEndpoint();
         this.createDescriptionEndpoint();
 
@@ -64,28 +64,32 @@ class Device {
         // iterate over all entries in properties dictionary
         for (const property_name in this.properties) {
             const property = this.properties[property_name];
-            console.log(`Creating property endpoint: ${property_name}`);
+            console.log(`Creating property endpoint: http://${this.ip}:${this.port}/property/${property_name}`);
             app.get(`/property/${property_name}`, (req, res) => {
                 console.log(`GET /property/${property_name}`);
                 if (!checkAuthentication(req, this.credentials_basic, this.config.security)) {
                     console.log(`Authentication check failed`);
                 }
-                res.send(`{"message": "This is ${property_name}", "value": ${property.value}}`);
+                let answer = {"message": `This is the ${property_name} property`, "value": `${property.value}`}
+                res.send(answer);
+                sendLog("property_called", req, answer, this.logging_info);
             });
         }
     }
 
-    createMethodEndpoints() {
-        for (const method_name in this.methods) {
-            let method = this.methods[method_name];
-            console.log(`Creating method endpoint: ${method_name}`);
-            app.get(`/method/${method_name}`, (req, res) => {
-                console.log(`GET /method/${method_name}`);
+    createActionEndpoints() {
+        for (const action_name in this.actions) {
+            let action = this.actions[action_name];
+            console.log(`Creating action endpoint: http://${this.ip}:${this.port}/action/${action_name}`);
+            app.get(`/action/${action_name}`, (req, res) => {
+                console.log(`GET /action/${action_name}`);
                 if (!checkAuthentication(req, this.credentials_basic, this.config.security)) {
                     console.log(`Authentication check failed`);
                 }
-                this.executeMethod(method, method_name);
-                res.send(`This is ${method_name}`);
+                this.executeMethod(action, action_name);
+                let answer = {"message": `You successfully called the ${action_name} action`}
+                res.send(answer)
+                sendLog("action_called", req, answer, this.logging_info);
             });
         }
     }
