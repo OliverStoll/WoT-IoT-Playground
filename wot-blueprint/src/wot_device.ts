@@ -66,11 +66,13 @@ class Device {
             const property = this.properties[property_name];
             console.log(`Creating property endpoint: http://${this.ip}:${this.port}/property/${property_name}`);
             app.get(`/property/${property_name}`, (req, res) => {
-                console.log(`GET /property/${property_name}`);
                 if (!checkAuthentication(req, this.credentials_basic, this.config.security)) {
-                    console.log(`Authentication check failed`);
+                    console.log(`GET /property/${property_name}  (Auth failed)`);
+                } else {
+                    console.log(`GET /property/${property_name}`);
                 }
-                let answer = {"message": `This is the ${property_name} property`, "value": `${property.value}`}
+
+                let answer = {"name": `${property_name}`, "value": `${property.value}`}
                 res.send(answer);
                 sendLog("property_called", req, answer, this.logging_info);
             });
@@ -82,12 +84,14 @@ class Device {
             let action = this.actions[action_name];
             console.log(`Creating action endpoint: http://${this.ip}:${this.port}/action/${action_name}`);
             app.get(`/action/${action_name}`, (req, res) => {
-                console.log(`GET /action/${action_name}`);
                 if (!checkAuthentication(req, this.credentials_basic, this.config.security)) {
-                    console.log(`Authentication check failed`);
+                    console.log(`GET /action/${action_name}  (Auth failed)`);
+                } else {
+                    console.log(`GET /action/${action_name}`);
                 }
+
                 this.executeMethod(action, action_name);
-                let answer = {"message": `You successfully called the ${action_name} action`}
+                let answer = {"name": `${action_name}`}
                 res.send(answer)
                 sendLog("action_called", req, answer, this.logging_info);
             });
