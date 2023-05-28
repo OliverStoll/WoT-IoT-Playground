@@ -33,7 +33,7 @@
           "type": "number"
         }
       },
-      "methods": {
+      "actions": {
         "brew_coffee": {
           "actions": [
             {
@@ -114,7 +114,7 @@
           "type": "number"
         }
       },
-      "methods": {
+      "actions": {
         "brew_coffee": {
           "actions": [
             {
@@ -194,7 +194,7 @@
           "type": "number"
         }
       },
-      "methods": {
+      "actions": {
         "brew_coffee": {
           "actions": [
             {

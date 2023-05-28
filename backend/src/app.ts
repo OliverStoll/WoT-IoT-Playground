@@ -14,7 +14,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.use((req, res, next) => {
-    console.log(`${req.method} request received for URL: ${req.url}`);
+    console.log(`${req.method} request: ${req.url}`);
     next();
 });
 
