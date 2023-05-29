@@ -1,7 +1,7 @@
 function createLog(logData) {
     const { type, host, caller, payload } = logData;
     const timestamp = new Date().toISOString();
-    let logMessage = `[${timestamp}] ${host.id}:  `;
+    let logMessage = `${timestamp},${host.id},`;
     switch (type){
         case 'property_called': {
             logMessage += `property "${payload.name}" with a value of ${payload.value} was accessed by: ${caller.ip}:${caller.port}`
