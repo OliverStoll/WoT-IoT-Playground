@@ -1,17 +1,58 @@
 
-.thing {
-    flex: 0 0 auto;
+.thing-container {
     display: flex;
-    align-items: center;
-    margin: 20px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+.thing {
+    flex: 0 0 calc(33.33% - 20px);
+    width: fit-content;
+    margin: 10px;
     padding: 10px;
-    border: 3px solid #ccc;
-    border-radius: 5px;
-    background-color: #cccccc;
+    border: 2px solid black;
+    border-radius: 20%;
+    background-color: white;
 }
 
 .thing-attributes {
-    margin-top: 5px;
-    font-size: 14px;
+    display: none;
     color: black;
+    align-content: center;
 }
+
+.thing-name{
+    font-size: 20px;
+    color: black;
+    text-align: center;
+}
+.thing-icon{
+    width: 120px;
+    display: block;
+    margin: auto;
+}
+
+.close-icon{
+    width: 50px;
+    margin: auto;
+    display: block;
+}
+
+.button {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    background-color: #666666;
+    color: #FFFFFF;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button:hover {
+    background-color: lightgray;
+}
+
