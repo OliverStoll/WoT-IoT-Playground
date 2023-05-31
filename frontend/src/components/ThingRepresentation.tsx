@@ -38,37 +38,95 @@ function getThings(conf: string[]): JSX.Element[] {
     return Array.from({length: conf.length}, function (_, index: number) {
         let thing = JSON.parse(conf[index])
         // important attributes you want to show
-        let attToShow: string[] = ["id", "title", "actions", "properties"]
+        let attToShow: string[] = ["actions", "properties", "events"]
         let att_keys: string[] = Object.keys(thing)
             .filter(function (key: string){ return attToShow.includes(key)})
-        //create a div for the important attributes of every thing description
-        let attributes: JSX.Element[] = Array.from({length: att_keys.length}, function (_, ind: number): JSX.Element {
-            // show id and title
-            if (att_keys[ind] === "id" || att_keys[ind] === "title" ){
-                return (
-                    <div key={thing["id"] + "-" + att_keys[ind]} className={"thing-attributes"}>
-                        {att_keys[ind]}: {thing[att_keys[ind]]}
-                    </div>
-                )
-            }
-            // show other attributes with nice JSON format
-            let value: string= JSON.stringify(thing[att_keys[ind]],null, " ")
-                .replaceAll(/["{}\[\]]/g, "")
-                .replaceAll(/^\s*$(?:\r\n?|\n)/gm, "")
-            return (
-                <div key={thing["id"] + "-" + att_keys[ind]} className={"thing-attributes"}>
-                    {att_keys[ind]}: <pre>{value}</pre>
-                </div>
-            )
+        //create a button for the important attributes of every thing description
+        let values: string[] = Object.keys(thing[att_keys[0]])
+        let port: string = thing[att_keys[0]][values[0]]["form"]["href"].split("localhost:")[1].slice(0,4)
+        let attributes: JSX.Element[] = Array.from({length: att_keys.length},
+            function (_, ind: number): JSX.Element {
+            return getAttributes(JSON.stringify(thing), att_keys[ind], ind, port)
         })
         // create div for every thing description with a symbol and all attributes
         return (
-            <div key={thing["id"]} className={"thing"}>
-                <img src="../../resources/wot_icon.png" alt="Thing icon" height={"100"}/>
-                <div>{attributes}</div>
+            <div id={thing["id"]} className={"thing"} key={index + "-thing"}>
+                <img src="../../resources/wot_icon.png" alt="Thing icon" className={"thing-icon"}
+                     onClick={() => displayAttributes(thing["id"], "none", "block")}/>
+                <div className={"thing-name"} key={index +  "-name"}>{thing["name"]}</div>
+                <div className={"thing-attributes"} id={thing["id"]+ "attributes"}>
+                    {attributes}
+                    <img src="../../resources/pngwing.com.png" alt="Close icon" className={"close-icon"}
+                         onClick={() => displayAttributes(thing["id"], "block", "none")}/>
+                </div>
             </div>
         )
     })
+}
+
+/**
+ * Generates buttons for displaying and triggering attributes of a thing.
+ * @param {string} thing_string - The thing configuration in string format.
+ * @param {string} att_key - The attribute key.
+ * @param {number} ind - The index of the attribute.
+ * @param {string} port - The port of the attribute.
+ * @returns {JSX.Element} Button representing the attributes.
+ */
+function getAttributes(thing_string: string, att_key: string, ind: number, port: string): JSX.Element{
+    let thing = JSON.parse(thing_string)
+    let values: string[] = Object.keys(thing[att_key])
+    let endpoints: string[] = Array.from({length: values.length}, function (_, i: number): string {
+        if(thing[att_key][values[i]]["form"]) return thing[att_key][values[i]]["form"]["href"]
+        return "http://localhost:"+port+"/action/"+ values[i]
+    })
+    let buttons: JSX.Element[] = Array.from({length: values.length}, function (_, i: number): JSX.Element {
+        return (<button onClick={() => {
+            triggerEvent(endpoints[i]).then(r => console.log(r))
+            displayAttributes(thing["id"], "block", "none")}}
+                        key={i} className={"button"}>{values[i]}</button>)
+    })
+    return (<div id={thing["id"] + "-" + att_key} key={ind}> {att_key}: {buttons}</div>)
+}
+
+/**
+ Triggers event from a specified Thing and returns the answer as a string.
+ @param {string} thingAddress - The address of the thing.
+ @returns {Promise<string>} A promise that resolves to the fetched answer as a string.
+ */
+async function triggerEvent(thingAddress: string){
+    try {
+        const response: Response = await fetch(thingAddress);
+        return  await response.text()
+    } catch (error) {
+        return "Error"
+    }
+}
+
+/**
+ Toggles the display of attributes for a specific thing and hides all the other things or the other way around
+ @param {string} thing - The identifier of the thing.
+ @param {string} disOthers - Display value for the other things
+ @param {string} disThing - Display value for the specific thing
+ */
+function displayAttributes(thing: string, disOthers: string, disThing:string){
+    let things = document.getElementsByClassName("thing")
+    for (let i: number = 0; i<things.length; i++){
+        let th: HTMLElement | null =  document.getElementById(things[i].id)
+        if (things[i].id !== thing && th !== null) th.style.display = disOthers
+    }
+    let thingAttributes: HTMLElement | null = document.getElementById(thing + "attributes")
+    if (thingAttributes !== null)thingAttributes.style.display = disThing
+    let thingContainer: HTMLElement | null = document.getElementById(thing)
+    if (thingContainer !== null){
+        if (disThing === "block") {
+            thingContainer.style.width = "-webkit-fill-available"
+            thingContainer.style.flex = "none"
+        }
+        if (disThing === "none"){
+            thingContainer.style.width = "fit-content"
+            thingContainer.style.flex = "0 0 calc(33.33% - 20px)"
+        }
+    }
 }
 
 /**
