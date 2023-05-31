@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import './component_css/ThingRepresentationStyle.css'
 
-const url: string = 'http://localhost:5000/api/logs/thingDescriptions'
+const url: string = 'http://localhost:5001/api/logs/thingDescriptions'
 
 
 /**
