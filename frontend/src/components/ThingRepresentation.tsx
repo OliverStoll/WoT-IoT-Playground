@@ -13,8 +13,8 @@ const ThingRepresentation = () => {
     const [things, setThings] = useState<JSX.Element[]>([])
     let oldConf: string
     useEffect(() => {
-        const interval: number = setInterval(function () {
-            fetchThingDescriptions().then(function (res: string) {
+        const interval: number = setInterval(function (): void {
+            fetchThingDescriptions().then(function (res: string): void {
                 // if an error occurred, the list is empty or nothing has changed -> return
                 if (res === "Error" || res === "[]" || res === oldConf) return
                 oldConf = res
@@ -65,35 +65,42 @@ function getThings(conf: string[]): JSX.Element[] {
 }
 
 /**
- * Generates buttons for displaying and triggering attributes of a thing.
+ * Generates buttons for displaying attributes of a thing. The buttons can trigger the corresponding request
+ * and for properties the result is shown.
  * @param {string} thing_string - The thing configuration in string format.
  * @param {string} att_key - The attribute key.
  * @param {number} ind - The index of the attribute.
  * @param {string} port - The port of the attribute.
  * @returns {JSX.Element} Button representing the attributes.
  */
-function getAttributes(thing_string: string, att_key: string, ind: number, port: string): JSX.Element{
+function getAttributes(thing_string: string, att_key: string, ind: number, port: string): JSX.Element {
     let thing = JSON.parse(thing_string)
     let values: string[] = Object.keys(thing[att_key])
     let endpoints: string[] = Array.from({length: values.length}, function (_, i: number): string {
         if(thing[att_key][values[i]]["form"]) return thing[att_key][values[i]]["form"]["href"]
         return "http://localhost:"+port+"/action/"+ values[i]
+        //return ""
     })
     let buttons: JSX.Element[] = Array.from({length: values.length}, function (_, i: number): JSX.Element {
-        return (<button onClick={() => {
-            triggerEvent(endpoints[i]).then(r => console.log(r))
-            displayAttributes(thing["id"], "block", "none")}}
-                        key={i} className={"button"}>{values[i]}</button>)
+        let bId: string = thing["id"] + "-" + values[i] + "-" + "button"
+        return (
+            <button id={bId} onClick={() => {
+                triggerRequest(endpoints[i]).then((result: string): void => {
+                    let button: HTMLElement | null = document.getElementById(bId)
+                    if (att_key == "properties" && button) button.innerText = values[i] +": " + result
+                })
+            }} key={i} className={"button"}>{values[i]}
+            </button>)
     })
     return (<div id={thing["id"] + "-" + att_key} key={ind}> {att_key}: {buttons}</div>)
 }
 
 /**
- Triggers event from a specified Thing and returns the answer as a string.
+ Triggers requests for an attribute of a specified Thing and returns the answer as a string.
  @param {string} thingAddress - The address of the thing.
  @returns {Promise<string>} A promise that resolves to the fetched answer as a string.
  */
-async function triggerEvent(thingAddress: string){
+async function triggerRequest(thingAddress: string): Promise<string> {
     try {
         const response: Response = await fetch(thingAddress);
         return  await response.text()
@@ -108,8 +115,8 @@ async function triggerEvent(thingAddress: string){
  @param {string} disOthers - Display value for the other things
  @param {string} disThing - Display value for the specific thing
  */
-function displayAttributes(thing: string, disOthers: string, disThing:string){
-    let things = document.getElementsByClassName("thing")
+function displayAttributes(thing: string, disOthers: string, disThing:string): void {
+    let things: HTMLCollectionOf<Element> = document.getElementsByClassName("thing")
     for (let i: number = 0; i<things.length; i++){
         let th: HTMLElement | null =  document.getElementById(things[i].id)
         if (things[i].id !== thing && th !== null) th.style.display = disOthers
