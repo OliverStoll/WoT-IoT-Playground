@@ -1,0 +1,202 @@
+{
+  "log_server":"http://host.docker.internal:5001/api/logs",
+  "devices": [
+    {
+      "@context": [
+        "http://w3.org/ns/td",
+        { "htv": "http://www.w3.org/2011/http#" }
+      ],
+      "@type": [ "Thing" ],
+      "id": "coffee-machine",
+      "name": "Coffee-machine",
+      "securityDefinitions": {
+        "basic_sc": {"scheme": "basic", "in":"header"}
+      },
+      "security": ["basic_sc"],
+      "credentials": {
+        "basic_sc": {
+          "username": "admin",
+          "password": "adminpw"
+        }
+      },
+      "properties": {
+        "temperature": {
+          "start_value": 30,
+          "type": "number"
+        },
+        "coffee_counter": {
+          "start_value": 0,
+          "type": "number"
+        },
+        "coffee_ground": {
+          "start_value": 0,
+          "type": "number"
+        }
+      },
+      "actions": {
+        "brew_coffee": {
+          "actions": [
+            {
+              "action": "set",
+              "property": "temperature",
+              "value": 97
+            },
+            {
+              "action": "increment",
+              "property": "coffee_counter",
+              "value": 1
+            },
+            {
+              "action": "trigger_event",
+              "event": "coffee_brewed"
+            },
+            {
+              "action": "condition",
+              "property": "coffee_counter",
+              "condition": {
+                "operator": ">",
+                "value": 3
+              },
+              "actions_true": [
+                {
+                  "action": "trigger_event",
+                  "event": "coffee_ground_full"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "events": {
+        "coffee_brewed": {
+
+        }
+      }
+    },
+    {
+      "@context": [
+        "http://w3.org/ns/td",
+        {
+          "htv": "http://www.w3.org/2011/http#"
+        }
+      ],
+      "@type": [
+        "Thing"
+      ],
+      "id": "smart kettle",
+      "name": "kettle",
+      "securityDefinitions": {
+        "basic_sc": {
+          "scheme": "basic",
+          "in": "header"
+        }
+      },
+      "security": [
+        "basic_sc"
+      ],
+      "credentials": {
+        "basic_sc": {
+          "username": "admin",
+          "password": "adminpw"
+        }
+      },
+      "properties": {
+        "temperature": {
+          "start_value": 0,
+          "type": "number"
+        },
+        "water_counter": {
+          "start_value": 0,
+          "type": "number"
+        }
+      },
+      "actions": {
+        "boil_water": {
+          "actions": [
+            {
+              "action": "set",
+              "property": "temperature",
+              "value": 97
+            },
+            {
+              "action": "increment",
+              "property": "water_counter",
+              "value": 1
+            },
+            {
+              "action": "trigger_event",
+              "event": "water_boiled"
+            }
+          ]
+        }
+      },
+      "events": {
+        "water_boiled": {
+        }
+      }
+    },
+    {
+      "@context": [
+        "http://w3.org/ns/td",
+        {
+          "htv": "http://www.w3.org/2011/http#"
+        }
+      ],
+      "@type": [
+        "Thing"
+      ],
+      "id": "notification-device",
+      "name": "Notification device",
+      "securityDefinitions": {
+        "basic_sc": {
+          "scheme": "basic",
+          "in": "header"
+        }
+      },
+      "security": [
+        "basic_sc"
+      ],
+      "credentials": {
+        "basic_sc": {
+          "username": "admin",
+          "password": "adminpw"
+        }
+      },
+      "properties": {
+        "notification": {
+          "start_value": 0,
+          "type": "number"
+        },
+        "notification_counter": {
+          "start_value": 0,
+          "type": "number"
+        }
+      },
+      "actions": {
+        "notify": {
+          "actions": [
+            {
+              "action": "set",
+              "property": "notification",
+              "value": 1
+            },
+            {
+              "action": "increment",
+              "property": "notification_counter",
+              "value": 1
+            },
+            {
+              "action": "trigger_event",
+              "event": "notified"
+            }
+
+          ]
+        }
+      },
+      "events": {
+        "notified": {
+        }
+      }
+    }
+  ]
+}

@@ -29,7 +29,7 @@ class Device {
         this.actions = device_config.actions;
         this.events = device_config.events;
         this.logging_info = {
-            log_server: process.env.LOG_SERVER || 'http://host.docker.internal:5000/api/logs',
+            log_server: process.env.LOG_SERVER || 'http://host.docker.internal:5001/api/logs',
             device_id: device_config.id,
             ip: this.ip,
             port: this.port

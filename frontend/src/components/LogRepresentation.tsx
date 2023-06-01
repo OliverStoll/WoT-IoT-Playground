@@ -33,7 +33,7 @@ const LogRepresentation = () => {
    */
   const fetchLogs = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/logs');
+      const response = await fetch('http://localhost:5001/api/logs');
       const data = await response.text();
       const logArray = data.split(';');
       setLogs(logArray);
