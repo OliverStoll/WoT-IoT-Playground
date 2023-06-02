@@ -76,18 +76,15 @@ function getThings(conf: string[]): JSX.Element[] {
 function getAttributes(thing_string: string, att_key: string, ind: number, port: string): JSX.Element {
     let thing = JSON.parse(thing_string)
     let values: string[] = Object.keys(thing[att_key])
-    let endpoints: string[] = Array.from({length: values.length}, function (_, i: number): string {
-        if(thing[att_key][values[i]]["form"]) return thing[att_key][values[i]]["form"]["href"]
-        return "http://localhost:"+port+"/action/"+ values[i]
-        //return ""
-    })
     let buttons: JSX.Element[] = Array.from({length: values.length}, function (_, i: number): JSX.Element {
         let bId: string = thing["id"] + "-" + values[i] + "-" + "button"
         return (
             <button id={bId} onClick={() => {
-                triggerRequest(endpoints[i]).then((result: string): void => {
+                triggerRequest(thing[att_key][values[i]]["form"],
+                    "http://localhost:"+port+"/action/"+ values[i]).then((result: string): void => {
                     let button: HTMLElement | null = document.getElementById(bId)
                     if (att_key == "properties" && button) button.innerText = values[i] +": " + result
+                    console.log(result)
                 })
             }} key={i} className={"button"}>{values[i]}
             </button>)
@@ -97,13 +94,22 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
 
 /**
  Triggers requests for an attribute of a specified Thing and returns the answer as a string.
- @param {string} thingAddress - The address of the thing.
+ @param {string} form - The form parameter of the thing.
+ @param {string} altAddress
  @returns {Promise<string>} A promise that resolves to the fetched answer as a string.
  */
-async function triggerRequest(thingAddress: string): Promise<string> {
+async function triggerRequest(form: any, altAddress: string): Promise<string> {
     try {
-        const response: Response = await fetch(thingAddress);
-        return  await response.text()
+        if (JSON.stringify(form["href"]).startsWith("http")){
+            // thing communicates with http
+            const response: Response = await fetch(form["href"] ? form["href"] : altAddress, {
+                method: form["htv:methodName"] ? form["htv:methodName"] : 'GET',
+                headers: { 'Content-Type': form["contentType"] ? form["contentType"] : 'application/json' },
+            })
+            if (response.ok) return await response.text()
+        }
+        // toDo: thing communicates with another protocol
+        return "Error"
     } catch (error) {
         return "Error"
     }
@@ -143,7 +149,8 @@ function displayAttributes(thing: string, disOthers: string, disThing:string): v
 async function fetchThingDescriptions(): Promise <string> {
     try {
         const response: Response = await fetch(url);
-        return await response.text()
+        if (response.ok) return await response.text()
+        else return "Error"
     } catch (error) {
         console.error('Error fetching thing descriptions:', error);
         return "Error"
