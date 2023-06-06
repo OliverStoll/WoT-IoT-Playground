@@ -1,5 +1,4 @@
 {
-  "log_server":"http://host.docker.internal:5001/api/logs",
   "devices": [
     {
       "@context": [
@@ -7,8 +6,8 @@
         { "htv": "http://www.w3.org/2011/http#" }
       ],
       "@type": [ "Thing" ],
-      "id": "coffee-machine",
-      "name": "Coffee-machine",
+      "id": "kaffee01",
+      "name": "Kaffeemaschine",
       "securityDefinitions": {
         "basic_sc": {"scheme": "basic", "in":"header"}
       },
@@ -83,8 +82,8 @@
       "@type": [
         "Thing"
       ],
-      "id": "smart kettle",
-      "name": "kettle",
+      "id": "kaffee02",
+      "name": "Zweite Kaffeemaschine",
       "securityDefinitions": {
         "basic_sc": {
           "scheme": "basic",
@@ -102,16 +101,20 @@
       },
       "properties": {
         "temperature": {
+          "start_value": 30,
+          "type": "number"
+        },
+        "coffee_counter": {
           "start_value": 0,
           "type": "number"
         },
-        "water_counter": {
+        "coffee_ground": {
           "start_value": 0,
           "type": "number"
         }
       },
       "actions": {
-        "boil_water": {
+        "brew_coffee": {
           "actions": [
             {
               "action": "set",
@@ -120,18 +123,32 @@
             },
             {
               "action": "increment",
-              "property": "water_counter",
+              "property": "coffee_counter",
               "value": 1
             },
             {
               "action": "trigger_event",
-              "event": "water_boiled"
+              "event": "coffee_brewed"
+            },
+            {
+              "action": "condition",
+              "property": "coffee_counter",
+              "condition": {
+                "operator": ">",
+                "value": 3
+              },
+              "actions_true": [
+                {
+                  "action": "trigger_event",
+                  "event": "coffee_ground_full"
+                }
+              ]
             }
           ]
         }
       },
       "events": {
-        "water_boiled": {
+        "coffee_brewed": {
         }
       }
     },
@@ -145,8 +162,8 @@
       "@type": [
         "Thing"
       ],
-      "id": "notification-device",
-      "name": "Notification device",
+      "id": "kaffee03",
+      "name": "Kaffeevollautomat",
       "securityDefinitions": {
         "basic_sc": {
           "scheme": "basic",
@@ -163,38 +180,55 @@
         }
       },
       "properties": {
-        "notification": {
+        "temperature": {
+          "start_value": 30,
+          "type": "number"
+        },
+        "coffee_counter": {
           "start_value": 0,
           "type": "number"
         },
-        "notification_counter": {
+        "coffee_ground": {
           "start_value": 0,
           "type": "number"
         }
       },
       "actions": {
-        "notify": {
+        "brew_coffee": {
           "actions": [
             {
               "action": "set",
-              "property": "notification",
-              "value": 1
+              "property": "temperature",
+              "value": 97
             },
             {
               "action": "increment",
-              "property": "notification_counter",
+              "property": "coffee_counter",
               "value": 1
             },
             {
               "action": "trigger_event",
-              "event": "notified"
+              "event": "coffee_brewed"
+            },
+            {
+              "action": "condition",
+              "property": "coffee_counter",
+              "condition": {
+                "operator": ">",
+                "value": 3
+              },
+              "actions_true": [
+                {
+                  "action": "trigger_event",
+                  "event": "coffee_ground_full"
+                }
+              ]
             }
-
           ]
         }
       },
       "events": {
-        "notified": {
+        "coffee_brewed": {
         }
       }
     }
