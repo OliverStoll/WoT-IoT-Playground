@@ -1,15 +1,15 @@
-export function extractThingDescription(device_config: any, ip_port: string) {
+export function extractThingDescription(device_config: object, ip_port: string) {
     // TODO: implement fully
 
     // create a copy of the device config
-    let thing_description = JSON.parse(JSON.stringify(device_config));
+    let thing_description: object = JSON.parse(JSON.stringify(device_config));
 
     // delete credentials from thing description
-    delete thing_description.credentials;
+    delete thing_description['credentials'];
 
     // delete values from thing description
-    for (let property_name in thing_description.properties) {
-        let property = thing_description.properties[property_name];
+    for (let property_name in thing_description['properties']) {
+        let property = thing_description['properties'][property_name];
         delete property.value;
         delete property.start_value;
 
@@ -22,9 +22,9 @@ export function extractThingDescription(device_config: any, ip_port: string) {
         }
     }
 
-    // delete actions from thing description
-    for (let method_name in thing_description.methods) {
-        let method = thing_description.methods[method_name];
+    // delete device_actions from thing description
+    for (let method_name in thing_description['methods']) {
+        let method = thing_description['methods'][method_name];
         delete method.actions;
 
         // TODO: check if function is safe or idempotent
@@ -37,8 +37,8 @@ export function extractThingDescription(device_config: any, ip_port: string) {
         }
     }
 
-    for (let event_name in thing_description.events) {
-        let event = thing_description.events[event_name];
+    for (let event_name in thing_description['events']) {
+        let event = thing_description['events'][event_name];
         event.form = {
             "href": `http://${ip_port}/event/${event_name}`,
             "contentType": "application/json",
@@ -48,36 +48,4 @@ export function extractThingDescription(device_config: any, ip_port: string) {
     }
 
     return thing_description;
-}
-
-
-export function evaluateCondition(condition: any, property: any) {
-    const operator = condition.operator;
-    const value = condition.value;
-    // console.log(`comparing ${property_cond.value} vs ${value}`);
-    switch (operator) {
-        case '==':
-            if (property.value == value) {
-                return true
-            }
-            break;
-        case '!=':
-            if (property.value != value) {
-                return true
-            }
-            break;
-        case '<':
-            if (property.value < value) {
-                return true
-            }
-            break;
-        case '>':
-            if (property.value > value) {
-                return true
-            }
-            break;
-        default:
-            console.log(`Unknown condition operator: ${operator}`);
-    }
-    return false;
 }

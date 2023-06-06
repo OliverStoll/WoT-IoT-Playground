@@ -3,19 +3,20 @@ const fs = require('fs');
 const app = express();
 const {sendLog, fetchData} = require('./util/requests');
 const {extractThingDescription, evaluateCondition} = require('./util/thing_utility');
-const {checkAuthentication} = require('./util/authentication');
+const {checkAuthentication} = require('./authentication/authentication');
+const {executeMethodActions} = require('./device_actions/action_logic');
 
 
 class Device {
     config: any;
     ip: string;
     port: number;
-    logging_info: any;
-    properties: any;
-    credentials_basic: any;
-    thing_description: any;
-    actions: any;
-    events: any;
+    logging_info: object;
+    credentials_basic: object;
+    thing_description: object;
+    properties: any[];
+    actions: any[];
+    events: any[];
 
     // constructor that takes device json as input
     constructor(device_config: any) {
@@ -90,9 +91,9 @@ class Device {
                     console.log(`GET /action/${action_name}`);
                 }
 
-                this.executeMethod(action, action_name);
                 let answer = {"name": `${action_name}`}
                 res.send(answer)
+                this.executeMethod(action, action_name);
                 sendLog("action_called", req, answer, this.logging_info);
             });
         }
@@ -137,51 +138,10 @@ class Device {
         // get the method with property id=method_name
         console.log(method);
         console.log(`Executing method ${method_name} with ${method.actions.length} actions`);
-
-        // iterate over the actions and execute them
-        this.executeMethodActions(method.actions)
+        // iterate over the device_actions and execute them
+        executeMethodActions(method.actions)
     }
 
-    executeMethodActions(actions: any) {
-        for (const action of actions) {
-            const property = this.properties[action.property];
-            switch (action.action) {
-                case 'set':
-                    console.log(`Setting property ${action.property} to ${action.value}`);
-                    property.value = action.value;
-                    break;
-                case 'increment':
-                    console.log(`Incrementing property ${action.property} by ${action.value}`);
-                    property.value += action.value;
-                    break;
-                case 'wait':
-                    console.log(`Waiting for ${action.duration} seconds`);
-                    setTimeout(() => {
-                        console.log(`Done waiting`);
-                    }, action.duration * 1000);
-                    break;
-                case 'trigger_event':
-                    console.log(`Sending event ${action.event}`);
-                    // TODO: understand event handling and implement it
-                    break;
-                case 'condition':
-                    console.log(`Evaluating condition ${action.property} ${action.condition.operator} ${action.condition.value}`);
-                    if (evaluateCondition(action.condition, property)) {
-                        console.log(`Condition is true`);
-                        this.executeMethodActions(action.actions_true);
-                    } else {
-                        console.log(`Condition is false`);
-                        // check if actions_false is defined
-                        if (action.actions_false) {
-                            this.executeMethodActions(action.actions_false);
-                        }
-                    }
-                    break;
-                default:
-                    console.log(`Unknown action type: ${action.action}`);
-            }
-        }
-    }
 }
 
 

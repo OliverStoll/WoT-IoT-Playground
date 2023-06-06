@@ -26,6 +26,7 @@ export function sendLog(log_type: string, request: any, payload: any, logging_in
     sendPostRequest(logging_info.log_server, log);
 }
 
+
 async function sendPostRequest(url: string, payload: any): Promise<void> {
     const response = await fetch(url, {
         method: 'POST',
@@ -37,6 +38,7 @@ async function sendPostRequest(url: string, payload: any): Promise<void> {
         console.log(response.status, response.statusText);
     }
 }
+
 
 export async function fetchData(url: string) {
     try {
