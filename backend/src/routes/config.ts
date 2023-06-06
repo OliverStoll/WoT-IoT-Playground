@@ -1,3 +1,4 @@
+const path = require('path')
 const { spawn } = require('child_process');
 const express = require('express');
 const fs = require('fs')
@@ -9,10 +10,10 @@ let config = ""
 
 router.post('/', (req, res) => {
     if (req.get("Content-Type") === "application/json"){
-        fileName = 'config.json';
+        fileName = path.join(__dirname, '../../../wot-blueprint/config.json');
         let config_raw = req.body
         //TODO add log_server URL dynamically
-        config_raw['log_server'] = "http://host.docker.internal:5000/api/logs"
+        config_raw['log_server'] = "http://host.docker.internal:5001/api/logs"
         config = JSON.stringify(config_raw)
     }
     fs.writeFile(fileName, config, (err) => {
@@ -24,7 +25,7 @@ router.post('/', (req, res) => {
 
         console.log(`Config saved to file ${fileName}`);
 
-        const scriptPath = './../src/start_containers.sh';
+        const scriptPath= './../src/start_containers.sh';
         const script = spawn('bash', [scriptPath], {
             detached: true,
         });
