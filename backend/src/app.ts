@@ -7,7 +7,7 @@ const bodyParser = require('body-parser')
 import {ProtocolInterface} from "./interfaces/protocolInterface";
 import {HttpProtocol} from "./protocols/httpProtocol";
 
-//initialize the express app
+// initialize the express app
 const app: Application = express()
 const httpPort: string | 5001 = process.env.PORT || 5001;
 
@@ -15,30 +15,29 @@ const httpPort: string | 5001 = process.env.PORT || 5001;
 const protocol: ProtocolInterface = new HttpProtocol(app, httpPort)
 protocol.connect()
 
+// import the configRouter for handling of wot config files
 const configRouter = require('./routes/config.ts');
+
+// import the logRouter for handling of wot logs
 const logRouter = require('./routes/logs.ts');
 
 dotenv.config();
 app.use(cors());
 app.use(bodyParser.json());
 
+// log all incoming requests
 app.use((req, res, next) => {
     console.log(`${req.method} request: ${req.url}`)
     next()
 })
 
+// dummy endpoint to check if backend is running
 app.get('/', (req, res) => {
-    res.send("Success")
+    res.send("Success: backend is running")
 })
 
+// redirect requests to /api/config to the configRouter
 app.use('/api/config', configRouter);
+
+// redirect requests to /api/logs to the logRouter
 app.use('/api/logs', logRouter);
-
-
-// npm run start:dev
-// npm run build
-// npm run start
-
-// start the server
-
-
