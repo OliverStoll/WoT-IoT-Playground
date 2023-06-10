@@ -21,6 +21,9 @@ const configRouter = require('./routes/config.ts');
 // import the logRouter for handling of wot logs
 const logRouter = require('./routes/logs.ts');
 
+// import the callRouter for handling of wot calls
+const callRouter = require('./routes/calls.ts')
+
 dotenv.config();
 app.use(cors());
 app.use(bodyParser.json());
@@ -41,3 +44,6 @@ app.use('/api/config', configRouter);
 
 // redirect requests to /api/logs to the logRouter
 app.use('/api/logs', logRouter);
+
+app.use('/api/call', callRouter)
+

@@ -1,5 +1,6 @@
 import { ProtocolInterface } from '../interfaces/protocolInterface';
 import { Application } from 'express';
+const http = require('http')
 
 export class HttpProtocol implements ProtocolInterface {
     /**
@@ -22,6 +23,8 @@ export class HttpProtocol implements ProtocolInterface {
         this.port = port;
     }
 
+
+
     /**
      * Connects to the HTTP protocol by starting the server.
      */
@@ -42,11 +45,31 @@ export class HttpProtocol implements ProtocolInterface {
 
     /**
      * Receives data via the HTTP protocol.
-     * @returns The received data.
+     * @param url - The URL to make the HTTP GET request.
+     * @returns A Promise that resolves with the received data.
      */
-    receive(): any {
+    receive(url: string): Promise<any> {
         console.log('Receiving data via HTTP');
-        return 'HTTP Data';
-    }
-}
 
+        return new Promise((resolve, reject) => {
+            http.get(url, res => {
+                let data: string = '';
+
+                console.log('Status Code', res.statusCode);
+
+                res.on('data', chunk => {
+                    data += chunk;
+                });
+
+                res.on('end', () => {
+                    resolve(data);
+                });
+
+                res.on('error', error => {
+                    reject(error);
+                });
+            });
+        });
+    }
+
+}

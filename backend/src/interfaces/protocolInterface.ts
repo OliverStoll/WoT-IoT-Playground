@@ -15,5 +15,5 @@ export interface ProtocolInterface {
      * Receives data via the protocol.
      * @returns The received data.
      */
-    receive(): any;
+    receive(url: string): any;
 }
