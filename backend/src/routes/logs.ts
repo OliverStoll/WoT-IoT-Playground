@@ -1,12 +1,13 @@
-const express = require('express');
-const createLog  = require('../utils/logger.ts')
-const router = express.Router();
-
-let logs = [];
-let thingDescriptions = [];
+const createLog = require('../utils/logger.ts')
+import {Router} from 'express'
+const logRouter = new Router()
 
 
-router.post('/', (req, res) => {
+let logs: string[] = [];
+let thingDescriptions: string[] = [];
+
+
+logRouter.post('/', (req, res): void => {
     if (!req.body) {
         res.status(400).send('Empty request body');
         return;
@@ -30,7 +31,7 @@ router.post('/', (req, res) => {
 
 });
 
-router.get('/', (req, res) => {
+logRouter.get('/', (req, res) => {
     if (logs.length > 0) {
         res.send(logs.join(';'));
     }
@@ -39,9 +40,9 @@ router.get('/', (req, res) => {
     }
 });
 
-router.get('/thingDescriptions', (req, res)=>{
+logRouter.get('/thingDescriptions', (req, res)=>{
     res.send(thingDescriptions)
 })
 
 
-module.exports = router;
+module.exports = logRouter;
