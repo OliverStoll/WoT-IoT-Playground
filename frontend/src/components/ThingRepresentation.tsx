@@ -1,7 +1,9 @@
 import {useEffect, useState} from "react";
 import './component_css/ThingRepresentationStyle.css'
 
-const url: string = 'http://localhost:5001/api/logs/thingDescriptions'
+const urlTD: string = 'http://localhost:5001/api/logs/thingDescriptions'
+const urlET: string = 'http://localhost:5001/api/eventTrigger'
+
 
 
 /**
@@ -54,7 +56,8 @@ function getThings(conf: string[]): JSX.Element[] {
                 <img src="../../resources/wot_icon.png" alt="Thing icon" className={"thing-icon"}
                      onClick={() => displayAttributes(thing["id"], "none", "block")}/>
                 <div className={"thing-name"} key={index +  "-name"}>{thing["name"]}</div>
-                <div className={"thing-attributes"} id={thing["id"]+ "attributes"}>
+                <div className={"thing-attributes"} id={thing["id"]+ "attributes"}
+                     onLoad={():void => {getInitialValues(JSON.stringify(thing))}}>
                     {attributes}
                     <img src="../../resources/pngwing.com.png" alt="Close icon" className={"close-icon"}
                          onClick={() => displayAttributes(thing["id"], "block", "none")}/>
@@ -64,51 +67,96 @@ function getThings(conf: string[]): JSX.Element[] {
     })
 }
 
+
 /**
- * Generates buttons for displaying attributes of a thing. The buttons can trigger the corresponding request
+ * Retrieves and sets the initial values for the properties of a thing.
+ * @param {string} thing_string - The thing configuration in string format.
+ */
+function getInitialValues(thing_string: string): void {
+    let thing = JSON.parse(thing_string)
+    let values: string[] = Object.keys(thing["properties"])
+    for (let i: number = 0; i < values.length; i++) {
+        let aId: string = thing["id"] + "-" + values[i] + "-" + "field"
+        triggerRequest(thing["properties"][values[i]]["form"]).then((result: string): void => {
+            let attribute: HTMLElement | null = document.getElementById(aId)
+            if (attribute) attribute.setAttribute("value", result)
+        })
+    }
+}
+
+/**
+ * Generates elements for displaying attributes of a thing. The buttons can trigger the corresponding request
  * and for properties the result is shown.
  * @param {string} thing_string - The thing configuration in string format.
  * @param {string} att_key - The attribute key.
  * @param {number} ind - The index of the attribute.
  * @param {string} port - The port of the attribute.
- * @returns {JSX.Element} Button representing the attributes.
+ * @returns {JSX.Element} Element representing the attributes.
  */
 function getAttributes(thing_string: string, att_key: string, ind: number, port: string): JSX.Element {
     let thing = JSON.parse(thing_string)
     let values: string[] = Object.keys(thing[att_key])
-    let buttons: JSX.Element[] = Array.from({length: values.length}, function (_, i: number): JSX.Element {
+    let attributes: JSX.Element[] = Array.from({length: values.length}, function (_, i: number): JSX.Element {
+        if (att_key == "properties"){
+            let aId: string = thing["id"] + "-" + values[i] + "-" + "field"
+            return (
+                <div key={i} className={"thing-properties"}>
+                    {values[i]}:
+                    <input id={aId} className={"properties-input"} onInput={() => {
+                    }}/>
+                </div>
+            )
+        }
         let bId: string = thing["id"] + "-" + values[i] + "-" + "button"
         return (
-            <button id={bId} onClick={() => {
-                triggerRequest(thing[att_key][values[i]]["form"],
-                    "http://localhost:"+port+"/action/"+ values[i]).then((result: string): void => {
+            <button id={bId} onClick={(): void => {
+                triggerRequest(thing[att_key][values[i]]["form"]).then((result: string): void => {
                     let button: HTMLElement | null = document.getElementById(bId)
                     if (att_key == "properties" && button) button.innerText = values[i] +": " + result
-                    console.log(result)
                 })
             }} key={i} className={"button"}>{values[i]}
             </button>)
     })
-    return (<div id={thing["id"] + "-" + att_key} key={ind}> {att_key}: {buttons}</div>)
+    return (<div id={thing["id"] + "-" + att_key} key={ind}> {att_key}: {attributes}</div>)
 }
 
 /**
- Triggers requests for an attribute of a specified Thing and returns the answer as a string.
+//  Triggers requests for an attribute of a specified Thing and returns the answer as a string.
+//  @param {string} form - The form parameter of the thing.
+//  @param {string} altAddress
+//  @returns {Promise<string>} A promise that resolves to the fetched answer as a string.
+//  */
+// async function triggerRequest(form: any, altAddress: string): Promise<string> {
+//     try {
+//         if (JSON.stringify(form["href"]).startsWith("http")){
+//             // thing communicates with http
+//             const response: Response = await fetch(form["href"] ? form["href"] : altAddress, {
+//                 method: form["htv:methodName"] ? form["htv:methodName"] : 'GET',
+//                 headers: { 'Content-Type': form["contentType"] ? form["contentType"] : 'application/json' },
+//             })
+//             if (response.ok) return await response.text()
+//         }
+//         // toDo: thing communicates with another protocol
+//         return "Error"
+//     } catch (error) {
+//         return "Error"
+//     }
+// }
+
+/**
+ Triggers requests for an attribute of a specified Thing to the backend and returns the answer as a string.
+ The Backend triggers a request to the Thing and forwards the answer back to this function.
  @param {string} form - The form parameter of the thing.
- @param {string} altAddress
  @returns {Promise<string>} A promise that resolves to the fetched answer as a string.
  */
-async function triggerRequest(form: any, altAddress: string): Promise<string> {
+async function triggerRequest(form: any): Promise<string> {
     try {
-        if (JSON.stringify(form["href"]).startsWith("http")){
-            // thing communicates with http
-            const response: Response = await fetch(form["href"] ? form["href"] : altAddress, {
-                method: form["htv:methodName"] ? form["htv:methodName"] : 'GET',
-                headers: { 'Content-Type': form["contentType"] ? form["contentType"] : 'application/json' },
-            })
-            if (response.ok) return await response.text()
-        }
-        // toDo: thing communicates with another protocol
+        const response: Response = await fetch(urlET, {
+            method: 'Post',
+            headers: { 'Content-Type': 'application/json' },
+            body: form
+        })
+        if (response.ok) return await response.text()
         return "Error"
     } catch (error) {
         return "Error"
@@ -148,7 +196,7 @@ function displayAttributes(thing: string, disOthers: string, disThing:string): v
  */
 async function fetchThingDescriptions(): Promise <string> {
     try {
-        const response: Response = await fetch(url);
+        const response: Response = await fetch(urlTD);
         if (response.ok) return await response.text()
         else return "Error"
     } catch (error) {
