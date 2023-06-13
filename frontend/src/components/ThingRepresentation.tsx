@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import './component_css/ThingRepresentationStyle.css'
 
 const urlTD: string = 'http://localhost:5001/api/logs/thingDescriptions'
-const urlET: string = 'http://localhost:5001/api/eventTrigger'
+const urlET: string = 'http://localhost:5001/api/call'
 
 
 
@@ -77,7 +77,7 @@ function getInitialValues(thing_string: string): void {
     let values: string[] = Object.keys(thing["properties"])
     for (let i: number = 0; i < values.length; i++) {
         let aId: string = thing["id"] + "-" + values[i] + "-" + "field"
-        triggerRequest(thing["properties"][values[i]]["form"]).then((result: string): void => {
+        triggerRequest(JSON.stringify(thing["properties"][values[i]]["form"])).then((result: string): void => {
             let attribute: HTMLElement | null = document.getElementById(aId)
             if (attribute) attribute.setAttribute("value", result)
         })
@@ -97,12 +97,19 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
     let thing = JSON.parse(thing_string)
     let values: string[] = Object.keys(thing[att_key])
     let attributes: JSX.Element[] = Array.from({length: values.length}, function (_, i: number): JSX.Element {
-        if (att_key == "properties"){
+        if (att_key == "properties") {
             let aId: string = thing["id"] + "-" + values[i] + "-" + "field"
             return (
+                //input field for values => shows current value and sets new value on enter
                 <div key={i} className={"thing-properties"}>
                     {values[i]}:
-                    <input id={aId} className={"properties-input"} onInput={() => {
+                    <input id={aId} className={"properties-input"} onKeyDown={(event): void => {
+                        if (event.key == "Enter") {
+                            let form = thing[att_key][values[i]]["form"]
+                            form["htv:methodName"] = "POST"
+                            form["value"] = event.currentTarget.value
+                            triggerRequest(JSON.stringify(form)).then((result: string): void => {console.log(result)})
+                        }
                     }}/>
                 </div>
             )
@@ -110,10 +117,12 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
         let bId: string = thing["id"] + "-" + values[i] + "-" + "button"
         return (
             <button id={bId} onClick={(): void => {
-                triggerRequest(thing[att_key][values[i]]["form"]).then((result: string): void => {
-                    let button: HTMLElement | null = document.getElementById(bId)
-                    if (att_key == "properties" && button) button.innerText = values[i] +": " + result
-                })
+                let form: string = JSON.stringify(thing[att_key][values[i]]["form"])
+                if (!form) {
+                    form = "{\"href\": \"http://localhost:" + port + "/action/" + values[i]
+                        + "\",\"contentType\":\"application/json\",\"htv:methodName\":\"GET\",\"op\":\"callaction\"}"
+                }
+                triggerRequest(form).then((result: string): void => {console.log(result)})
             }} key={i} className={"button"}>{values[i]}
             </button>)
     })
@@ -149,10 +158,11 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
  @param {string} form - The form parameter of the thing.
  @returns {Promise<string>} A promise that resolves to the fetched answer as a string.
  */
-async function triggerRequest(form: any): Promise<string> {
+
+async function triggerRequest(form: string): Promise<string> {
     try {
         const response: Response = await fetch(urlET, {
-            method: 'Post',
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: form
         })
