@@ -82,7 +82,7 @@
       "@type": [
         "Thing"
       ],
-      "id": "smart kettle",
+      "id": "smart-kettle",
       "name": "kettle",
       "securityDefinitions": {
         "basic_sc": {

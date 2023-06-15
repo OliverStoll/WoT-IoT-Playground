@@ -56,4 +56,4 @@ logRouter.get('/thingDescriptions', (req, res): void => {
     res.send(thingDescriptions);
 });
 
-module.exports = logRouter;
+module.exports = {logRouter, thingDescriptions};

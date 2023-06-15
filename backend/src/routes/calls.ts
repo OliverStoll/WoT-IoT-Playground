@@ -1,8 +1,8 @@
 import { Router } from 'express';
 const callRouter = new Router();
+const sendRequest = require('../utils/sendRequest.ts')
 
-import {HttpProtocol} from "../protocols/httpProtocol";
-import {ProtocolInterface} from "../interfaces/protocolInterface";
+
 callRouter.post('/', (req, res): void => {
     if (!req.body) {
         res.status(400).send('Empty request body');
@@ -11,17 +11,13 @@ callRouter.post('/', (req, res): void => {
 
     const { href } = req.body;
 
-    // handler for http wot devices
-    if(href.split('://')[0]=='http'){
+    const resp = sendRequest(href)
 
-        const protocol: ProtocolInterface = new HttpProtocol(this, 5001)
-        protocol.receive(href).then(response => {
-            let resp = JSON.parse(response)
-            console.log(resp)
-            res.status(200).send(resp)
-        }).catch(error => {
-            console.error(error)
-        })
+    if(resp != undefined){
+        res.status(200).send(resp)
+    }
+    else {
+        res.status(500).send()
     }
 
 })

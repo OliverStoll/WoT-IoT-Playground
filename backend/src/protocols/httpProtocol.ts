@@ -29,7 +29,7 @@ export class HttpProtocol implements ProtocolInterface {
      * Connects to the HTTP protocol by starting the server.
      */
     connect(): void {
-        this.server.listen(this.port, () => {
+        this.server.listen(this.port, (): void => {
             console.log(`HTTP Server running on port: ${this.port}`);
         });
     }
