@@ -35,6 +35,7 @@ app.use(bodyParser.json());
 // log all incoming requests
 app.use((req, res, next): void => {
     console.log(`${req.method} request: ${req.url}`)
+    console.log(req.body)
     next()
 })
 

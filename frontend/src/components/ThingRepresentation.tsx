@@ -77,7 +77,11 @@ function getInitialValues(thing_string: string): void {
     let values: string[] = Object.keys(thing["properties"])
     for (let i: number = 0; i < values.length; i++) {
         let aId: string = thing["id"] + "-" + values[i] + "-" + "field"
-        triggerRequest(JSON.stringify(thing["properties"][values[i]]["form"])).then((result: string): void => {
+        triggerRequest(JSON.stringify(thing["properties"][values[i]]["form"])).then((result: any): void => {
+
+            console.log("RESULT : ", result)
+            console.log(result.body)
+
             let attribute: HTMLElement | null = document.getElementById(aId)
             if (attribute) attribute.setAttribute("value", result)
         })
@@ -159,17 +163,20 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
  @returns {Promise<string>} A promise that resolves to the fetched answer as a string.
  */
 
-async function triggerRequest(form: string): Promise<string> {
+async function triggerRequest(form: string): Promise<any> {
     try {
         const response: Response = await fetch(urlET, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: form
         })
-        if (response.ok) return await response.text()
-        return "Error"
+        console.log(response.text())
+        console.log("STATUS_:" ,response.status)
+        if (response.ok) return await response
+        return "Fehler"
     } catch (error) {
-        return "Error"
+        console.log(error)
+        return "Error erorrr"
     }
 }
 
