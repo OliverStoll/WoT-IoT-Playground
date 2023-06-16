@@ -19,23 +19,29 @@ protocol.connect()
 const configRouter = require('./routes/config.ts');
 
 // import the logRouter for handling of wot logs
-const logRouter = require('./routes/logs.ts');
+const logRouter = require('./routes/logs.ts').logRouter;
 
 // import the callRouter for handling of wot calls
 const callRouter = require('./routes/calls.ts')
+
+// import the scriptRouter for handling of the script playbook
+const playbookRouter = require('./routes/playbook.ts')
+
 
 dotenv.config();
 app.use(cors());
 app.use(bodyParser.json());
 
 // log all incoming requests
-app.use((req, res, next) => {
+app.use((req, res, next): void => {
     console.log(`${req.method} request: ${req.url}`)
+    console.log(req.body)
     next()
 })
 
+
 // dummy endpoint to check if backend is running
-app.get('/', (req, res) => {
+app.get('/', (req, res): void => {
     res.send("Success: backend is running")
 })
 
@@ -45,5 +51,11 @@ app.use('/api/config', configRouter);
 // redirect requests to /api/logs to the logRouter
 app.use('/api/logs', logRouter);
 
+// redirect requests to /api/call to the callRouter
 app.use('/api/call', callRouter)
+
+// redirect requests to /api/script to the playbookRouter
+app.use('/api/script', playbookRouter)
+
+
 

@@ -29,7 +29,7 @@ export class HttpProtocol implements ProtocolInterface {
      * Connects to the HTTP protocol by starting the server.
      */
     connect(): void {
-        this.server.listen(this.port, () => {
+        this.server.listen(this.port, (): void => {
             console.log(`HTTP Server running on port: ${this.port}`);
         });
     }
@@ -52,10 +52,9 @@ export class HttpProtocol implements ProtocolInterface {
         console.log('Receiving data via HTTP');
 
         return new Promise((resolve, reject) => {
+
             http.get(url, res => {
                 let data: string = '';
-
-                console.log('Status Code', res.statusCode);
 
                 res.on('data', chunk => {
                     data += chunk;

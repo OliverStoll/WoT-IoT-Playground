@@ -1,0 +1,71 @@
+{
+  "steps": [
+    {
+      "deviceId": "coffee-machine",
+      "type": "property",
+      "value": "temperature"
+    },
+    {
+      "deviceId": "coffee-machine",
+      "type": "property",
+      "value": "coffee_counter"
+    },
+    {
+      "deviceId": "coffee-machine",
+      "type": "property",
+      "value": "coffee_ground"
+    },
+    {
+      "sleep": 5
+    },
+    {
+      "deviceId": "smart-kettle",
+      "type": "property",
+      "value": "temperature"
+    },
+    {
+      "deviceId": "smart-kettle",
+      "type": "property",
+      "value": "water_counter"
+    },
+    {
+      "sleep": 5
+    },
+    {
+      "deviceId": "notification-device",
+      "type": "property",
+      "value": "notification"
+    },
+    {
+      "deviceId": "notification-device",
+      "type": "property",
+      "value": "notification_counter"
+    },
+    {
+      "sleep": 5
+    },
+    {
+      "deviceId": "coffee-machine",
+      "type": "action",
+      "value": "brew_coffee"
+    },
+    {
+      "deviceId": "coffee-machine",
+      "type": "property",
+      "value": "temperature"
+    },
+    {
+      "sleep": 5
+    },
+    {
+      "deviceId": "smart-kettle",
+      "type": "action",
+      "value": "boil_water"
+    },
+    {
+      "deviceId": "smart-kettle",
+      "type": "property",
+      "value": "temperature"
+    }
+  ]
+}

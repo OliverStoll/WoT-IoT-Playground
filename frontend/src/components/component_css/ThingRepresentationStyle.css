@@ -56,3 +56,19 @@
     background-color: lightgray;
 }
 
+.properties-input{
+    width: 50px;
+    display: inline-block;
+    margin: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    background-color: #888888;
+    border: none;
+    color: #FFFFFF;
+    border-radius: 10px;
+}
+.thing-properties{
+    display: inline-block;
+    font-size: 16px;
+}
