@@ -77,9 +77,9 @@ function getInitialValues(thing_string: string): void {
     const values: string[] = Object.keys(thing["properties"])
     for (let i: number = 0; i < values.length; i++) {
         const aId: string = thing["id"] + "-" + values[i] + "-" + "field"
-        triggerRequest(JSON.stringify(thing["properties"][values[i]]["form"])).then((result: string): void => {
+        triggerRequest(JSON.stringify(thing["properties"][values[i]]["form"])).then((result: any): void => {
             const attribute: HTMLElement | null = document.getElementById(aId)
-            if (attribute) attribute.setAttribute("value", result)
+            if (attribute) attribute.setAttribute("value", result.value)
         })
     }
 }
@@ -129,28 +129,6 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
     return (<div id={thing["id"] + "-" + att_key} key={ind}> {att_key}: {attributes}</div>)
 }
 
-/**
-//  Triggers requests for an attribute of a specified Thing and returns the answer as a string.
-//  @param {string} form - The form parameter of the thing.
-//  @param {string} altAddress
-//  @returns {Promise<string>} A promise that resolves to the fetched answer as a string.
-//  */
-// async function triggerRequest(form: any, altAddress: string): Promise<string> {
-//     try {
-//         if (JSON.stringify(form["href"]).startsWith("http")){
-//             // thing communicates with http
-//             const response: Response = await fetch(form["href"] ? form["href"] : altAddress, {
-//                 method: form["htv:methodName"] ? form["htv:methodName"] : 'GET',
-//                 headers: { 'Content-Type': form["contentType"] ? form["contentType"] : 'application/json' },
-//             })
-//             if (response.ok) return await response.text()
-//         }
-//         // toDo: thing communicates with another protocol
-//         return "Error"
-//     } catch (error) {
-//         return "Error"
-//     }
-// }
 
 /**
  Triggers requests for an attribute of a specified Thing to the backend and returns the answer as a string.
@@ -159,15 +137,15 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
  @returns {Promise<string>} A promise that resolves to the fetched answer as a string.
  */
 
-async function triggerRequest(form: string): Promise<string> {
+async function triggerRequest(form: string): Promise<any> {
     try {
         const response: Response = await fetch(urlET, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: form
         })
-        if (response.ok) return await response.text()
-        return "Error"
+        if (response.ok) return await response.json()
+        return "ERROR"
     } catch (error) {
         return "Error"
     }

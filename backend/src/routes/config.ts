@@ -1,7 +1,7 @@
+const { spawn } = require('child_process');
 const path = require('path');
 const express = require('express');
 const fs = require('fs');
-const shell = require('shelljs');
 
 const configRouter = express.Router();
 
@@ -33,30 +33,26 @@ configRouter.post('/', (req, res) => {
             return;
         }
         console.log(`Config saved to file ${fileName}`);
+
+        const scriptPath = path.join(__dirname, '../start_containers.sh');
+        const script = spawn('bash', [scriptPath], {
+            detached: true,
+        });
+
+        script.stdout.on('data', (data) => {
+            console.log(`stdout: ${data}`);
+        });
+
+        script.stderr.on('data', (data) => {
+            console.error(`stderr: ${data}`);
+        });
+
+        script.on('close', (code) => {
+            console.log(`child process exited with code ${code}`);
+            res.status(200).send('Config was processed!');
+        });
+
     });
-
-    // Parse the number of devices from config.json
-    const numDevices = JSON.parse(config).devices.length;
-    console.log(`Devices: ${numDevices}`);
-
-    // Check if wot-device image is already available locally
-    if (!shell.exec('docker image inspect wot-device', { silent: true }).stdout) {
-        console.log('wot-device image not found locally. Building the image...');
-        shell.cd('../../wot-blueprint');
-        shell.exec('docker build -t wot-device .', { silent: true });
-        shell.cd('-');
-    }
-
-    for (let i: number = 0; i < numDevices; i++) {
-        // Start Docker containers: works for 1-99 WoT devices
-        const port: string = i < 10 ? `300${i}` : `30${i}`;
-        const dockerRunCommand: string = `docker run -d -p ${port}:${port} -e PORT=${port} -e DEVICE_IDX=${i} wot-device`;
-        shell.exec(dockerRunCommand);
-        console.log(`Running Docker id ${i}`);
-    }
-
-    res.status(200).send('Config was processed!');
-    shell.exec('sleep 6');
 });
 
 /**
