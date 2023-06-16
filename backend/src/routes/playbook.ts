@@ -30,7 +30,6 @@ playbookRouter.post('/', (req, res): void => {
             switch (step.type){
                 case 'property':
                     console.log("property")
-                    console.log(filteredDescriptionParsed)
                     const href_element_property = filteredDescriptionParsed.properties[step.value].form.href
                     // handler for http wot devices
                     const resp_property = sendRequest(href_element_property)
@@ -38,13 +37,12 @@ playbookRouter.post('/', (req, res): void => {
 
                     break
                 case 'action':
-                    // TODO implement
                     console.log('action')
-                    // console.log(filteredDescriptionParsed)
-                    // const href_element_action = filteredDescriptionParsed.actions[step.value].form.href
-                    // // handler for http wot devices
-                    // const resp_action = sendRequest(href_element_action)
-                    // console.log(resp_action)
+                    const initialKey: string = Object.keys(filteredDescriptionParsed.properties)[0]
+                    const href_element: string = filteredDescriptionParsed.properties[initialKey].form.href
+                    let action_url: string = href_element.split('property')[0] + step.type + '/' + step.value
+                    const resp_action = sendRequest(action_url)
+                    console.log('actionResponse: ', resp_action)
                     break
                 case 'event':
                     // TODO implement
