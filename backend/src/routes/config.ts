@@ -2,6 +2,8 @@ const { spawn } = require('child_process');
 const path = require('path');
 const express = require('express');
 const fs = require('fs');
+const thingDescriptions = require('./logs.ts').thingDescriptions;
+const logs = require('./logs.ts').logs;
 
 const configRouter = express.Router();
 
@@ -69,5 +71,44 @@ configRouter.get('/', (req, res) => {
         res.status(404).send('No config file found');
     }
 });
+
+configRouter.post('/shutdown', (req, res) => {
+    if (fs.existsSync(fileName)) {
+        fs.unlink(fileName, (err) => {
+            if (err) {
+                console.error('Error while deleting config:', err);
+                res.status(500).send('Error while deleting config.');
+            } else {
+                console.log('Config file was deleted from path: ', fileName);
+                //thingDescriptions mappen auf http://localhost
+                const scriptPathDelete = path.join(__dirname, '../delete_containers.sh');
+                const script = spawn('bash', [scriptPathDelete], {
+                    detached: true,
+                });
+
+                script.stdout.on('data', (data) => {
+                    console.log(`stdout: ${data}`);
+                });
+
+                script.stderr.on('data', (data) => {
+                    console.error(`stderr: ${data}`);
+                });
+
+                script.on('close', (code) => {
+                    console.log(`child process exited with code ${code}`);
+                    // reset thingDescriptions Array to being empty
+                    thingDescriptions.length = 0
+                    // reset logs Array to being empty
+                    logs.length = 0
+                    res.status(200).send('Shutdown successful');
+                });
+
+            }
+        });
+    }
+    else{
+        res.status(404).send('No config to shutdown.')
+    }
+})
 
 module.exports = configRouter;
