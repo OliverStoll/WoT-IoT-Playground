@@ -52,21 +52,15 @@ export class HttpProtocol implements ProtocolInterface {
         console.log('Receiving data via HTTP');
 
         return new Promise((resolve, reject) => {
-            //let response = {}
+
             http.get(url, res => {
                 let data: string = '';
-
-                console.log('Status Code', res.statusCode);
 
                 res.on('data', chunk => {
                     data += chunk;
                 });
 
                 res.on('end', () => {
-                    //console.log(`httpProtocol data: ${data}`)
-                    //resolve(data);
-                    console.log(`httpProtocol final: ${data}`)
-                    //response = data
                     resolve(data);
                 });
 

@@ -10,13 +10,8 @@ callRouter.post('/', (req, res): void => {
     }
 
     const { href } = req.body;
-    console.log(`calls.ts: href:  ${href}`)
-
     sendRequest(href).then(resp => {
-        console.log(`calls.ts: then-> resp${resp}`)
-        console.log(typeof resp)
-        //console.log()
-        res.status(200).send(JSON.parse(resp))
+        res.status(200).send(JSON.stringify(JSON.parse(resp)))
     })
 
 

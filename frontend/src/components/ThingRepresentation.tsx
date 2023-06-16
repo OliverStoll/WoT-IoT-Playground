@@ -78,12 +78,8 @@ function getInitialValues(thing_string: string): void {
     for (let i: number = 0; i < values.length; i++) {
         let aId: string = thing["id"] + "-" + values[i] + "-" + "field"
         triggerRequest(JSON.stringify(thing["properties"][values[i]]["form"])).then((result: any): void => {
-
-            console.log("RESULT : ", result)
-            console.log(result.body)
-
             let attribute: HTMLElement | null = document.getElementById(aId)
-            if (attribute) attribute.setAttribute("value", result)
+            if (attribute) attribute.setAttribute("value", result.value)
         })
     }
 }
@@ -170,9 +166,7 @@ async function triggerRequest(form: string): Promise<any> {
             headers: { 'Content-Type': 'application/json' },
             body: form
         })
-        console.log(response.text())
-        console.log("STATUS_:" ,response.status)
-        if (response.ok) return await response
+        if (response.ok) return await response.json()
         return "Fehler"
     } catch (error) {
         console.log(error)
