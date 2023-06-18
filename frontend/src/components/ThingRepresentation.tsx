@@ -27,7 +27,7 @@ const ThingRepresentation = () => {
             clearInterval(interval);
         };
     },[]);
-    return <div className={"thing-container"}>{things}</div>
+    return <div className={"thing-container"} id="thing-container">{things}</div>
 }
 
 /**
@@ -38,15 +38,15 @@ const ThingRepresentation = () => {
  */
 function getThings(conf: string[]): JSX.Element[] {
     return Array.from({length: conf.length}, function (_, index: number) {
-        let thing = JSON.parse(conf[index])
+        const thing = JSON.parse(conf[index])
         // important attributes you want to show
-        let attToShow: string[] = ["actions", "properties", "events"]
-        let att_keys: string[] = Object.keys(thing)
+        const attToShow: string[] = ["actions", "properties", "events"]
+        const att_keys: string[] = Object.keys(thing)
             .filter(function (key: string){ return attToShow.includes(key)})
         //create a button for the important attributes of every thing description
-        let values: string[] = Object.keys(thing[att_keys[0]])
-        let port: string = thing[att_keys[0]][values[0]]["form"]["href"].split("localhost:")[1].slice(0,4)
-        let attributes: JSX.Element[] = Array.from({length: att_keys.length},
+        const values: string[] = Object.keys(thing[att_keys[0]])
+        const port: string = thing[att_keys[0]][values[0]]["form"]["href"].split("localhost:")[1].slice(0,4)
+        const attributes: JSX.Element[] = Array.from({length: att_keys.length},
             function (_, ind: number): JSX.Element {
             return getAttributes(JSON.stringify(thing), att_keys[ind], ind, port)
         })
@@ -73,12 +73,12 @@ function getThings(conf: string[]): JSX.Element[] {
  * @param {string} thing_string - The thing configuration in string format.
  */
 function getInitialValues(thing_string: string): void {
-    let thing = JSON.parse(thing_string)
-    let values: string[] = Object.keys(thing["properties"])
+    const thing = JSON.parse(thing_string)
+    const values: string[] = Object.keys(thing["properties"])
     for (let i: number = 0; i < values.length; i++) {
-        let aId: string = thing["id"] + "-" + values[i] + "-" + "field"
+        const aId: string = thing["id"] + "-" + values[i] + "-" + "field"
         triggerRequest(JSON.stringify(thing["properties"][values[i]]["form"])).then((result: any): void => {
-            let attribute: HTMLElement | null = document.getElementById(aId)
+            const attribute: HTMLElement | null = document.getElementById(aId)
             if (attribute) attribute.setAttribute("value", result.value)
         })
     }
@@ -94,18 +94,18 @@ function getInitialValues(thing_string: string): void {
  * @returns {JSX.Element} Element representing the attributes.
  */
 function getAttributes(thing_string: string, att_key: string, ind: number, port: string): JSX.Element {
-    let thing = JSON.parse(thing_string)
-    let values: string[] = Object.keys(thing[att_key])
-    let attributes: JSX.Element[] = Array.from({length: values.length}, function (_, i: number): JSX.Element {
+    const thing = JSON.parse(thing_string)
+    const values: string[] = Object.keys(thing[att_key])
+    const attributes: JSX.Element[] = Array.from({length: values.length}, function (_, i: number): JSX.Element {
         if (att_key == "properties") {
-            let aId: string = thing["id"] + "-" + values[i] + "-" + "field"
+            const aId: string = thing["id"] + "-" + values[i] + "-" + "field"
             return (
                 //input field for values => shows current value and sets new value on enter
                 <div key={i} className={"thing-properties"}>
                     {values[i]}:
                     <input id={aId} className={"properties-input"} onKeyDown={(event): void => {
                         if (event.key == "Enter") {
-                            let form = thing[att_key][values[i]]["form"]
+                            const form = thing[att_key][values[i]]["form"]
                             form["htv:methodName"] = "POST"
                             form["value"] = event.currentTarget.value
                             triggerRequest(JSON.stringify(form)).then((result: string): void => {console.log(result)})
@@ -114,7 +114,7 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
                 </div>
             )
         }
-        let bId: string = thing["id"] + "-" + values[i] + "-" + "button"
+        const bId: string = thing["id"] + "-" + values[i] + "-" + "button"
         return (
             <button id={bId} onClick={(): void => {
                 let form: string = JSON.stringify(thing[att_key][values[i]]["form"])
@@ -129,28 +129,6 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
     return (<div id={thing["id"] + "-" + att_key} key={ind}> {att_key}: {attributes}</div>)
 }
 
-/**
-//  Triggers requests for an attribute of a specified Thing and returns the answer as a string.
-//  @param {string} form - The form parameter of the thing.
-//  @param {string} altAddress
-//  @returns {Promise<string>} A promise that resolves to the fetched answer as a string.
-//  */
-// async function triggerRequest(form: any, altAddress: string): Promise<string> {
-//     try {
-//         if (JSON.stringify(form["href"]).startsWith("http")){
-//             // thing communicates with http
-//             const response: Response = await fetch(form["href"] ? form["href"] : altAddress, {
-//                 method: form["htv:methodName"] ? form["htv:methodName"] : 'GET',
-//                 headers: { 'Content-Type': form["contentType"] ? form["contentType"] : 'application/json' },
-//             })
-//             if (response.ok) return await response.text()
-//         }
-//         // toDo: thing communicates with another protocol
-//         return "Error"
-//     } catch (error) {
-//         return "Error"
-//     }
-// }
 
 /**
  Triggers requests for an attribute of a specified Thing to the backend and returns the answer as a string.
@@ -167,10 +145,9 @@ async function triggerRequest(form: string): Promise<any> {
             body: form
         })
         if (response.ok) return await response.json()
-        return "Fehler"
+        return "ERROR"
     } catch (error) {
-        console.log(error)
-        return "Error erorrr"
+        return "Error"
     }
 }
 
@@ -181,14 +158,14 @@ async function triggerRequest(form: string): Promise<any> {
  @param {string} disThing - Display value for the specific thing
  */
 function displayAttributes(thing: string, disOthers: string, disThing:string): void {
-    let things: HTMLCollectionOf<Element> = document.getElementsByClassName("thing")
+    const things: HTMLCollectionOf<Element> = document.getElementsByClassName("thing")
     for (let i: number = 0; i<things.length; i++){
-        let th: HTMLElement | null =  document.getElementById(things[i].id)
+        const th: HTMLElement | null =  document.getElementById(things[i].id)
         if (things[i].id !== thing && th !== null) th.style.display = disOthers
     }
-    let thingAttributes: HTMLElement | null = document.getElementById(thing + "attributes")
+    const thingAttributes: HTMLElement | null = document.getElementById(thing + "attributes")
     if (thingAttributes !== null)thingAttributes.style.display = disThing
-    let thingContainer: HTMLElement | null = document.getElementById(thing)
+    const thingContainer: HTMLElement | null = document.getElementById(thing)
     if (thingContainer !== null){
         if (disThing === "block") {
             thingContainer.style.width = "-webkit-fill-available"
