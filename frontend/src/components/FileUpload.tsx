@@ -1,7 +1,8 @@
 import { useDropzone } from "react-dropzone";
 import './component_css/ComponentStyle.css'
 
-const url: string = 'http://localhost:5000/api/config'
+const url: string = 'http://localhost:5001/api/config'
+// add file types of config file here
 const allowedFileTypes:{} = {'application/json': ['.json']}
 let type: string
 
@@ -33,15 +34,15 @@ function FileUpload(): JSX.Element {
  Handles the files added event in the file upload component.
  @param {File[]} files - An array of File objects representing the added files.
  */
-function handleFilesAdded(files: File[]) {
+function handleFilesAdded(files: File[]): void {
     if (typeof files[0] !== "undefined") {
-        files[0].text().then(function (conf) {
+        files[0].text().then(function (conf: string): void {
             type = files[0].type
             if (validateConfig(conf)) {
                 console.log("Sending configuration file to backend!")
                 console.log(conf)
-                sendPostRequest(conf).then(r => console.log(r))
-            } else console.log("ERROR: Not a valid configuration file!")
+                sendPostRequest(conf).then((result:string) => console.log(result))
+            }
         })
     } else console.log("ERROR: Not a valid configuration file!")
 }
@@ -52,16 +53,19 @@ function handleFilesAdded(files: File[]) {
  @param {string} conf - The configuration string to validate.
  @returns {boolean} True if the configuration is valid, false otherwise.
  */
-function validateConfig (conf: string){
+function validateConfig (conf: string): boolean {
     if (type === "application/json") {
+        // uploaded file was a json
         try {
             let o = JSON.parse(conf)
             if (o && typeof o === "object" && o !== "") {
                 return true
             }
         } catch {
+            console.log("Error: Not a valid config file!")
         }
     }
+    // toDo: validation of other file types
     return false
 }
 
@@ -72,7 +76,7 @@ function validateConfig (conf: string){
  @param {string} data - The data to include in the request body.
  @returns {Promise<string>} A promise that resolves to the response text if the request is successful.
  */
-async function sendPostRequest(data: string) {
+async function sendPostRequest(data: string): Promise<string> {
     try {
         const response: Response = await fetch(url, {
             method: 'POST',
@@ -80,9 +84,9 @@ async function sendPostRequest(data: string) {
             body: data
         })
         if (response.ok) return response.text()
-        else console.log("Error: The server could not handle the request, please try again!")
+        return "Error: The server could not handle the request, please try again!"
     } catch {
-        console.log("Error: The server could not handle the request, please try again!")
+        return "Error: The server could not handle the request, please try again!"
     }
 }
 

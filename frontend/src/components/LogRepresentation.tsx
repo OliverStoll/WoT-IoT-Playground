@@ -8,18 +8,18 @@ const LogRepresentation = () => {
   const [logs, setLogs] = useState<string[]>([]);
   const [deviceColors, setDeviceColors] = useState(new Map());
 
-  const downloadLogs = () => {
+  const downloadLogs = (): void => {
     // Create a string from the logs array
-    const logString = logs.join('\n');
+    const logString: string = logs.join('\n');
 
     // Create a Blob object with the log string
-    const blob = new Blob([logString], { type: 'text/plain' });
+    const blob: Blob = new Blob([logString], { type: 'text/plain' });
 
     // Create a temporary URL for the Blob object
-    const url = URL.createObjectURL(blob);
+    const url: string = URL.createObjectURL(blob);
 
     // Create a link element and simulate a click to trigger the download
-    const link = document.createElement('a');
+    const link: HTMLAnchorElement = document.createElement('a');
     link.href = url;
     link.download = 'logs.txt';
     link.click();
@@ -31,11 +31,11 @@ const LogRepresentation = () => {
   /**
    * Fetches logs from the server and updates the logs state.
    */
-  const fetchLogs = async () => {
+  const fetchLogs = async (): Promise<void> => {
     try {
-      const response = await fetch('http://localhost:5000/api/logs');
-      const data = await response.text();
-      const logArray = data.split(';');
+      const response: Response = await fetch('http://localhost:5001/api/logs');
+      const data: string = await response.text();
+      const logArray: string[] = data.split(';');
       setLogs(logArray);
     } catch (error) {
       console.error('Error fetching logs:', error);
@@ -47,11 +47,11 @@ const LogRepresentation = () => {
    * @param {string} deviceId - The device ID.
    * @returns {string} The color associated with the device ID.
    */
-  const getLogColor = (deviceId: string) => {
+  const getLogColor = (deviceId: string): any | string => {
     if (deviceColors.has(deviceId)) {
       return deviceColors.get(deviceId);
     } else {
-      const colors = [
+      const colors: string[] = [
         'blue',
         'red',
         'yellow',
@@ -63,8 +63,8 @@ const LogRepresentation = () => {
         'magenta',
         'lime',
       ]; // Array with the desired colors
-      const colorIndex = deviceColors.size % colors.length;
-      const color = colors[colorIndex];
+      const colorIndex: number = deviceColors.size % colors.length;
+      const color: string = colors[colorIndex];
       setDeviceColors(new Map(deviceColors.set(deviceId, color)));
       return color;
     }
@@ -72,20 +72,20 @@ const LogRepresentation = () => {
 
   useEffect(() => {
     fetchLogs();
-    const interval = setInterval(fetchLogs, 5000);
-    return () => {
+    const interval: number = setInterval(fetchLogs, 5000);
+    return (): void => {
       clearInterval(interval);
     };
   },[]);
 
-  useEffect(() => {
-    const storedColors = localStorage.getItem('deviceColors');
+  useEffect((): void => {
+    const storedColors: string | null = localStorage.getItem('deviceColors');
     if (storedColors) {
       setDeviceColors(new Map(JSON.parse(storedColors)));
     }
   },[]);
 
-  useEffect(() => {
+  useEffect((): void => {
     localStorage.setItem('deviceColors', JSON.stringify(Array.from(deviceColors)));
   }, [deviceColors]);
 
@@ -96,11 +96,11 @@ const LogRepresentation = () => {
         <div className="card-body">
           <h5 className="card-title">View WoT Playground Logs</h5>
           <div className="log-window  card-text">
-            {logs.map((log, index) => {
-              const logParts = log.split(',');
-              const timestamp = logParts[0];
-              const deviceId = logParts[1];
-              const logText = logParts.slice(2).join(',');
+            {logs.map((log: string, index: number) => {
+              const logParts: string[] = log.split(',');
+              const timestamp: string = logParts[0];
+              const deviceId: string = logParts[1];
+              const logText: string = logParts.slice(2).join(',');
 
               const logColor = getLogColor(deviceId);
 
