@@ -8,6 +8,7 @@ docker run -p 3000:3000 wot-device
 ## How to test authentification
 
 This includes an authheader admin:adminpw
+(Authorization: Basic admin:adminpw)
 
 ```
 $headers = @{ Authorization = "Basic YWRtaW46YWRtaW5wdw==" }
