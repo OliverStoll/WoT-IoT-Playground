@@ -5,6 +5,7 @@
   "main": "src/wot_device.ts",
   "scripts": {
     "start": "node src/wot_device.js",
+    "start_device": "node src/device.js",
     "build": "tsc",
     "dev": "nodemon src/wot_device.ts"
   },

@@ -1,0 +1,23 @@
+{
+  "title": "TEST DEVICE",
+  "description": "A smart coffee machine with a range of capabilities",
+  "properties": {
+    "temperature": {
+      "type": "integer",
+      "description": "Current level of a particular resource. Requires resource id variable as uriVariables. The property can also be overridden, which also requires resource id as uriVariables."
+    }
+  },
+  "actions": {
+    "setTemperature": {
+      "description": "Make a drink from available list of beverages. Accepts drink id, size and quantity as uriVariables. Brews one medium americano if no uriVariables are specified.",
+      "uriVariables": {
+        "temperature": {
+          "type": "integer",
+          "description": "Defines what drink to make, drinkId is one of possibleDrinks property values, e.g. latte.",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    }
+  }
+}
