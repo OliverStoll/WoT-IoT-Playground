@@ -2,8 +2,8 @@ const { spawn } = require('child_process');
 const path = require('path');
 const express = require('express');
 const fs = require('fs');
-const thingDescriptions = require('./logs.ts').thingDescriptions;
-const logs = require('./logs.ts').logs;
+const thingDescriptions = require('./logs').thingDescriptions;
+const logs = require('./logs').logs;
 
 const configRouter = express.Router();
 
@@ -36,7 +36,7 @@ configRouter.post('/', (req, res) => {
         }
         console.log(`Config saved to file ${fileName}`);
 
-        const scriptPath = path.join(__dirname, '../start_containers.sh');
+        const scriptPath = path.join(__dirname, '../../src/start_containers.sh');
         const script = spawn('bash', [scriptPath], {
             detached: true,
         });
@@ -81,7 +81,7 @@ configRouter.post('/shutdown', (req, res) => {
             } else {
                 console.log('Config file was deleted from path: ', fileName);
                 //thingDescriptions mappen auf http://localhost
-                const scriptPathDelete = path.join(__dirname, '../delete_containers.sh');
+                const scriptPathDelete = path.join(__dirname, '../../src/delete_containers.sh');
                 const script = spawn('bash', [scriptPathDelete], {
                     detached: true,
                 });

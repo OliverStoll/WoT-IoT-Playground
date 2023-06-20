@@ -1,9 +1,9 @@
 import { Router } from 'express';
 const playbookRouter = new Router();
-const sendRequest = require('../utils/sendRequest.ts');
-const thingDescriptions = require('./logs.ts').thingDescriptions;
+const sendRequest = require('../utils/sendRequest');
+const thingDescriptions = require('./logs').thingDescriptions;
 
-playbookRouter.post('/', (req, res): void => {
+playbookRouter.post('/', async (req, res): Promise<void> => {
     if (!req.body) {
         res.status(400).send('Empty request body');
         return;
@@ -56,7 +56,7 @@ playbookRouter.post('/', (req, res): void => {
 
         } else if (step.sleep) {
             console.log(`playbook: sleep ${step.sleep} seconds`)
-            // TODO add sleep (not natively available in JS)
+            await new Promise(r => setTimeout(r, step.sleep*1000));
         } else {
             res.status(400).send('Invalid playbook format');
             return;
