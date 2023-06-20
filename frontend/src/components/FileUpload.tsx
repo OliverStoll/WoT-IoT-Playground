@@ -3,7 +3,7 @@ import './component_css/FileUploadStyle.css'
 
 const urlConfig: string = 'http://localhost:5001/api/config'
 const urlScenario: string = 'http://localhost:5001/api/script'
-const urlKill: string = 'http://localhost:5001/api/shutdown'
+const urlKill: string = 'http://localhost:5001/api/config/shutdown'
 
 // add file types of config file here
 const allowedFileTypes: Accept = {'application/json': ['.json']}
@@ -31,7 +31,7 @@ function FileUpload(): JSX.Element {
                     Drag 'n' drop a configuration file here, or click to select file
                 </p>
             </div>
-            <button id={"kill-button"} disabled={true}
+            <button id={"kill-button"}
                     onClick={() => sendPostRequest("", urlKill).then((result: string): void => {
                 // kills all devices and refreshes the application
                 console.log(result)
@@ -128,6 +128,7 @@ function validateFile (file: string): boolean {
  @returns {Promise<string>} A promise that resolves to the response text if the request is successful.
  */
 async function sendPostRequest(data: string, url: string): Promise<string> {
+    console.log("TTEST")
     try {
         const response: Response = await fetch(url, {
             method: 'POST',
