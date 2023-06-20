@@ -1,8 +1,9 @@
 import { Accept, useDropzone } from "react-dropzone";
-import './component_css/ComponentStyle.css'
+import './component_css/FileUploadStyle.css'
 
 const urlConfig: string = 'http://localhost:5001/api/config'
 const urlScenario: string = 'http://localhost:5001/api/script'
+const urlKill: string = 'http://localhost:5001/api/config/shutdown'
 
 // add file types of config file here
 const allowedFileTypes: Accept = {'application/json': ['.json']}
@@ -23,11 +24,22 @@ function FileUpload(): JSX.Element {
     })
 
     return (
-        <div {...getRootProps()} className="file-upload-container">
-            <input {...getInputProps()} />
-            <p id="upload">
-                Drag 'n' drop a configuration file here, or click to select file
-            </p>
+        <div>
+            <div {...getRootProps()} className="file-upload-container">
+                <input {...getInputProps()} />
+                <p id="upload">
+                    Drag 'n' drop a configuration file here, or click to select file
+                </p>
+            </div>
+            <button id={"kill-button"}
+                    onClick={() => sendPostRequest("", urlKill).then((result: string): void => {
+                // kills all devices and refreshes the application
+                console.log(result)
+                setTimeout(function(): void{
+                    location.reload();
+                }, 1000);})}>
+                <img src="../../resources/power_on_off_switch_exit_icon_141963.png" id={"kill"} alt="shutdown icon"/>
+            </button>
         </div>
     )
 }
@@ -43,11 +55,7 @@ function handleFilesAdded(files: File[]): void {
             if (validateFile(file)) {
                 switch (checkContentType(file)){
                     case "config": {
-                        sendPostRequest(file, urlConfig).then((result:string) => {
-                            console.log(result)
-                            const div: HTMLElement | null = document.getElementById("upload")
-                            if (div) div.innerText = "Drag 'n' drop a scenario playbook file here, or click to select file"
-                        })
+                        sendPostRequest(file, urlConfig).then((result:string) => {console.log(result)})
                         break
                     }
                     case "scenario": {
@@ -120,6 +128,7 @@ function validateFile (file: string): boolean {
  @returns {Promise<string>} A promise that resolves to the response text if the request is successful.
  */
 async function sendPostRequest(data: string, url: string): Promise<string> {
+    console.log("TTEST")
     try {
         const response: Response = await fetch(url, {
             method: 'POST',

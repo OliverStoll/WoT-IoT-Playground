@@ -92,9 +92,11 @@ const LogRepresentation = () => {
   return (
     <div className="log-wrapper">
       <div className="card">
-        <div className="card-header">Logs</div>
+        <div className="card-header">
+          Logs
+          <button className="btn btn-primary" onClick={downloadLogs}>DOWNLOAD</button>
+        </div>
         <div className="card-body">
-          <h5 className="card-title">View WoT Playground Logs</h5>
           <div className="log-window  card-text">
             {logs.map((log: string, index: number) => {
               const logParts: string[] = log.split(',');
@@ -113,9 +115,6 @@ const LogRepresentation = () => {
               );
             })}
           </div>
-          <button className="btn btn-primary" onClick={downloadLogs}>
-            Download Logs
-          </button>
         </div>
       </div>
     </div>

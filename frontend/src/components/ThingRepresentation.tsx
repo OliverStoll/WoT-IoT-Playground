@@ -13,21 +13,20 @@ const urlET: string = 'http://localhost:5001/api/call'
  */
 const ThingRepresentation = () => {
     const [things, setThings] = useState<JSX.Element[]>([])
-    let oldConf: string
     useEffect(() => {
-        const interval: number = setInterval(function (): void {
-            fetchThingDescriptions().then(function (res: string): void {
-                // if an error occurred, the list is empty or nothing has changed -> return
-                if (res === "Error" || res === "[]" || res === oldConf) return
-                oldConf = res
-                setThings(getThings(JSON.parse(res)))
-            })
-        }, 5000);
-        return () => {
-            clearInterval(interval);
-        };
+        fetchThingDescriptions().then(function (res: string): void {
+            // if an error occurred or the list is empty-> return
+            if (res === "Error" || res === "[]") return
+            setThings(getThings(JSON.parse(res)))
+        })
     },[]);
-    return <div className={"thing-container"} id="thing-container">{things}</div>
+    return <div className={"thing-container"} id="thing-container" onLoad={():void => {
+        // when a config is loaded, change the text of the upload div and show the kill button
+        const div: HTMLElement | null = document.getElementById("upload")
+        if (div) div.innerText = "Drag 'n' drop a playbook file here, or click to select file"
+        const button: HTMLElement | null = document.getElementById("kill-button")
+        if (button) button.removeAttribute("disabled")
+    }}>{things}</div>
 }
 
 /**
