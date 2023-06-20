@@ -1,6 +1,6 @@
 import { Router } from 'express';
 const callRouter = new Router();
-const sendRequest = require('../utils/sendRequest.ts')
+const sendRequest = require('../utils/sendRequest')
 
 
 callRouter.post('/', (req, res): void => {

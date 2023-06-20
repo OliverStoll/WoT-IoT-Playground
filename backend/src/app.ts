@@ -16,16 +16,16 @@ const protocol: ProtocolInterface = new HttpProtocol(app, httpPort)
 protocol.connect()
 
 // import the configRouter for handling of wot config files
-const configRouter = require('./routes/config.ts');
+const configRouter = require('./routes/config');
 
 // import the logRouter for handling of wot logs
-const logRouter = require('./routes/logs.ts').logRouter;
+const logRouter = require('./routes/logs').logRouter;
 
 // import the callRouter for handling of wot calls
-const callRouter = require('./routes/calls.ts')
+const callRouter = require('./routes/calls')
 
 // import the scriptRouter for handling of the script playbook
-const playbookRouter = require('./routes/playbook.ts')
+const playbookRouter = require('./routes/playbook')
 
 
 dotenv.config();

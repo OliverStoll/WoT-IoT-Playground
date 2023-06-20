@@ -52,8 +52,10 @@ export class HttpProtocol implements ProtocolInterface {
         console.log('Receiving data via HTTP');
 
         return new Promise((resolve, reject) => {
+            //TODO: remove, when href sends right ip
+            const urlCleaned = url.replace('localhost', 'host.docker.internal')
 
-            http.get(url, res => {
+            http.get(urlCleaned, res => {
                 let data: string = '';
 
                 res.on('data', chunk => {
