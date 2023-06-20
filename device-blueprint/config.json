@@ -4,19 +4,28 @@
   "properties": {
     "temperature": {
       "type": "integer",
-      "description": "Current level of a particular resource. Requires resource id variable as uriVariables. The property can also be overridden, which also requires resource id as uriVariables."
+      "description": "Current temperature of the coffee machine",
+      "startValue": 0
     }
   },
   "actions": {
     "setTemperature": {
-      "description": "Make a drink from available list of beverages. Accepts drink id, size and quantity as uriVariables. Brews one medium americano if no uriVariables are specified.",
+      "description": "Sets the temperature of the coffee machine using an action",
       "uriVariables": {
         "temperature": {
           "type": "integer",
-          "description": "Defines what drink to make, drinkId is one of possibleDrinks property values, e.g. latte.",
+          "description": "Temperature to set the coffee machine to",
           "minimum": 0,
           "maximum": 100
         }
+      }
+    }
+  },
+  "events": {
+    "temperatureSet": {
+      "description": "Temperature set event",
+      "data": {
+        "type": "string"
       }
     }
   }
