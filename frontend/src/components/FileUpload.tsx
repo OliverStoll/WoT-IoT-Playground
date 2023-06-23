@@ -24,15 +24,14 @@ function FileUpload(): JSX.Element {
     })
 
     return (
-        <div>
-            <div {...getRootProps()} className="file-upload-container">
+        <div className="file-upload-container">
+            <div {...getRootProps()} className="file-upload">
                 <input {...getInputProps()} />
                 <p id="upload">
                     Drag 'n' drop a configuration file here, or click to select file
                 </p>
             </div>
-            <button id={"kill-button"}
-                    onClick={() => sendPostRequest("", urlKill).then((result: string): void => {
+            <button id={"kill-button"} onClick={() => sendPostRequest("", urlKill).then((result: string): void => {
                 // kills all devices and refreshes the application
                 console.log(result)
                 setTimeout(function(): void{
@@ -55,7 +54,10 @@ function handleFilesAdded(files: File[]): void {
             if (validateFile(file)) {
                 switch (checkContentType(file)){
                     case "config": {
-                        sendPostRequest(file, urlConfig).then((result:string) => {console.log(result)})
+                        sendPostRequest(file, urlConfig).then((result:string): void => {
+                            console.log(result)
+                            location.reload()
+                        })
                         break
                     }
                     case "scenario": {
@@ -79,7 +81,7 @@ function handleFilesAdded(files: File[]): void {
  @param {string} file - The content of the file.
  @returns {string} the content type of the file as a string or an empty string if something went wrong
  */
-function checkContentType(file: string){
+function checkContentType(file: string): string {
     let contentType: string = ""
     // if thing-container exists, we know that it is already a config uploaded
     const div: HTMLElement | null = document.getElementById("thing-container")
@@ -128,7 +130,6 @@ function validateFile (file: string): boolean {
  @returns {Promise<string>} A promise that resolves to the response text if the request is successful.
  */
 async function sendPostRequest(data: string, url: string): Promise<string> {
-    console.log("TTEST")
     try {
         const response: Response = await fetch(url, {
             method: 'POST',

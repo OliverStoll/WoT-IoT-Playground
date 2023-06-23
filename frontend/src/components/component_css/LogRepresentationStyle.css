@@ -1,25 +1,19 @@
-.card {
+.log-wrapper {
   background-color: #444;
-  color: white;
   border-radius: 10px;
+  padding: 5px 10px 10px;
+  width: 780px;
 }
 
-.card-header {
+.header {
   border-bottom: none;
   font-weight: bold;
 }
 
-.card-body {
+.log-window {
   display: flex;
   flex-direction: column;
   margin-top: 5px;
-}
-
-.card-title {
-  margin-bottom: 20px;
-}
-
-.log-window {
   background-color: black;
   overflow-y: scroll;
   height: 300px;

@@ -13,7 +13,7 @@ const urlET: string = 'http://localhost:5001/api/call'
  */
 const ThingRepresentation = () => {
     const [things, setThings] = useState<JSX.Element[]>([])
-    useEffect(() => {
+    useEffect(():  void => {
         fetchThingDescriptions().then(function (res: string): void {
             // if an error occurred or the list is empty-> return
             if (res === "Error" || res === "[]") return
@@ -24,8 +24,8 @@ const ThingRepresentation = () => {
         // when a config is loaded, change the text of the upload div and show the kill button
         const div: HTMLElement | null = document.getElementById("upload")
         if (div) div.innerText = "Drag 'n' drop a playbook file here, or click to select file"
-        const button: HTMLElement | null = document.getElementById("kill-button")
-        if (button) button.removeAttribute("disabled")
+        // const button: HTMLElement | null = document.getElementById("kill-button")
+        // if (button) button.removeAttribute("disabled")
     }}>{things}</div>
 }
 

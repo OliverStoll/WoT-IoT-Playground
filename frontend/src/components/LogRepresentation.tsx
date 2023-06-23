@@ -91,32 +91,28 @@ const LogRepresentation = () => {
 
   return (
     <div className="log-wrapper">
-      <div className="card">
-        <div className="card-header">
+        <div className="header">
           Logs
           <button className="btn btn-primary" onClick={downloadLogs}>DOWNLOAD</button>
         </div>
-        <div className="card-body">
-          <div className="log-window  card-text">
-            {logs.map((log: string, index: number) => {
-              const logParts: string[] = log.split(',');
-              const timestamp: string = logParts[0];
-              const deviceId: string = logParts[1];
-              const logText: string = logParts.slice(2).join(',');
+        <div className="log-window  card-text">
+          {logs.map((log: string, index: number) => {
+            const logParts: string[] = log.split(',');
+            const timestamp: string = logParts[0];
+            const deviceId: string = logParts[1];
+            const logText: string = logParts.slice(2).join(',');
 
-              const logColor = getLogColor(deviceId);
+            const logColor = getLogColor(deviceId);
 
-              return (
-                <div key={index} className="log-entry" style={{ color: logColor }}>
-                  <span className="timestamp">{timestamp}: </span>
-                  <span className="device-id">{deviceId}: </span>
-                  <span className="log-text">{logText}</span>
-                </div>
-              );
-            })}
-          </div>
+            return (
+              <div key={index} className="log-entry" style={{ color: logColor }}>
+                <span className="timestamp">{timestamp}: </span>
+                <span className="device-id">{deviceId}: </span>
+                <span className="log-text">{logText}</span>
+              </div>
+            );
+          })}
         </div>
-      </div>
     </div>
   );
 };
