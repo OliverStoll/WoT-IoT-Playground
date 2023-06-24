@@ -13,19 +13,19 @@ const urlET: string = 'http://localhost:5001/api/call'
  */
 const ThingRepresentation = () => {
     const [things, setThings] = useState<JSX.Element[]>([])
-    useEffect(():  void => {
-        fetchThingDescriptions().then(function (res: string): void {
+    useEffect(() : void => {
+        fetchThingDescriptions().then(function (res: string) :void {
             // if an error occurred or the list is empty-> return
             if (res === "Error" || res === "[]") return
             setThings(getThings(JSON.parse(res)))
         })
     },[]);
-    return <div className={"thing-container"} id="thing-container" onLoad={():void => {
+    return <div className={"thing-container"} id="thing-container" onLoad={(): void => {
         // when a config is loaded, change the text of the upload div and show the kill button
         const div: HTMLElement | null = document.getElementById("upload")
         if (div) div.innerText = "Drag 'n' drop a playbook file here, or click to select file"
-        // const button: HTMLElement | null = document.getElementById("kill-button")
-        // if (button) button.removeAttribute("disabled")
+        const button: HTMLElement | null = document.getElementById("kill-button")
+        if (button) button.style.display = "inline-block"
     }}>{things}</div>
 }
 
@@ -95,14 +95,16 @@ function getInitialValues(thing_string: string): void {
 function getAttributes(thing_string: string, att_key: string, ind: number, port: string): JSX.Element {
     const thing = JSON.parse(thing_string)
     const values: string[] = Object.keys(thing[att_key])
-    const attributes: JSX.Element[] = Array.from({length: values.length}, function (_, i: number): JSX.Element {
+    const attributes: JSX.Element[] = Array.from({length: values.length},
+        function (_, i: number): JSX.Element {
         if (att_key == "properties") {
             const aId: string = thing["id"] + "-" + values[i] + "-" + "field"
             return (
                 //input field for values => shows current value and sets new value on enter
                 <div key={i} className={"thing-properties"}>
                     {values[i]}:
-                    <input id={aId} className={"properties-input"} onKeyDown={(event): void => {
+                    <input id={aId} className={"properties-input"}
+                           onKeyDown={(event): void => {
                         if (event.key == "Enter") {
                             const form = thing[att_key][values[i]]["form"]
                             form["htv:methodName"] = "POST"
@@ -136,7 +138,7 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
  @returns {Promise<string>} A promise that resolves to the fetched answer as a string.
  */
 
-async function triggerRequest(form: string): Promise<any> {
+async function triggerRequest(form: string): Promise<any>{
     try {
         const response: Response = await fetch(urlET, {
             method: 'POST',

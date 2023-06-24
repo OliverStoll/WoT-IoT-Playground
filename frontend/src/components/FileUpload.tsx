@@ -54,14 +54,15 @@ function handleFilesAdded(files: File[]): void {
             if (validateFile(file)) {
                 switch (checkContentType(file)){
                     case "config": {
-                        sendPostRequest(file, urlConfig).then((result:string): void => {
+                        sendPostRequest(file, urlConfig).then((result: string): void => {
                             console.log(result)
+                            //reload to show devices
                             location.reload()
                         })
                         break
                     }
                     case "scenario": {
-                        sendPostRequest(file, urlScenario).then((result:string) => console.log(result))
+                        sendPostRequest(file, urlScenario).then((result: string) => console.log(result))
                         break
                     }
                     case "wrongType": {
