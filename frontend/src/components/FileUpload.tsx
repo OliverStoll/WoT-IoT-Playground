@@ -55,9 +55,9 @@ function handleFilesAdded(files: File[]): void {
                 switch (checkContentType(file)){
                     case "config": {
                         sendPostRequest(file, urlConfig).then((result: string): void => {
-                            console.log(result)
                             //reload to show devices
                             location.reload()
+                            console.log(result)
                         })
                         break
                     }

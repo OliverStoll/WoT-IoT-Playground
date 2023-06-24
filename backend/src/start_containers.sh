@@ -15,7 +15,7 @@ if ! docker image inspect wot-device &>/dev/null; then
   docker build -t wot-device . &>/dev/null;
   cd -
 fi
-for (( i=0; i<$num_devices; i++ ))
+for (( i=0; i< num_devices; i++ ))
 do
   echo "Running docker id $i"
   port=$((3000 + i))
