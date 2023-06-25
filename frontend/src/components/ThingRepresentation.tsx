@@ -53,10 +53,13 @@ function getThings(conf: string[]): JSX.Element[] {
         return (
             <div id={thing["id"]} className={"thing"} key={index + "-thing"}>
                 <img src="../../resources/wot_icon.png" alt="Thing icon" className={"thing-icon"}
-                     onClick={() => displayAttributes(thing["id"], "none", "block")}/>
+                     onClick={() => {
+                         getValues(JSON.stringify(thing))
+                         displayAttributes(thing["id"], "none", "block")
+                     }}
+                />
                 <div className={"thing-name"} key={index +  "-name"}>{thing["name"]}</div>
-                <div className={"thing-attributes"} id={thing["id"]+ "attributes"}
-                     onLoad={():void => {getInitialValues(JSON.stringify(thing))}}>
+                <div className={"thing-attributes"} id={thing["id"]+ "attributes"}>
                     {attributes}
                     <img src="../../resources/pngwing.com.png" alt="Close icon" className={"close-icon"}
                          onClick={() => displayAttributes(thing["id"], "block", "none")}/>
@@ -68,17 +71,19 @@ function getThings(conf: string[]): JSX.Element[] {
 
 
 /**
- * Retrieves and sets the initial values for the properties of a thing.
+ * Retrieves and sets the values for the properties of a thing.
  * @param {string} thing_string - The thing configuration in string format.
  */
-function getInitialValues(thing_string: string): void {
+function getValues(thing_string: string): void {
     const thing = JSON.parse(thing_string)
     const values: string[] = Object.keys(thing["properties"])
     for (let i: number = 0; i < values.length; i++) {
         const aId: string = thing["id"] + "-" + values[i] + "-" + "field"
-        triggerRequest(JSON.stringify(thing["properties"][values[i]]["form"])).then((result: any): void => {
+        const form = thing["properties"][values[i]]["form"]
+        form["log"] = "false"
+        triggerRequest(JSON.stringify(form)).then((result: string): void => {
             const attribute: HTMLElement | null = document.getElementById(aId)
-            if (attribute) attribute.setAttribute("value", result.value)
+            if (attribute) attribute.setAttribute("value", JSON.parse(result).value)
         })
     }
 }
@@ -106,10 +111,15 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
                     <input id={aId} className={"properties-input"}
                            onKeyDown={(event): void => {
                         if (event.key == "Enter") {
-                            const form = thing[att_key][values[i]]["form"]
-                            form["htv:methodName"] = "POST"
-                            form["value"] = event.currentTarget.value
-                            triggerRequest(JSON.stringify(form)).then((result: string): void => {console.log(result)})
+                            const type: string = thing[att_key][values[i]]["type"]
+                            if (checkType(event.currentTarget.value, type)) {
+                                const form = thing[att_key][values[i]]["form"]
+                                form["htv:methodName"] = "POST"
+                                form["value"] = changeType(event.currentTarget.value, type)
+                                triggerRequest(JSON.stringify(form)).then((result: string): void =>
+                                    {console.log(JSON.parse(result).value)})
+                            }
+                            else alert("Wrong input type, please try again.")
                         }
                     }}/>
                 </div>
@@ -123,11 +133,62 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
                     form = "{\"href\": \"http://localhost:" + port + "/action/" + values[i]
                         + "\",\"contentType\":\"application/json\",\"htv:methodName\":\"GET\",\"op\":\"callaction\"}"
                 }
-                triggerRequest(form).then((result: string): void => {console.log(result)})
+                triggerRequest(form).then((result: string): void =>
+                    {console.log(att_key.slice(0, -1) + ": " + JSON.parse(result).name + " was called.")})
+                displayAttributes(thing["id"], "block", "none")
             }} key={i} className={"button"}>{values[i]}
             </button>)
     })
     return (<div id={thing["id"] + "-" + att_key} key={ind}> {att_key}: {attributes}</div>)
+}
+
+/**
+ * Checks if the input value has the correct type.
+ * @param {string} value - The new value that has to be checked
+ * @param {string} type - The type the value should have
+ * @returns {boolean} Boolean if the type is correct or not.
+ */
+function checkType(value: string, type: string): boolean {
+    // initial value is true since all other values are handled as strings
+    let bool: boolean = true
+    switch (type){
+        case "number": {
+            if (Number.isNaN(Number(value))) bool = false
+            break
+        }
+        case "boolean": {
+            if (value.toLowerCase() !== "false" && value.toLowerCase() !== "true") bool = false
+        }
+        //todo: other possible types
+    }
+    return bool
+}
+
+
+/**
+ * Transforms the input value to the correct type.
+ * @param {string} value - The new value that has to be transformed
+ * @param {string} type - The type the value should have
+ * @returns The transformed value
+ */
+function changeType(value: string, type: string) {
+    let transformedValue
+    switch (type){
+        case "number": {
+            transformedValue = Number(value)
+            break
+        }
+        case "boolean": {
+            transformedValue = (value.toLowerCase() === "true")
+            break
+        }
+        //todo: other possible types
+        default: {
+            // default value is string since all other values are handled as strings.
+            transformedValue = value
+        }
+    }
+    return transformedValue
 }
 
 
@@ -138,14 +199,14 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
  @returns {Promise<string>} A promise that resolves to the fetched answer as a string.
  */
 
-async function triggerRequest(form: string): Promise<any>{
+async function triggerRequest(form: string): Promise<string>{
     try {
         const response: Response = await fetch(urlET, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: form
         })
-        if (response.ok) return await response.json()
+        if (response.ok) return await response.text()
         return "ERROR"
     } catch (error) {
         return "Error"
