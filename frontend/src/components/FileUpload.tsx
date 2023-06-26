@@ -37,7 +37,7 @@ function FileUpload(): JSX.Element {
                 setTimeout(function(): void{
                     location.reload();
                 }, 1000);})}>
-                <img src="../../resources/power_on_off_switch_exit_icon_141963.png" id={"kill"} alt="shutdown icon"/>
+                <img src="../../resources/exit_icon.png" id={"kill"} alt="shutdown icon"/>
             </button>
         </div>
     )
