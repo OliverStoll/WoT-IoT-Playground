@@ -1,9 +1,7 @@
 ### GET TD
-#@no-log
 GET {{url}}
 
 ### GET properties
-#@no-log
 GET {{url}}/properties
 
 ### PUT temperature

@@ -7,5 +7,9 @@
     "src",
     "src/util",
     "src/*"
+  ],
+  "exclude": [
+    "node_modules/@types/eventsource",
+    "node_modules/@types/eventsource/*",
   ]
 }

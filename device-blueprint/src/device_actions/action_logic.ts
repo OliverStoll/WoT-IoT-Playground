@@ -1,18 +1,21 @@
-enum ActionType {
-    SET = "set",
-    INCREMENT = "increment",
-    SLEEP = "sleep",
-    TRIGGER_EVENT = "emit_event",
-    CONDITION = "condition",
-}
+import {
+    PropertiesDict,
+    ActionsDict,
+    _Property,
+    _Action,
+    ActionStep,
+    Variable,
+    VariablesDict,
+    Condition
+} from "../device";
 
 
-export function executeMethodActions(properties_dict: any, thing: any, action_list: any[], variables: any) {
+export function executeMethodActions(properties_dict: PropertiesDict, thing: any, action_list: ActionStep[], variables: VariablesDict) {
     for (const action of action_list) {
-        let property = properties_dict[action.property];
+        let property: _Property = properties_dict[action.property];
 
         console.log(`Executing action: ${JSON.stringify(action, null, 2)}`);
-        const action_type: ActionType = action.action_type;
+        const action_type = action.action_type;
 
         /* Here all supported action types are differentiated and given functionality */
         switch (action_type) {
@@ -21,7 +24,7 @@ export function executeMethodActions(properties_dict: any, thing: any, action_li
                 if (action.value) {
                     property.value = action.value;
                 } else if (action.variable && variables[action.variable]) {
-                    property.value = variables[action.variable];
+                    property.value = variables[action.variable] as unknown as number | boolean | string;
                 } else {
                     console.log(`No value or correct variable given for action ${action_type} on property ${action.property}`);
                 }
@@ -36,13 +39,13 @@ export function executeMethodActions(properties_dict: any, thing: any, action_li
 
                 // check if value or variable is given
                 if (action.value) {
-                    property.value += action.value;
+                    property.value += action.value as number;
                 } else if (action.variable && variables[action.variable]) {
                     if (typeof variables[action.variable] !== 'number') {
                         console.log(`Variable ${action.variable} is not a number and cannot be used for incrementing`);
                         break;
                     }
-                    property.value += variables[action.variable];
+                    property.value += variables[action.variable] as unknown as number;
                 } else {
                     console.log(`No value or correct variable given for action ${action_type} on property ${action.property}`);
                 }
@@ -52,7 +55,7 @@ export function executeMethodActions(properties_dict: any, thing: any, action_li
                 // check if value or variable is given
                 setTimeout(() => {
                     console.log(`Done waiting`)
-                }, action.value * 1000);
+                }, action.value as number * 1000);
                 break;
 
             case 'emit_event':
@@ -70,9 +73,9 @@ export function executeMethodActions(properties_dict: any, thing: any, action_li
 
             case 'condition':
                 if (evaluateCondition(action.condition, property)) {
-                    executeMethodActions(properties_dict, thing, action.action_list_true, variables);
-                } else if (action.action_list_false) {
-                    executeMethodActions(properties_dict, thing, action.action_list_false, variables);
+                    executeMethodActions(properties_dict, thing, action.condition.action_list_true, variables);
+                } else if (action.condition.action_list_false) {
+                    executeMethodActions(properties_dict, thing, action.condition.action_list_false, variables);
                 }
                 break;
 
@@ -83,7 +86,7 @@ export function executeMethodActions(properties_dict: any, thing: any, action_li
 }
 
 
-export function evaluateCondition(condition: any, property: any) {
+export function evaluateCondition(condition: Condition, property: _Property) {
     const operator = condition.operator;
     const value = condition.value;
     // console.log(`comparing ${property_cond.value} vs ${value}`);

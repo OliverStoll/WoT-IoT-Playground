@@ -49,14 +49,13 @@
           "property": "temperature",
           "condition": {
             "operator": ">",
-            "value": 99
-          },
-          "action_list_true": [
+            "value": 99,
+            "action_list_true": [
             {
               "action_type": "emit_event",
               "event_name": "temperatureSet"
             }
-          ]
+          ]}
         }
       ]
     }

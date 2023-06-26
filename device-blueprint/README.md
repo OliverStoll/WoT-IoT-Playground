@@ -12,7 +12,7 @@ npm run build
 # Run a Script
 ```
 # 1. Run the producer Thing ("server")
-node node-wot/packages/cli/dist/cli device.js 
+node node-wot/packages/cli/dist/cli device.ts 
 # 2. Test the Thing
 localhost:8080/smart-coffee-machine
 ```
