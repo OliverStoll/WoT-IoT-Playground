@@ -11,7 +11,7 @@
     margin: 10px;
     padding: 10px;
     border: 2px solid black;
-    border-radius: 20%;
+    border-radius: 20px;
     background-color: white;
 }
 
@@ -35,7 +35,23 @@
 .close-icon{
     width: 50px;
     margin: auto;
-    display: block;
+    display: none;
+}
+
+.control-icon{
+    width: 50px;
+    margin: 10px;
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.thing-icon-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
 }
 
 .button {
@@ -72,4 +88,13 @@
 .thing-properties{
     display: inline-block;
     font-size: 16px;
+}
+
+.thing-device-controller{
+    display: none;
+    color: black;
+    font-size: 20px;
+}
+.device-attributes{
+    display: none;
 }
