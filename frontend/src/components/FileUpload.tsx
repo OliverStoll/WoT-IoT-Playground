@@ -37,7 +37,7 @@ function FileUpload(): JSX.Element {
                 setTimeout(function(): void{
                     location.reload();
                 }, 1000);})}>
-                <img src="../../resources/power_on_off_switch_exit_icon_141963.png" id={"kill"} alt="shutdown icon"/>
+                <img src="../../resources/exit_icon.png" id={"kill"} alt="shutdown icon"/>
             </button>
         </div>
     )
@@ -54,14 +54,15 @@ function handleFilesAdded(files: File[]): void {
             if (validateFile(file)) {
                 switch (checkContentType(file)){
                     case "config": {
-                        sendPostRequest(file, urlConfig).then((result:string): void => {
-                            console.log(result)
+                        sendPostRequest(file, urlConfig).then((result: string): void => {
+                            //reload to show devices
                             location.reload()
+                            console.log(result)
                         })
                         break
                     }
                     case "scenario": {
-                        sendPostRequest(file, urlScenario).then((result:string) => console.log(result))
+                        sendPostRequest(file, urlScenario).then((result: string) => console.log(result))
                         break
                     }
                     case "wrongType": {
