@@ -1,4 +1,5 @@
 // An accompanying tutorial is available at http://www.thingweb.io/smart-coffee-machine.html.
+
 const fs = require("fs");
 const {Servient} = require("@node-wot/core");
 const {HttpServer} = require("@node-wot/binding-http");
@@ -47,7 +48,7 @@ export interface _Event {
 }
 
 export interface ActionStep {
-    action_type: string;
+    action_type: 'set' | 'increment' | 'sleep' | 'emit_event' | 'condition';
     property?: string;
     value?: number | boolean | string;
     variable?: string;
@@ -118,6 +119,7 @@ servient.start().then((WoT) => {
         // For each property in config.json, overwrite the default read/write handlers
         for (let property in description_json.properties) {
             thing.setPropertyWriteHandler(property, async (val) => {
+                // TODO: log
                 properties_dict[property].value = await val.value();
             });
             thing.setPropertyReadHandler(property, async () => {
@@ -129,7 +131,7 @@ servient.start().then((WoT) => {
         // For each action in config.json, overwrite the default action handler
         for (let action_name in actions_dict) {
             thing.setActionHandler(action_name, async (_params, options) => {
-
+                // TODO: log
                 let action = actions_dict[action_name];
                 let action_list = action.action_list;
                 console.log(action);
@@ -145,6 +147,8 @@ servient.start().then((WoT) => {
                 await executeMethodActions(properties_dict, thing, action_list, variables);
             });
         }
+
+        // TODO: log events
 
         // Finally expose the thing
         thing.expose().then(() => {
