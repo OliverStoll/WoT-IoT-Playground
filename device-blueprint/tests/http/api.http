@@ -1,15 +1,10 @@
 ### GET TD
+#@no-log
 GET {{url}}
 
 ### GET properties
+#@no-log
 GET {{url}}/properties
-
-<> 2023-06-19T161324-1.404.txt
-<> 2023-06-19T153725.200.json
-<> 2023-06-19T153221-1.200.json
-<> 2023-06-19T153127-1.200.json
-<> 2023-06-19T153104-1.200.json
-<> 2023-06-19T152752-1.200.json
 
 ### PUT temperature
 PUT /test-device/properties/temperature HTTP/1.1
@@ -18,31 +13,11 @@ Content-Type: application/json
 
 50
 
-
-<> 2023-06-19T161324.500.txt
-<> 2023-06-19T160432.500.txt
-<> 2023-06-19T160401.500.txt
-<> 2023-06-19T160350.500.txt
-<> 2023-06-19T160319.500.txt
-<> 2023-06-19T160227.500.txt
-<> 2023-06-19T160123.500.txt
-<> 2023-06-19T155853.500.txt
-<> 2023-06-19T155727.500.txt
-<> 2023-06-19T155713.500.txt
-<> 2023-06-19T155635.500.txt
-<> 2023-06-19T154644.500.txt
-<> 2023-06-19T154450.500.txt
-<> 2023-06-19T154332.500.txt
-
 ### GET temperature
 GET {{url}}/properties/temperature
 
-### action setTemperature
-POST {{url}}/actions/setTemperature?temperature=20
-
-<> 2023-06-19T161324-2.404.txt
-<> 2023-06-19T153222.405.txt
-<> 2023-06-19T153128.404.txt
+### Action
+POST {{url}}/actions/setTemperature?temperature=45
 
 ### subscribe Event
 GET http://localhost:8080/test-device/events/temperatureSet
