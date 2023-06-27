@@ -1,4 +1,4 @@
-import { Accept, useDropzone } from "react-dropzone";
+import { Accept, useDropzone } from "react-dropzone"
 import './component_css/FileUploadStyle.css'
 
 const urlConfig: string = 'http://localhost:5001/api/config'
@@ -22,7 +22,6 @@ function FileUpload(): JSX.Element {
         onDrop: handleFilesAdded,
         accept: allowedFileTypes
     })
-
     return (
         <div className="file-upload-container">
             <div {...getRootProps()} className="file-upload">
@@ -43,6 +42,10 @@ function FileUpload(): JSX.Element {
     )
 }
 
+
+
+//--------------------------- functions that handles the input file ----------------------------------------------------
+
 /**
  Handles the files added event in the file upload component.
  @param {File[]} files - An array of File objects representing the added files.
@@ -52,7 +55,9 @@ function handleFilesAdded(files: File[]): void {
         files[0].text().then(function (file: string): void {
             type = files[0].type
             if (validateFile(file)) {
+                // if input file is valid => check the type of the file
                 switch (checkContentType(file)){
+                    // send the configuration file
                     case "config": {
                         sendPostRequest(file, urlConfig).then((result: string): void => {
                             //reload to show devices
@@ -61,6 +66,7 @@ function handleFilesAdded(files: File[]): void {
                         })
                         break
                     }
+                    // send the playbook file
                     case "scenario": {
                         sendPostRequest(file, urlScenario).then((result: string) => console.log(result))
                         break
@@ -76,6 +82,30 @@ function handleFilesAdded(files: File[]): void {
     } else console.log("ERROR: Not a valid configuration/scenario file!")
 }
 
+
+
+//---------------------------- functions that check for correct input file ---------------------------------------------
+
+/**
+ Validates if the content of the file is valid for the specific type.
+ @param {string} file - The content to validate.
+ @returns {boolean} True if the file is valid, false otherwise.
+ */
+function validateFile (file: string): boolean {
+    if (type === "application/json") {
+        // uploaded file was a json
+        try {
+            const jsonFile = JSON.parse(file)
+            if (jsonFile && typeof jsonFile === "object" && jsonFile !== "") {
+                return true
+            }
+        } catch {
+            console.log("Error: Not a valid config/scenario file!")
+        }
+    }
+    // toDo: validation of other file types
+    return false
+}
 
 /**
  Checks if the uploaded file is config or a scenario file and if the files are uploaded in the correct order.
@@ -101,28 +131,8 @@ function checkContentType(file: string): string {
 }
 
 
-/**
- Validates if the content of the file is valid for the specifc type.
- @param {string} file - The content to validate.
- @returns {boolean} True if the file is valid, false otherwise.
- */
-function validateFile (file: string): boolean {
-    if (type === "application/json") {
-        // uploaded file was a json
-        try {
-            const jsonFile = JSON.parse(file)
-            if (jsonFile && typeof jsonFile === "object" && jsonFile !== "") {
-                return true
-            }
-        } catch {
-            console.log("Error: Not a valid config/scenario file!")
-        }
-    }
-    // toDo: validation of other file types
-    return false
-}
 
-
+//--------------------- functions for requests to backend --------------------------------------------------------------
 
 /**
  Sends a POST request to a specified URL with the provided data.
