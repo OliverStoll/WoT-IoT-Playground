@@ -89,6 +89,18 @@
     display: inline-block;
     font-size: 16px;
 }
+.thing-events{
+    display: inline-block;
+    margin: 10px;
+    padding: 5px 10px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    background-color: #888888;
+    border: none;
+    color: #FFFFFF;
+    border-radius: 10px;
+}
 
 .thing-device-controller{
     display: none;
