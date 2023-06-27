@@ -20,6 +20,6 @@ do
   echo "Running docker id $i"
   port=$((3000 + i))
   # execute docker run command detached with port mapping and environment variable
-  docker run -d -p $port:$port -e PORT=$port -e DEVICE_IDX=$i wot-device
+  docker run -d -p $port:$port --name wot-device-$i -e PORT=$port -e DEVICE_IDX=$i wot-device
 done
 sleep 10
