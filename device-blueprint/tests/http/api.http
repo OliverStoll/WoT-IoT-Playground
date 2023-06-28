@@ -19,3 +19,4 @@ POST {{url}}/actions/setTemperature?temperature=45
 
 ### subscribe Event
 GET http://localhost:8080/test-device/events/temperatureSet
+# todo: set timeout to 0 to keep connection open

@@ -4,7 +4,7 @@ import {
     ActionStep,
     VariablesDict,
 } from "../device";
-import {execute_action_set, execute_action_increment, execute_action_sleep, execute_action_emit_event, execute_action_condition} from "./action_functions";
+import {execute_action_functions} from "./action_functions";
 import {ExposedThing} from "@node-wot/core";
 
 export interface ExecuteActionData {
@@ -13,15 +13,6 @@ export interface ExecuteActionData {
     properties_dict?: PropertiesDict;
     variables?: VariablesDict;
     thing?: ExposedThing;
-}
-
-// dictionary of all execute action functions with action type as key
-const execute_action_functions: {[key: string]: (execute_action_data: ExecuteActionData) => void} = {
-    'set': execute_action_set,
-    'increment': execute_action_increment,
-    'sleep': execute_action_sleep,
-    'emit_event': execute_action_emit_event,
-    'condition': execute_action_condition
 }
 
 

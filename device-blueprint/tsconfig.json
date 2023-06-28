@@ -1,15 +1,13 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "module": "commonjs"
+    "module": "commonjs",
+    "skipLibCheck": true
   },
   "include": [
     "src",
-    "src/util",
-    "src/*"
   ],
   "exclude": [
-    "node_modules/@types/eventsource",
-    "node_modules/@types/eventsource/*",
+    "/node_modules/",
   ]
 }
