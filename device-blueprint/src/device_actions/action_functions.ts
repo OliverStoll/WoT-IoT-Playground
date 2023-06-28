@@ -1,5 +1,17 @@
 import {executeMethodActions, ExecuteActionData} from "./action_logic";
-import {_Property, Condition} from "../device";
+import {_Property, Condition, logging_info} from "../device";
+import {LogType, sendLog} from "../logging/requests";
+
+
+// dictionary of all execute action functions with action type as key
+export const execute_action_functions: {[key: string]: (execute_action_data: ExecuteActionData) => void} = {
+    'set': execute_action_set,
+    'increment': execute_action_increment,
+    'sleep': execute_action_sleep,
+    'emit_event': execute_action_emit_event,
+    'condition': execute_action_condition
+}
+
 
 export function execute_action_set(execute_action_data: ExecuteActionData) {
     let action = execute_action_data.action;
@@ -8,8 +20,10 @@ export function execute_action_set(execute_action_data: ExecuteActionData) {
     // check if value or variable is given
     if (action.value) {
         property.value = action.value;
+        sendLog(LogType.PROPERTY_CHANGED, property, logging_info);
     } else if (action.variable && variables[action.variable]) {
         property.value = variables[action.variable] as unknown as number | boolean | string;
+        sendLog(LogType.PROPERTY_CHANGED, property, logging_info);
     } else {
         console.log(`No value or correct variable given for action ${action.action_type} on property ${action.property}`);
     }
@@ -28,18 +42,21 @@ export function execute_action_increment(execute_action_data: ExecuteActionData)
     // check if value or variable is given
     if (action.value) {
         property.value += action.value as number;
+        sendLog(LogType.PROPERTY_CHANGED, property, logging_info);
     } else if (action.variable && variables[action.variable]) {
         if (typeof variables[action.variable] !== 'number') {
             console.log(`Variable ${action.variable} is not a number and cannot be used for incrementing`);
             return;
         }
         property.value += variables[action.variable] as unknown as number;
+        sendLog(LogType.PROPERTY_CHANGED, property, logging_info);
     } else {
         console.log(`No value or correct variable given for action ${action.action_type} on property ${action.property}`);
     }
 }
 
 export function execute_action_sleep(execute_action_data: ExecuteActionData) {
+    // TODO: fix sleep being async
     let action = execute_action_data.action;
     // check if value or variable is given
     setTimeout(() => {
@@ -53,15 +70,15 @@ export function execute_action_emit_event(execute_action_data: ExecuteActionData
     let thing = execute_action_data.thing;
 
     // check if property is given to be used as event payload
+    let payload = {};
     if (action.payload_property) {
-        let payload = {
+        payload = {
             name: action.payload_property,
             value: properties_dict[action.payload_property].value.toString()
         }
-        thing.emitEvent(action.event_name, payload)
-    } else {
-        thing.emitEvent(action.event_name, {})
     }
+    sendLog(LogType.EVENT_EMITTED, action.event_name, logging_info);  // TODO: other payload?
+    thing.emitEvent(action.event_name, payload)
 }
 
 export function execute_action_condition(execute_action_data: ExecuteActionData) {

@@ -1,7 +1,7 @@
 #!/bin/bash
 # script that extracts the number of devices from scenario and runs a docker container for each device with an increasing id
 
-# get the num devices from config.json with jq
+# get the num devices from config_backup.json with jq
 json_file="../wot-blueprint/config.json"
 
 echo $(pwd)
