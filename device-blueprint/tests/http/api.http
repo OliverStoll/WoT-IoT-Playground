@@ -4,9 +4,11 @@ GET {{url}}
 ### GET properties
 GET {{url}}/properties
 
+### make request
+POST {{url}}/actions/make_request?method=GET&url=http://localhost:3000/test-device/properties/temperature
+
 ### PUT temperature
-PUT /test-device/properties/temperature HTTP/1.1
-Host: http://localhost:8080
+PUT {{url}}/properties/temperature HTTP/1.1
 Content-Type: application/json
 
 50
@@ -18,5 +20,8 @@ GET {{url}}/properties/temperature
 POST {{url}}/actions/setTemperature?temperature=45
 
 ### subscribe Event
-GET http://localhost:8080/test-device/events/temperatureSet
+GET {{url}}/events/temperatureSet
 # todo: set timeout to 0 to keep connection open
+
+### shutdown
+# POST {{url}}/actions/shutdown

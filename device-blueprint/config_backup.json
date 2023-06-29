@@ -37,7 +37,7 @@
         },
         {
           "action_type": "sleep",
-          "value": 1
+          "value": 4
         },
         {
           "action_type": "emit_event",

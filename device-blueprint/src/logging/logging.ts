@@ -1,3 +1,5 @@
+let ip = require("ip");
+
 // function that logs any incoming request, or device logs such as creation, deletion, etc.
 export enum LogType {
     PROPERTY_READ = 'property_read',
@@ -30,6 +32,15 @@ export interface LoggingInfo {
     port: number;
 }
 
+export function initializeLoggingInfo(description_json: any, device_port: number): LoggingInfo {
+    return {
+        log_server: process.env.LOG_SERVER || 'http://host.docker.internal:5001/api/logs',
+        device_id: description_json.id || description_json.title.toLowerCase().replace(" ", "_"),
+        ip: process.env.IP || ip.address(),
+        port: device_port
+    }
+}
+
 export function sendLog(log_type: LogType, payload: any, logging_info: LoggingInfo): void {
     // create a log object that includes my device id, the type of log, and the time
     let log: Log = {
@@ -55,7 +66,7 @@ export function sendLog(log_type: LogType, payload: any, logging_info: LoggingIn
 
     // send the log to the log server
     sendRequest(logging_info.log_server, 'POST', log).catch((error) => {
-        console.log(`Error while sending log: ${error}`);
+        console.log(`Error while sending log to ${JSON.stringify(logging_info)}: ${error}`);
     });
 }
 
@@ -77,9 +88,9 @@ async function sendRequest(url: string, method: string, body: any): Promise<void
 export async function fetchData(url: string) {
     try {
         const response = await fetch(url);
-        const data = await response.json();
-        console.log(data);
-        return data;
+        // console.log(response);
+        // console.log(response.json());
+        return await response.json();
     } catch (error) {
         console.error(error);
     }
