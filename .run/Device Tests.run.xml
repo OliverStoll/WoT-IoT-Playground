@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Device Tests" type="JavaScriptTestRunnerJest">
+    <node-interpreter value="project" />
+    <node-options value="" />
+    <jest-package value="$PROJECT_DIR$/device-blueprint/node_modules/jest" />
+    <working-dir value="$PROJECT_DIR$/device-blueprint" />
+    <envs />
+    <scope-kind value="ALL" />
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Build &amp; Run Device" run_configuration_type="docker-deploy" />
+    </method>
+  </configuration>
+</component>

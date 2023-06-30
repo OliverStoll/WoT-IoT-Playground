@@ -33,7 +33,7 @@ export async function executeMethodActions(properties_dict: PropertiesDict, thin
     for (const action of action_list) {
         let property: _Property = properties_dict[action.property];
 
-        console.log(`Executing action: ${JSON.stringify(action, null, 2)}`);
+        console.log(`Executing action: ${JSON.stringify(action)}`);
 
         let execute_action_data: ExecuteActionData = {
             action: action,

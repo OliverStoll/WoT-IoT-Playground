@@ -1,8 +1,8 @@
 {
   "scripts": {
-    "test device": "jest",
-    "build device": "tsc",
-    "start device": "node src/device.js"
+    "test": "jest",
+    "build": "tsc",
+    "start": "node src/device.js"
   },
   "devDependencies": {
     "jest": "^29.5.0",

@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const base_url = 'http://localhost:3000/test-device';
+const base_url = 'http://host.docker.internal:3001/test-device';
 const base_config = {headers: {'Content-Type': 'application/json'}}
 
 // Test GET TD
@@ -17,7 +17,7 @@ test('GET properties -> [200]', async () => {
 
 // Test make request
 test('POST make_request -> [200]', async () => {
-    let url = `${base_url}/actions/make_request?method=GET&url=http://localhost:3000/test-device/properties/temperature`
+    let url = `${base_url}/actions/make_request?method=GET&url=http://localhost:3001/test-device/properties/temperature`
     const response = await axios.post(url, {}, base_config);
     expect(response.status).toBe(200);
 });

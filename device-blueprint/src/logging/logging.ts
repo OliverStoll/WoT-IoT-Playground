@@ -56,13 +56,14 @@ export function sendLog(log_type: LogType, payload: any, logging_info: LoggingIn
     // check if the request is of type that has a caller
     const caller_log_types = [LogType.PROPERTY_READ, LogType.ACTION_CALLED, LogType.EVENT_SUBSCRIBED]
     if (caller_log_types.includes(log_type)) {
-        console.log("Adding caller to log");
+        // console.log("Adding caller to log");
         log['caller'] = {
             ip: "Unknown",
             port: ""
         }
     }
-    console.log(`Sending Log ${log_type} with payload: ${JSON.stringify(log)}`);
+
+    console.log(`LOG [${log.type}] with payload: ${JSON.stringify(log).substring(0, 80)} ...`);
 
     // send the log to the log server
     sendRequest(logging_info.log_server, 'POST', log).catch((error) => {

@@ -94,13 +94,13 @@ function setActionHandler(thing: any, actions_dict: ActionsDict, properties_dict
             sendLog(LogType.ACTION_CALLED, action_name, logging_info);
             let action = actions_dict[action_name];
             let action_list = action.action_list;
-            console.log(action);
+            console.log(`ACTION [${action_name}]`);
 
             // Check if uriVariables are provided
             let variables:  object = {};
             if (options && typeof options === "object" && "uriVariables" in options) {
                 variables = options.uriVariables;
-                console.log(variables);
+                // console.log(variables);
             }
 
             // Execute the action

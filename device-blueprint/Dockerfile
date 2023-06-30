@@ -16,7 +16,9 @@ RUN npm install
 COPY . .
 
 # Transpile the TypeScript code to JavaScript
-RUN npm run build
+RUN npm run "build"
+
+# TODO: mount the config file as a volume
 
 # Start the app
 CMD [ "npm", "start" ]
