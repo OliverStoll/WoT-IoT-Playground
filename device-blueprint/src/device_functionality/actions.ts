@@ -1,9 +1,4 @@
-import {
-    PropertiesDict,
-    _Property,
-    ActionStep,
-    VariablesDict,
-} from "../device";
+import {_Property, ActionStep, PropertiesDict, VariablesDict,} from "../device";
 
 import {ExposedThing} from "@node-wot/core";
 import {execute_action_set} from "./action_functions/set";
