@@ -3,8 +3,9 @@ import {initialize_servient} from "./device_functionality/servient";
 import {loadScenarioFile} from "./device_functionality/scenario";
 import {initializeLoggingInfo, LogType, sendLog} from "./logging/logging";
 import {initializePropertyValues} from "./device_functionality/properties";
-const {executeMethodActions} = require('./device_functionality/actions');
 import {ExposedThing} from "@node-wot/core";
+
+const {executeMethodActions} = require('./device_functionality/actions');
 
 // create a property dictionary type
 export interface PropertiesDict {
@@ -36,8 +37,17 @@ export interface _Action {
 export interface _Event {
     description?: string;
 }
+export enum ActionStepType {
+    SET = "set",
+    INCREMENT = "increment",
+    SLEEP = "sleep",
+    EMIT = "emit_event",
+    CONDITION = "condition",
+    SHUTDOWN = "shutdown",
+    MAKE_REQUEST = "make_request"
+}
 export interface ActionStep {
-    action_type: 'set' | 'increment' | 'sleep' | 'emit_event' | 'condition';  // TODO: enum
+    action_type: ActionStepType;
     property?: string;
     value?: number | boolean | string;
     variable?: string;

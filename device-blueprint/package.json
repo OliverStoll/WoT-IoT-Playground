@@ -11,6 +11,7 @@
   "dependencies": {
     "@node-wot/binding-http": "^0.8.7",
     "@node-wot/core": "^0.8.7",
+    "axios": "^1.4.0",
     "eventsource": "^2.0.2",
     "ip": "^1.1.8",
     "typescript": "^5.1.3"
