@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const base_url = 'http://host.docker.internal:3001/test-device';
+const base_url = 'http://host.docker.internal:3001/test-device-2';
 const base_config = {headers: {'Content-Type': 'application/json'}}
 
 // Test GET TD

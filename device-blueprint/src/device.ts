@@ -1,6 +1,6 @@
 // An accompanying tutorial is available at http://www.thingweb.io/smart-coffee-machine.html.
 import {initialize_servient} from "./device_functionality/servient";
-import {loadScenarioFile} from "./device_functionality/scenario";
+import {get_device_scenario_file} from "./device_functionality/scenario";
 import {initializeLoggingInfo, LogType, sendLog} from "./logging/logging";
 import {initializePropertyValues} from "./device_functionality/properties";
 import {ExposedThing} from "@node-wot/core";
@@ -124,7 +124,7 @@ const protocols = ["http"];
 const device_port = Number(process.env.PORT) || 3000;
 
 // create Servient and add binding with port
-let scenario_json = loadScenarioFile();
+let scenario_json = get_device_scenario_file();
 export let logging_info = initializeLoggingInfo(scenario_json, device_port);
 let servient = initialize_servient(protocols, device_port);
 
