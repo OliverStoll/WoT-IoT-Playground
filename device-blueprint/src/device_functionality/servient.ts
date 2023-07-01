@@ -7,7 +7,6 @@ const serverDict = {
 }
 
 
-// TODO: typescript error for return type
 export function initialize_servient(protocols: string[], device_port: number = 3000): any {
     let servient = new Servient();
 

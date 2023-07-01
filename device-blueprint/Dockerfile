@@ -15,10 +15,11 @@ RUN npm install
 # Copy the rest of the app's files to the container
 COPY . .
 
+# mount the scenario.json file as a volume to ./app/scenario.json
+VOLUME [ "./mount_volume", "./mount_volume" ]
+
 # Transpile the TypeScript code to JavaScript
 RUN npm run "build"
-
-# TODO: mount the config file as a volume
 
 # Start the app
 CMD [ "npm", "start" ]

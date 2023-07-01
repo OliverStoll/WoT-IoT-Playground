@@ -9,7 +9,7 @@ export function execute_action_make_request(execute_action_data: ExecuteActionDa
 
     console.log(`Making ${method} request to ${url}`);
 
-    // make a fetch get request to the url  // TODO: make async and use method
+    // make a fetch get request to the url  // TODO: use method
     fetchData(url).then(data => {
         console.log(`Got data from ${url}: ${data}`);
         // TODO: somehow pass the data back or log it?

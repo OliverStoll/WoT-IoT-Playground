@@ -9,7 +9,9 @@ npm install
 # 4. Build the project
 npm run build
 ```
+
 # Run a Script
+
 ```
 # 1. Run the producer Thing ("server")
 node node-wot/packages/cli/dist/cli device.ts 
@@ -17,8 +19,10 @@ node node-wot/packages/cli/dist/cli device.ts
 localhost:8080/smart-coffee-machine
 ```
 
+# TODO: erweiterbarkeit protokolle/actions
 
 # OLD
+
 # How to Run
 
 ```

@@ -3,7 +3,7 @@
     <package-json value="$PROJECT_DIR$/device-blueprint/package.json" />
     <command value="run" />
     <scripts>
-      <script value="start device" />
+      <script value="start"/>
     </scripts>
     <node-interpreter value="project" />
     <envs>
@@ -14,7 +14,7 @@
         <package-json value="$PROJECT_DIR$/device-blueprint/package.json" />
         <command value="run" />
         <scripts>
-          <script value="build device" />
+            <script value="build"/>
         </scripts>
         <node-interpreter value="project" />
         <envs />

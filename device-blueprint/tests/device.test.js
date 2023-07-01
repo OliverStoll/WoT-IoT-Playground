@@ -17,7 +17,7 @@ test('GET properties -> [200]', async () => {
 
 // Test make request
 test('POST make_request -> [200]', async () => {
-    let url = `${base_url}/actions/make_request?method=GET&url=http://localhost:3001/test-device/properties/temperature`
+    let url = `${base_url}/actions/make_request?method=GET&url=http://localhost:3001/test-device-2/properties/temperature`
     const response = await axios.post(url, {}, base_config);
     expect(response.status).toBe(200);
 });

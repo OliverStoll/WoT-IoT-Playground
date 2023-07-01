@@ -1,14 +1,20 @@
 const fs = require("fs");
 
 
-export function get_device_scenario_file(config_path: string = "./config_backup.json") {
-    // TODO: change to get from mount
+export function get_device_scenario_file(config_path: string = "./mount_volume/scenario.json", backup_path: string = "./scenario_backup.json") {
 
-    // get device_idx from env
-    let device_idx = Number(process.env.DEVICE_IDX);
-    let scenario = JSON.parse(fs.readFileSync(config_path, "utf-8"));
+    // check if scenario.json exists
+    let scenario;
+    if (fs.existsSync(config_path)) {
+        console.log(`Mounted file used from ${config_path}.\n`)
+        scenario = JSON.parse(fs.readFileSync(config_path, "utf-8"));
+    } else {
+        console.log(`Scenario file not found at ${config_path}.\n`);
+        scenario = JSON.parse(fs.readFileSync(backup_path, "utf-8"));
+    }
 
     // get the scenario for this device
+    let device_idx = Number(process.env.DEVICE_IDX);
     let device_config = scenario["devices"][device_idx];
 
     // add a shutdown action to the scenario
