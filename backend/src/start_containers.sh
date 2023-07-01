@@ -2,18 +2,18 @@
 # script that extracts the number of devices from scenario and runs a docker container for each device with an increasing id
 
 # get the num devices from config_backup.json with jq
-json_file="../device-blueprint/config.json"
+json_file="../../device-blueprint/mount_volume/scenario.json"
 
-echo $(pwd)
+echo "$(pwd)"
 num_devices=$(jq '.devices | length' $json_file)
 echo "Devices: $num_devices"
 
 # Check if the wot-device image is locally available
 if ! docker image inspect wot-device &>/dev/null; then
   echo "wot-device image not found locally. Building the image..."
-  cd ../device-blueprint
+  cd ../device-blueprint || exit
   docker build -t wot-device . &>/dev/null;
-  cd -
+  cd - || exit
 fi
 
 for (( i=0; i<$num_devices; i++ ))
