@@ -18,8 +18,8 @@ RUN npm install
 # Copy backend files
 COPY backend ./
 
-# Copy wot-blueprint in order to
-COPY wot-blueprint ./../wot-blueprint
+# Copy device-blueprint in order to
+COPY device-blueprint ./../device-blueprint
 
 # Install jq for the script starting the wot-devices
 RUN apt-get update && apt-get install -y jq
