@@ -1,9 +1,12 @@
-import { useDropzone } from "react-dropzone";
-import './component_css/ComponentStyle.css'
+import { Accept, useDropzone } from "react-dropzone"
+import './component_css/FileUploadStyle.css'
 
-const url: string = 'http://localhost:5001/api/config'
+const urlConfig: string = 'http://localhost:5001/api/config'
+const urlScenario: string = 'http://localhost:5001/api/script'
+const urlKill: string = 'http://localhost:5001/api/config/shutdown'
+
 // add file types of config file here
-const allowedFileTypes:{} = {'application/json': ['.json']}
+const allowedFileTypes: Accept = {'application/json': ['.json']}
 let type: string
 
 /**
@@ -19,16 +22,29 @@ function FileUpload(): JSX.Element {
         onDrop: handleFilesAdded,
         accept: allowedFileTypes
     })
-
     return (
-        <div {...getRootProps()} className="file-upload-container">
-            <input {...getInputProps()} />
-            <p>
-                Drag 'n' drop a configuration file here, or click to select file
-            </p>
+        <div className="file-upload-container">
+            <div {...getRootProps()} className="file-upload">
+                <input {...getInputProps()} />
+                <p id="upload">
+                    Drag 'n' drop a configuration file here, or click to select file
+                </p>
+            </div>
+            <button id={"kill-button"} onClick={() => sendPostRequest("", urlKill).then((result: string): void => {
+                // kills all devices and refreshes the application
+                console.log(result)
+                setTimeout(function(): void{
+                    location.reload();
+                }, 1000);})}>
+                <img src="../../resources/exit_icon.png" id={"kill"} alt="shutdown icon"/>
+            </button>
         </div>
     )
 }
+
+
+
+//--------------------------- functions that handles the input file ----------------------------------------------------
 
 /**
  Handles the files added event in the file upload component.
@@ -36,47 +52,95 @@ function FileUpload(): JSX.Element {
  */
 function handleFilesAdded(files: File[]): void {
     if (typeof files[0] !== "undefined") {
-        files[0].text().then(function (conf: string): void {
+        files[0].text().then(function (file: string): void {
             type = files[0].type
-            if (validateConfig(conf)) {
-                console.log("Sending configuration file to backend!")
-                console.log(conf)
-                sendPostRequest(conf).then((result:string) => console.log(result))
+            if (validateFile(file)) {
+                // if input file is valid => check the type of the file
+                switch (checkContentType(file)){
+                    // send the configuration file
+                    case "config": {
+                        sendPostRequest(file, urlConfig).then((result: string): void => {
+                            //reload to show devices
+                            location.reload()
+                            console.log(result)
+                        })
+                        break
+                    }
+                    // send the playbook file
+                    case "scenario": {
+                        sendPostRequest(file, urlScenario).then((result: string) => console.log(result))
+                        break
+                    }
+                    case "wrongType": {
+                        alert("Please upload only one configuration file and then a scenario playbook.")
+                        break
+                    }
+                    default: console.log("ERROR: Something went wrong! Please try again.")
+                }
             }
         })
-    } else console.log("ERROR: Not a valid configuration file!")
+    } else console.log("ERROR: Not a valid configuration/scenario file!")
 }
 
 
+
+//---------------------------- functions that check for correct input file ---------------------------------------------
+
 /**
- Validates a configuration string based on its type.
- @param {string} conf - The configuration string to validate.
- @returns {boolean} True if the configuration is valid, false otherwise.
+ Validates if the content of the file is valid for the specific type.
+ @param {string} file - The content to validate.
+ @returns {boolean} True if the file is valid, false otherwise.
  */
-function validateConfig (conf: string): boolean {
+function validateFile (file: string): boolean {
     if (type === "application/json") {
         // uploaded file was a json
         try {
-            let o = JSON.parse(conf)
-            if (o && typeof o === "object" && o !== "") {
+            const jsonFile = JSON.parse(file)
+            if (jsonFile && typeof jsonFile === "object" && jsonFile !== "") {
                 return true
             }
         } catch {
-            console.log("Error: Not a valid config file!")
+            console.log("Error: Not a valid config/scenario file!")
         }
     }
     // toDo: validation of other file types
     return false
 }
 
+/**
+ Checks if the uploaded file is config or a scenario file and if the files are uploaded in the correct order.
+ @param {string} file - The content of the file.
+ @returns {string} the content type of the file as a string or an empty string if something went wrong
+ */
+function checkContentType(file: string): string {
+    let contentType: string = ""
+    // if thing-container exists, we know that it is already a config uploaded
+    const div: HTMLElement | null = document.getElementById("thing-container")
+    //content type is json
+    if (type === "application/json"){
+        const content: string[]= Object.keys(JSON.parse(file))
+        // the uploaded file was a configuration file, and we didn't have one before
+        if (content[0] === "devices" && div && div.innerHTML == "" ) contentType = "config"
+        // the uploaded file was a scenario playbook file, and we already have a config
+        else if (content[0] === "steps" && div && div.innerHTML !== "") contentType = "scenario"
+        // a scenario playbook was uploaded before the configuration file or another config was uploaded
+        else contentType = "wrongType"
+    }
+    // toDo: check of other file types
+    return contentType
+}
 
+
+
+//--------------------- functions for requests to backend --------------------------------------------------------------
 
 /**
  Sends a POST request to a specified URL with the provided data.
  @param {string} data - The data to include in the request body.
+ @param {string} url - Url for the api endpoint
  @returns {Promise<string>} A promise that resolves to the response text if the request is successful.
  */
-async function sendPostRequest(data: string): Promise<string> {
+async function sendPostRequest(data: string, url: string): Promise<string> {
     try {
         const response: Response = await fetch(url, {
             method: 'POST',

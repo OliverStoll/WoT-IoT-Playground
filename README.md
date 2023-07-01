@@ -15,5 +15,10 @@ npx nodemon
 cd frontend
 npm install
 npm run dev
+
+# Or easiest:
+docker-compose up
 ```
+
+
 

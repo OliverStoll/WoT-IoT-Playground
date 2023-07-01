@@ -1,4 +1,4 @@
-const createLog = require('../utils/logger.ts');
+const createLog = require('../utils/logger');
 import { Router } from 'express';
 const logRouter = new Router();
 

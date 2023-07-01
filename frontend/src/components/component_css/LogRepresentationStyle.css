@@ -1,53 +1,47 @@
 .log-wrapper {
-    background-color: black;
-    padding: 20px;
-  }
-  
-  .card {
-    background-color: #333;
-    color: white;
-    border: none;
-    border-radius: 0;
-  }
-  
-  .card-header {
-    background-color: #555;
-    border-bottom: none;
-  }
-  
-  .card-body {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .card-title {
-    margin-bottom: 20px;
-  }
-  
-  .log-window {
-    background-color: black;
-    overflow-y: scroll;
-    height: 300px;
-    margin-bottom: 10px;
-  }
-  
-  .log-entry {
-    
-    font-size: 14px;
-  }
-  
-  .btn-primary {
-    align-self: flex-end;
-    border-radius: 20px;
-    background-color: green;
-    color: white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-    font-size: 14px;
-  }
-  
-  .btn-primary:hover {
-    background-color: darkgreen;
-  }
+  background-color: #444;
+  border-radius: 10px;
+  padding: 5px 10px 10px;
+  width: 800px;
+}
+
+.header {
+  border-bottom: none;
+  font-weight: bold;
+}
+
+.log-window {
+  display: flex;
+  flex-direction: column;
+  margin-top: 5px;
+  background-color: black;
+  overflow-y: scroll;
+  height: 300px;
+}
+
+.log-entry {
+  font-size: 14px;
+}
+
+
+.btn-primary {
+  width: 100px;
+  padding: 10px;
+  font-size: 10px;
+  font-weight: bold;
+  text-align: center;
+  justify-content: center;
+  background-color: #666666;
+  color: #FFFFFF;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  float: right;
+}
+.btn-primary:hover {
+  background-color: lightgray;
+}
   
   
   

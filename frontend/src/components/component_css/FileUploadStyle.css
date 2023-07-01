@@ -1,0 +1,41 @@
+.file-upload {
+    border-width: 2px;
+    border-radius: 5px;
+    border-color: #666;
+    border-style: dashed;
+    padding: 20px;
+    text-align: center;
+    color: #666;
+    display: inline-block;
+    flex: auto;
+}
+.file-upload-container{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+#kill-button {
+    height: 80px;
+    padding: 10px;
+    margin-left: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    float: right;
+    display: none;
+    background-color: #666666;
+    color: #FFFFFF;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+#kill-button:hover {
+    background-color: lightgray;
+}
+
+#kill {
+    width: 60px;
+    margin: auto;
+    display: block;
+}
