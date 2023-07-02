@@ -146,10 +146,12 @@ servient.start().then((WoT) => {
         // Finally expose the thing
         thing.expose().then(() => {
             // replace ip address with localhost as the ip address is not accessible from the outside of the container
-            let thing_description = thing.getThingDescription();  // td is a json object
-            let localhost_thing_description = JSON.stringify(thing_description).replace(new RegExp(logging_info.ip, 'g'), 'localhost');
+            let thing_description_string = JSON.stringify(thing.getThingDescription());  // td is a json object
+            let ip = logging_info.ip;
+            let localhost_thing_description = thing_description_string.replace(new RegExp(ip, 'g'), 'localhost');
+            let localhost_thing_description_json = JSON.parse(localhost_thing_description);
 
-            sendLog(LogType.CREATED, localhost_thing_description, logging_info)
+            sendLog(LogType.CREATED, localhost_thing_description_json, logging_info)
             console.info(`${thing.getThingDescription().title} ready`);
         });
 
