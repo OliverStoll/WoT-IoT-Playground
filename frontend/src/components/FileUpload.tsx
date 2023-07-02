@@ -56,9 +56,11 @@ function handleFilesAdded(files: File[]): void {
             type = files[0].type
             if (validateFile(file)) {
                 // if input file is valid => check the type of the file
+                const uploadDiv: HTMLElement | null = document.getElementById("upload")
                 switch (checkContentType(file)){
                     // send the configuration file
                     case "config": {
+                        if (uploadDiv) uploadDiv.innerText = "LOADING THINGS..."
                         sendPostRequest(file, urlConfig).then((result: string): void => {
                             //reload to show devices
                             location.reload()
@@ -68,7 +70,12 @@ function handleFilesAdded(files: File[]): void {
                     }
                     // send the playbook file
                     case "scenario": {
-                        sendPostRequest(file, urlScenario).then((result: string) => console.log(result))
+                        if (uploadDiv) uploadDiv.innerText = "RUNNING PLAYBOOK..."
+                        sendPostRequest(file, urlScenario).then((result: string): void => {
+                            if (uploadDiv) uploadDiv.innerText =
+                                "Drag 'n' drop a playbook file here, or click to select file"
+                            console.log(result)
+                        })
                         break
                     }
                     case "wrongType": {

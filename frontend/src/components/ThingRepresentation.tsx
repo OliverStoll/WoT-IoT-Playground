@@ -4,6 +4,9 @@ import './component_css/ThingRepresentationStyle.css'
 const urlTD: string = 'http://localhost:5001/api/logs/thingDescriptions'
 const urlET: string = 'http://localhost:5001/api/call'
 
+// important attributes you want to show inside the things
+const att_keys: string[] = ["properties", "actions", "events"]
+
 /**
  Renders a component that fetches and displays a list of thing representations.
  The component periodically fetches thing descriptions and updates the list if there are changes.
@@ -19,7 +22,8 @@ const ThingRepresentation = () => {
             // parse the TD to show them
             setThings(getThings(JSON.parse(res)))
         })
-    },[]);
+    },[])
+
     // container will all things to display
     return <div className={"thing-container"} id="thing-container" onLoad={(): void => {
         // when a config is loaded, change the text of the upload div and show the kill button
@@ -43,17 +47,13 @@ const ThingRepresentation = () => {
 function getThings(conf: string[]): JSX.Element[] {
     return Array.from({length: conf.length}, function (_, index: number) {
         const thing = JSON.parse(conf[index])
-        // important attributes you want to show
-        const attToShow: string[] = ["actions", "properties", "events"]
-        const att_keys: string[] = Object.keys(thing)
-            .filter(function (key: string){ return attToShow.includes(key)})
         //create a button for the important attributes of every thing description
         const values: string[] = Object.keys(thing[att_keys[0]])
         const port: string = thing[att_keys[0]][values[0]]["form"]["href"].split("localhost:")[1].slice(0,4)
         const attributes: JSX.Element[] = Array.from({length: att_keys.length},
             function (_, ind: number): JSX.Element {
-            return getAttributes(JSON.stringify(thing), att_keys[ind], ind, port)
-        })
+                return getAttributes(JSON.stringify(thing), att_keys[ind], ind, port)
+            })
         // create div for every thing description with a symbol and all attributes
         return (
             <div id={thing["id"]} className={"thing"} key={index + "-thing"}>
@@ -63,8 +63,13 @@ function getThings(conf: string[]): JSX.Element[] {
                     />
                     <img src="../../resources/wot_icon.png" alt="Thing icon" className={"thing-icon"}
                          onClick={(): void => {
-                             getValues(JSON.stringify(thing))
-                             displayAttributes(thing["id"], "none", "block")
+                             const control: HTMLElement | null =
+                                 document.getElementById(thing["id"] + "control")
+                             // When control button is not there => thing is small => make it big and get the values
+                             if (control && control.style.getPropertyValue("display") !== "block"){
+                                 getValues(JSON.stringify(thing), "controller")
+                                 displayAttributes(thing["id"], "none", "block")
+                             }
                          }}
                     />
                 </div>
@@ -76,7 +81,7 @@ function getThings(conf: string[]): JSX.Element[] {
                 </div>
                 <img src="../../resources/pngwing.com.png" alt="close icon" className={"close-icon"}
                      id={thing["id"]+ "exit"} onClick={() =>
-                        displayAttributes(thing["id"], "block", "none")}
+                    displayAttributes(thing["id"], "block", "none")}
                 />
             </div>
         )
@@ -89,70 +94,81 @@ function getThings(conf: string[]): JSX.Element[] {
  * @param {string} thing_string - The thing configuration in string format.
  * @param {string} att_key - The attribute key.
  * @param {number} ind - The index of the attribute.
+ * @param {string} sender - ID from the device that is calling the attribute or "controller" if direct call
  * @param {string} port - The port of the attribute.
  * @returns {JSX.Element} Element representing the attributes.
  */
-function getAttributes(thing_string: string, att_key: string, ind: number, port: string): JSX.Element {
+function getAttributes(thing_string: string, att_key: string, ind: number, port: string, sender: string = "controller"): JSX.Element {
     const thing = JSON.parse(thing_string)
     const values: string[] = Object.keys(thing[att_key])
     const attributes: JSX.Element[] = Array.from({length: values.length},
         function (_, i: number): JSX.Element {
             if (att_key == "properties") {
                 // handle properties
-                const aId: string = thing["id"] + "-" + values[i] + "-" + "field"
+                const pId: string = thing["id"] + "-" + values[i] + "-" + "field-" + sender
                 return (
                     //input field for values => shows current value and sets new value on enter
                     <div key={i} className={"thing-properties"}>
                         {/*name of the property*/}
                         {values[i]}:
-                        <input id={aId} className={"properties-input"}
+                        <input id={pId} className={"properties-input"}
                                onKeyDown={(event): void => {
-                               if (event.key == "Enter") {
-                                   const type: string = thing[att_key][values[i]]["type"]
-                                   // check if the input value is valid (always a string but should have right content)
-                                   if (checkType(event.currentTarget.value, type)) {
-                                       const form = thing[att_key][values[i]]["form"]
-                                       // transform new value to correct type and add to body
-                                       form["value"] = changeType(event.currentTarget.value, type)
-                                       // send request to change value
-                                       triggerRequest(JSON.stringify(form)).then((result: string): void => {
-                                           console.log("Property "+ values[i] +" was changed to: "
-                                               + JSON.parse(result).value)
-                                           const attribute: HTMLInputElement| null =
-                                               document.getElementById(aId) as HTMLInputElement
-                                           if (attribute) attribute.value = JSON.parse(result).value
-                                           alert("Values can't be set in the moment.")
-                                       })
+                                   if (event.key == "Enter") {
+                                       const type: string = thing[att_key][values[i]]["type"]
+                                       // check if the input value is valid (always a string but should have right content)
+                                       if (checkType(event.currentTarget.value, type)) {
+                                           const form = thing[att_key][values[i]]["form"]
+                                           // transform new value to correct type and add to body
+                                           form["value"] = changeType(event.currentTarget.value, type)
+                                           form["sender"] = sender
+                                           // send request to change value
+                                           triggerRequest(JSON.stringify(form)).then((result: string): void => {
+                                               console.log("Property "+ values[i] +" was changed to \""
+                                                   + JSON.parse(result).value+ "\" by " + sender)
+                                               const property: HTMLInputElement| null =
+                                                   document.getElementById(pId) as HTMLInputElement
+                                               if (property) property.value = JSON.parse(result).value
+                                               alert("Values can't be set in the moment.")
+                                           })
+                                       }
+                                       else alert("Wrong input type, please try again.")
                                    }
-                                   else alert("Wrong input type, please try again.")
-                               }
                                }}
                         />
                     </div>
                 )
             }
-            // handle events
-            if (att_key == "events") {
-                const eId: string = thing["id"] + "-" + values[i] + "-" + "event"
-                return (<div id={eId} key={i} className={"thing-events"}>{values[i]}</div>)
+            if (att_key == "actions" || (att_key == "events" && sender !== "controller")) {
+                // handle actions or events if they are called by another device
+                const bId: string = thing["id"] + "-" + values[i] + "-" + "button- " + sender
+                return (
+                    <button id={bId} onClick={(): void => {
+                        let form = thing[att_key][values[i]]["form"]
+                        if (!form) {
+                            form = JSON.parse("{\"href\": \"http://localhost:" + port + "/action/" + values[i]
+                                + "\",\"contentType\":\"application/json\",\"htv:methodName\":\"GET\",\"op\":\"callaction\"}")
+                        }
+                        form["sender"] = sender
+                        triggerRequest(JSON.stringify(form)).then((result: string): void =>{
+                            if (att_key == "actions"){
+                                console.log(att_key.slice(0, -1) + ": " + JSON.parse(result).name +
+                                    " was called by " + sender)
+                                displayAttributes(thing["id"], "block", "none")
+                            }
+                            else {
+                                console.log(sender +  " subscribed to event from " + thing["name"])
+                                displayAttributes(sender, "block", "none")
+                            }
+                        })
+                    }} key={i} className={"button"}>{values[i]}
+                    </button>
+                )
             }
-            // handle actions
-            const bId: string = thing["id"] + "-" + values[i] + "-" + "button"
-            return (
-                <button id={bId} onClick={(): void => {
-                    let form: string = JSON.stringify(thing[att_key][values[i]]["form"])
-                    if (!form) {
-                        form = "{\"href\": \"http://localhost:" + port + "/action/" + values[i]
-                            + "\",\"contentType\":\"application/json\",\"htv:methodName\":\"GET\",\"op\":\"callaction\"}"
-                    }
-                    triggerRequest(form).then((result: string): void =>
-                        console.log(att_key.slice(0, -1) + ": " + JSON.parse(result).name + " was called."))
-                    displayAttributes(thing["id"], "block", "none")
-                }} key={i} className={"button"}>{values[i]}
-                </button>
-            )
+            // handle other attributes
+            const aId: string = thing["id"] + "-" + values[i] + "-" + att_key + "-" + sender
+            return (<div id={aId} key={i} className={"thing-others"}>{values[i]}</div>)
         })
-    return (<div id={thing["id"] + "-" + att_key} key={ind}> {att_key}: {attributes}</div>)
+    return (<div id={thing["id"] + "-" + att_key + "-" + sender} key={ind}> {att_key}: {attributes}</div>)
 }
 
 /**
@@ -163,7 +179,7 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
  */
 function getOtherDevices(thing: string, devices: string[]): JSX.Element {
     const deviceButtons: JSX.Element[] = []
-    for (let i: number = 0; i< devices.length; i++){
+    for (let i: number = 0; i < devices.length; i++){
         const currentDevice = JSON.parse(devices[i])
         // don't show the own device inside the thing
         if (currentDevice["id"] === thing) continue
@@ -175,6 +191,15 @@ function getOtherDevices(thing: string, devices: string[]): JSX.Element {
                 if (deviceAttr) deviceAttr.style.display = "block"
                 const thingDevices: HTMLElement | null = document.getElementById(thing + "devices")
                 if (thingDevices) thingDevices.style.display = "none"
+                //create a representation of every attribute of the thing
+                const values: string[] = Object.keys(currentDevice[att_keys[0]])
+                const port: string = currentDevice["properties"][values[0]]["form"]["href"].split("localhost:")[1].slice(0,4)
+                const attributes: JSX.Element[] = Array.from({length: att_keys.length},
+                    function (_, ind: number): JSX.Element {
+                        return getAttributes(devices[i], att_keys[ind], ind, port, thing)
+                    })
+                getValues(devices[i], thing)
+                console.log(attributes)
             }}>{currentDevice["name"]}
             </button>
         deviceButtons.push(button)
@@ -188,24 +213,24 @@ function getOtherDevices(thing: string, devices: string[]): JSX.Element {
             </div>
             <div id={thing + "device-attributes"} className={"device-attributes"}>
                 <div id={thing + "device-name"}></div>
+                <div></div>
             </div>
         </div>
     )
 }
 
-
-
 /**
  * Retrieves and sets the values for the properties of a thing.
  * @param {string} thing_string - The thing configuration in string format.
+ * @param {string} sender - ID from the device that is calling the property or "controller" if direct call
  */
-function getValues(thing_string: string): void {
+function getValues(thing_string: string, sender: string = "controller"): void {
     const thing = JSON.parse(thing_string)
     const values: string[] = Object.keys(thing["properties"])
     for (let i: number = 0; i < values.length; i++) {
-        const aId: string = thing["id"] + "-" + values[i] + "-" + "field"
+        const aId: string = thing["id"] + "-" + values[i] + "-" + "field-" + sender
         const form = thing["properties"][values[i]]["form"]
-        // form["log"] = "false"
+        form["sender"] = sender
         triggerRequest(JSON.stringify(form)).then((result: string): void => {
             const attribute: HTMLInputElement | null = document.getElementById(aId) as HTMLInputElement
             if (attribute) attribute.value = JSON.parse(result).value
@@ -309,7 +334,7 @@ function checkType(value: string, type: string): boolean {
  * @param {string} type - The type the value should have
  * @returns The transformed value
  */
-function changeType(value: string, type: string) {
+function changeType(value: string, type: string): string | number | boolean {
     let transformedValue
     switch (type){
         case "number": {
