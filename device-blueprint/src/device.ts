@@ -1,4 +1,6 @@
 // An accompanying tutorial is available at http://www.thingweb.io/smart-coffee-machine.html.
+// noinspection TypeScriptValidateJSTypes
+
 import {initialize_servient} from "./device_functionality/servient";
 import {get_device_scenario_file} from "./device_functionality/scenario";
 import {initializeLoggingInfo, LogType, sendLog} from "./logging/logging";
@@ -143,7 +145,11 @@ servient.start().then((WoT) => {
 
         // Finally expose the thing
         thing.expose().then(() => {
-            sendLog(LogType.CREATED, thing.getThingDescription(), logging_info)
+            // replace ip address with localhost as the ip address is not accessible from the outside of the container
+            let thing_description = thing.getThingDescription();  // td is a json object
+            let localhost_thing_description = JSON.stringify(thing_description).replace(new RegExp(logging_info.ip, 'g'), 'localhost');
+
+            sendLog(LogType.CREATED, localhost_thing_description, logging_info)
             console.info(`${thing.getThingDescription().title} ready`);
         });
 
