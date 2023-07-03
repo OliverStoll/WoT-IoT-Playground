@@ -8,13 +8,13 @@ json_file="../../wot-blueprint/config.json"
 echo $(pwd)
 num_devices=$(jq '.devices | length' $json_file)
 echo "Devices: $num_devices"
+
 # Check if the wot-device image is locally available
-if ! docker image inspect wot-device &>/dev/null; then
-  echo "wot-device image not found locally. Building the image..."
-  cd ../wot-blueprint
-  docker build -t wot-device . &>/dev/null;
-  cd -
-fi
+echo "wot-device image not found locally. Building the image..."
+cd ../wot-blueprint
+docker build -t wot-device .
+cd -
+
 for (( i=0; i< num_devices; i++ ))
 do
   echo "Running docker id $i"
