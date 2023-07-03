@@ -2,10 +2,12 @@ import {useEffect, useState} from "react"
 import './component_css/ThingRepresentationStyle.css'
 
 const urlTD: string = 'http://localhost:5001/api/logs/thingDescriptions'
+const urlConfig: string = 'http://localhost:5001/api/config'
 const urlET: string = 'http://localhost:5001/api/call'
 
 // important attributes you want to show inside the things
 const att_keys: string[] = ["properties", "actions", "events"]
+let config: string
 
 /**
  Renders a component that fetches and displays a list of thing representations.
@@ -15,12 +17,18 @@ const att_keys: string[] = ["properties", "actions", "events"]
 const ThingRepresentation = () => {
     const [things, setThings] = useState<JSX.Element[]>([])
     useEffect(() : void => {
+        // get config for security credentials
+        fetchFiles(urlConfig).then(function (conf: string) :void {
+            // if an error occurred or the config is empty-> return
+            if (conf === "Error" || conf === "No config file found") return
+            config = conf
+        })
         // get all TD from backend
-        fetchThingDescriptions().then(function (res: string) :void {
+        fetchFiles(urlTD).then(function (thingDescriptions: string) :void {
             // if an error occurred or the list is empty-> return
-            if (res === "Error" || res === "[]") return
+            if (thingDescriptions === "Error" || thingDescriptions === "[]") return
             // parse the TD to show them
-            setThings(getThings(JSON.parse(res)))
+            setThings(getThings(JSON.parse(thingDescriptions)))
         })
     },[])
 
@@ -121,15 +129,22 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
                                            // transform new value to correct type and add to body
                                            form["value"] = changeType(event.currentTarget.value, type)
                                            form["sender"] = sender
+                                           const credentials: string[] = getCredentials(thing["id"])
                                            // send request to change value
-                                           triggerRequest(JSON.stringify(form)).then((result: string): void => {
-                                               console.log("Property "+ values[i] +" was changed to \""
-                                                   + JSON.parse(result).value+ "\" by " + sender)
-                                               const property: HTMLInputElement| null =
-                                                   document.getElementById(pId) as HTMLInputElement
-                                               if (property) property.value = JSON.parse(result).value
-                                               alert("Values can't be set in the moment.")
-                                           })
+                                           if (credentials[0] === "basic" && credentials[1] === "header"
+                                               && credentials.length === 4) {
+                                               triggerRequestBasic(JSON.stringify(form), credentials)
+                                                   .then((result: string): void => {
+                                                       if (result !== "Error" && JSON.parse(result).value) {
+                                                           console.log("Property " + values[i] + " was changed to \""
+                                                               + JSON.parse(result).value + "\" by " + sender)
+                                                           const property: HTMLInputElement | null =
+                                                               document.getElementById(pId) as HTMLInputElement
+                                                           if (property) property.value = JSON.parse(result).value
+                                                           alert("Values can't be set in the moment.")
+                                                       }
+                                                   })
+                                           } else alert("No correct security definition.")
                                        }
                                        else alert("Wrong input type, please try again.")
                                    }
@@ -149,17 +164,19 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
                                 + "\",\"contentType\":\"application/json\",\"htv:methodName\":\"GET\",\"op\":\"callaction\"}")
                         }
                         form["sender"] = sender
-                        triggerRequest(JSON.stringify(form)).then((result: string): void =>{
-                            if (att_key == "actions"){
-                                console.log(att_key.slice(0, -1) + ": " + JSON.parse(result).name +
-                                    " was called by " + sender)
-                                displayAttributes(thing["id"], "block", "none")
-                            }
-                            else {
-                                console.log(sender +  " subscribed to event from " + thing["name"])
-                                displayAttributes(sender, "block", "none")
-                            }
-                        })
+                        const credentials: string[] = getCredentials(thing["id"])
+                        if (credentials[0] === "basic" && credentials[1] === "header" && credentials.length === 4) {
+                            triggerRequestBasic(JSON.stringify(form), credentials).then((result: string): void => {
+                                if (att_key == "actions" && result !== "Error" && JSON.parse(result).name) {
+                                    console.log(att_key.slice(0, -1) + ": " + JSON.parse(result).name +
+                                        " was called by " + sender)
+                                    displayAttributes(thing["id"], "block", "none")
+                                } else if (att_key == "events" && result !== "Error") {
+                                    console.log(sender + " subscribed to event from " + thing["name"])
+                                    displayAttributes(sender, "block", "none")
+                                }else alert("Something went wrong. Please try again.")
+                            })
+                        } else alert("No correct security definition.")
                     }} key={i} className={"button"}>{values[i]}
                     </button>
                 )
@@ -231,11 +248,43 @@ function getValues(thing_string: string, sender: string = "controller"): void {
         const aId: string = thing["id"] + "-" + values[i] + "-" + "field-" + sender
         const form = thing["properties"][values[i]]["form"]
         form["sender"] = sender
-        triggerRequest(JSON.stringify(form)).then((result: string): void => {
-            const attribute: HTMLInputElement | null = document.getElementById(aId) as HTMLInputElement
-            if (attribute) attribute.value = JSON.parse(result).value
-        })
+        const credentials: string[] = getCredentials(thing["id"])
+        if (credentials[0] === "basic" && credentials[1] === "header" && credentials.length === 4){
+            triggerRequestBasic(JSON.stringify(form), credentials).then((result: string): void => {
+                if (result !== "Error" && JSON.parse(result).value){
+                    const attribute: HTMLInputElement | null = document.getElementById(aId) as HTMLInputElement
+                    if (attribute) attribute.value = JSON.parse(result).value
+                }else alert("Somthing went wrong. Please try again.")
+            })
+        }else alert("No correct security definition.")
     }
+}
+
+/**
+ * Gets the security type and credentials for a specific device from the configuration file.
+ * @param {string} thing - The ID of the thing.
+ * @return {string[]} - Array with the security type, the way of transmitting and the credentials.
+ */
+function getCredentials(thing: string): string[]{
+    const credentials: string[] = []
+    if (config){
+        const devices = JSON.parse(config)["devices"]
+        for (let i: number = 0; i < devices.length; i++){
+            const device = devices[i]
+            if (device["id"] === thing){
+                // basic security definition
+                if(device["securityDefinitions"]["basic_sc"]
+                    && device["securityDefinitions"]["basic_sc"]["scheme"] === "basic"){
+                    credentials.push(device["securityDefinitions"]["basic_sc"]["scheme"])
+                    credentials.push(device["securityDefinitions"]["basic_sc"]["in"])
+                    credentials.push(device["credentials"]["basic_sc"]["username"])
+                    credentials.push(device["credentials"]["basic_sc"]["password"])
+                }
+                //toDo implement other security definitions
+            }
+        }
+    }
+    return credentials
 }
 
 
@@ -361,34 +410,38 @@ function changeType(value: string, type: string): string | number | boolean {
 /**
  Triggers requests for an attribute of a specified Thing to the backend and returns the answer as a string.
  The Backend triggers a request to the Thing and forwards the answer back to this function.
+ This function works with the basic WoT security definition with the credentials in the header
+ toDo: function for other definitions.
  @param {string} form - The form parameter of the thing.
+ @param {string[]} credentials - Credentials to access the device
  @returns {Promise<string>} A promise that resolves to the fetched answer as a string.
  */
-async function triggerRequest(form: string): Promise<string>{
+async function triggerRequestBasic(form: string, credentials: string[]): Promise<string>{
+    console.log(credentials)
     try {
         const response: Response = await fetch(urlET, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'username': credentials[2], 'password': credentials[3]},
             body: form
         })
         if (response.ok) return await response.text()
-        return "ERROR"
+        return "Error"
     } catch (error) {
         return "Error"
     }
 }
 
 /**
- Fetches thing descriptions from a specified URL and returns them as a string.
- @returns {Promise<string>} A promise that resolves to the fetched thing descriptions as a string.
+ Fetches thing descriptions or config file from a specified URL and returns them as a string.
+ @param {string} url - Url to get the specific file
+ @returns {Promise<string>} A promise that resolves to the fetched thing descriptions or config file as a string.
  */
-async function fetchThingDescriptions(): Promise <string> {
+async function fetchFiles(url: string): Promise <string> {
     try {
-        const response: Response = await fetch(urlTD);
+        const response: Response = await fetch(url);
         if (response.ok) return await response.text()
         else return "Error"
     } catch (error) {
-        console.error('Error fetching thing descriptions:', error);
         return "Error"
     }
 }

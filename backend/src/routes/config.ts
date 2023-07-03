@@ -67,8 +67,8 @@ configRouter.get('/', (req, res) => {
         const config = JSON.parse(fileContent);
         res.send(config);
     } else {
-        // Send 404 if config was not uploaded yet
-        res.status(404).send('No config file found');
+        // if config was not uploaded yet
+        res.send('No config file found');
     }
 });
 
