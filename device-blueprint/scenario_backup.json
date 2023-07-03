@@ -1,7 +1,7 @@
 {
   "devices": [
     {
-      "title": "TEST DEVICE 1",
+      "title": "Coffee-machine",
       "description": "A smart coffee machine with a range of capabilities",
       "properties": {
         "temperature": {
@@ -11,54 +11,19 @@
         }
       },
       "actions": {
-        "setTemperature": {
+        "brew_coffee": {
           "description": "Sets the temperature of the coffee machine using an action",
-          "uriVariables": {
             "temperature": {
               "type": "integer",
               "description": "Temperature to set the coffee machine to",
               "minimum": 0,
               "maximum": 100
-            }
-          },
+            },
           "action_list": [
             {
               "action_type": "set",
               "property": "temperature",
               "value": 97
-            },
-            {
-              "action_type": "set",
-              "property": "temperature",
-              "variable": "temperature"
-            },
-            {
-              "action_type": "increment",
-              "property": "temperature",
-              "value": 1
-            },
-            {
-              "action_type": "sleep",
-              "value": 4
-            },
-            {
-              "action_type": "emit_event",
-              "event_name": "temperatureSet",
-              "payload_property": "temperature"
-            },
-            {
-              "action_type": "condition",
-              "property": "temperature",
-              "condition": {
-                "operator": ">",
-                "value": 99,
-                "action_list_true": [
-                  {
-                    "action_type": "emit_event",
-                    "event_name": "temperatureSet"
-                  }
-                ]
-              }
             }
           ]
         }
@@ -98,11 +63,6 @@
               "action_type": "set",
               "property": "temperature",
               "value": 97
-            },
-            {
-              "action_type": "set",
-              "property": "temperature",
-              "variable": "temperature"
             },
             {
               "action_type": "increment",

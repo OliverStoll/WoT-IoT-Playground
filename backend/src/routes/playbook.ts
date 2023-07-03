@@ -23,25 +23,36 @@ playbookRouter.post('/', async (req, res): Promise<void> => {
             console.log(`playbook: ${step.deviceId} ${step.type} ${step.value}`)
             const filteredDescription = thingDescriptions.filter((description) => {
                 const parsedDescription = JSON.parse(description)
-                return parsedDescription.id == step.deviceId
+                return parsedDescription.title == step.deviceId
             });
             let filteredDescriptionParsed = JSON.parse(filteredDescription[0])
 
             switch (step.type){
                 case 'property':
                     console.log("property")
-                    const href_element_property = filteredDescriptionParsed.properties[step.value].form.href
+                    const href_element_property = filteredDescriptionParsed.properties[step.value].forms[0].href
+                    console.log(href_element_property)
+                    console.log(filteredDescriptionParsed.properties[step.value])
                     // handler for http wot devices
-                    const resp_property = sendRequest(href_element_property)
+                    const requestObject = {
+                        href: href_element_property,
+                        'htv:methodName': 'GET',
+                        contentType : 'application/json'
+                    }
+                    const resp_property = sendRequest(requestObject)
                     console.log(resp_property)
 
                     break
                 case 'action':
                     console.log('action')
-                    const initialKey: string = Object.keys(filteredDescriptionParsed.properties)[0]
-                    const href_element: string = filteredDescriptionParsed.properties[initialKey].form.href
-                    let action_url: string = href_element.split('property')[0] + step.type + '/' + step.value
-                    const resp_action = sendRequest(action_url)
+                    const href_element: string = filteredDescriptionParsed.actions[step.value].forms[0].href
+
+                    const requestObjectAction = {
+                        href: href_element,
+                        'htv:methodName': 'POST',
+                        contentType : 'application/json'
+                    }
+                    const resp_action = sendRequest(requestObjectAction)
                     console.log('actionResponse: ', resp_action)
                     break
                 case 'event':

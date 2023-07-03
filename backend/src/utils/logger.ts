@@ -13,18 +13,30 @@ function createLog(logData): string {
     // Define general log message
     let logMessage: string = `${timestamp},${host.id},`;
 
+    let callerIp = "controller"
+    if(caller){
+        if(caller.ip != "Unknown"){
+            callerIp = caller.ip
+        }
+    }
+
+
     // Generate logs according to the type
     switch (type) {
-        case 'property_called': {
-            logMessage += `property "${payload.name}" with a value of ${payload.value} was accessed by: ${caller.ip}:${caller.port}`;
+        case 'property_read': {
+            logMessage += `property "${payload.name}" with a value of ${payload.value} was accessed by: ${callerIp}:${caller.port}`;
+            break;
+        }
+        case 'property_changed': {
+            logMessage += `property "${payload.name}" was changed to ${payload.value}`;
             break;
         }
         case 'action_called': {
-            logMessage += `action "${payload.name}" was called by: ${caller.ip}:${caller.port}`;
+            logMessage += `action "${payload}" was called by: ${callerIp}:${caller.port}`;
             break;
         }
         case 'event_called': {
-            logMessage += `event "${payload.name}" was registered to by: ${caller.ip}:${caller.port}`;
+            logMessage += `event "${payload.name}" was registered to by: ${callerIp}:${caller.port}`;
             break;
         }
         case 'event_triggered': {
