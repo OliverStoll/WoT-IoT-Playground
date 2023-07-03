@@ -200,7 +200,7 @@ function getValues(thing_string: string): void {
         const form = thing["properties"][values[i]]["forms"][0]
         triggerRequest(JSON.stringify(form)).then((result: string): void => {
             const attribute: HTMLInputElement | null = document.getElementById(aId) as HTMLInputElement
-            if (attribute) attribute.value = JSON.parse(result).value
+            if (attribute) attribute.value = result
         })
     }
 }
