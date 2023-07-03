@@ -128,20 +128,20 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
                                            const form = thing[att_key][values[i]]["form"]
                                            // transform new value to correct type and add to body
                                            form["value"] = changeType(event.currentTarget.value, type)
+                                           form["htv:methodName"] = "PUT"
                                            form["sender"] = sender
                                            const credentials: string[] = getCredentials(thing["id"])
                                            // send request to change value
-                                           if (credentials[0] === "basic" && credentials[1] === "header"
-                                               && credentials.length === 4) {
-                                               triggerRequestBasic(JSON.stringify(form), credentials)
+                                           if (credentials.length > 0) {
+                                               // No, or basic security definition
+                                               triggerRequest(JSON.stringify(form), credentials)
                                                    .then((result: string): void => {
-                                                       if (result !== "Error" && JSON.parse(result).value) {
+                                                       if (result !== "Error") {
                                                            console.log("Property " + values[i] + " was changed to \""
-                                                               + JSON.parse(result).value + "\" by " + sender)
-                                                           const property: HTMLInputElement | null =
-                                                               document.getElementById(pId) as HTMLInputElement
-                                                           if (property) property.value = JSON.parse(result).value
-                                                           alert("Values can't be set in the moment.")
+                                                               + event.currentTarget.value + "\" by " + sender)
+                                                           // const property: HTMLInputElement | null =
+                                                           //     document.getElementById(pId) as HTMLInputElement
+                                                           // if (property) property.value = JSON.parse(result).value
                                                        }
                                                    })
                                            } else alert("No correct security definition.")
@@ -165,16 +165,16 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
                         }
                         form["sender"] = sender
                         const credentials: string[] = getCredentials(thing["id"])
-                        if (credentials[0] === "basic" && credentials[1] === "header" && credentials.length === 4) {
+                        if (credentials.length > 0) {
+                            // No, or basic security definition
                             if (att_key === "events"){
                                 // the answer will only come when the Event happened, so we have to do this before.
                                 console.log(sender + " subscribed to event from " + thing["name"])
                                 displayAttributes(sender, "block", "none")
                             }
-                            triggerRequestBasic(JSON.stringify(form), credentials).then((result: string): void => {
-                                if (att_key == "actions" && result !== "Error" && JSON.parse(result).name) {
-                                    console.log(att_key.slice(0, -1) + ": " + JSON.parse(result).name +
-                                        " was called by " + sender)
+                            triggerRequest(JSON.stringify(form), credentials).then((result: string): void => {
+                                if (att_key == "actions" && result !== "Error") {
+                                    console.log(att_key.slice(0, -1) + ": " + values[i] + " was called by " + sender)
                                     displayAttributes(thing["id"], "block", "none")
                                 } else if (att_key == "events" && result !== "Error") {
                                     console.log(thing["title"] + "emitted event \"" + values[i] + "\" and "
@@ -254,8 +254,9 @@ function getValues(thing_string: string, sender: string = "controller"): void {
         const form = thing["properties"][values[i]]["form"]
         form["sender"] = sender
         const credentials: string[] = getCredentials(thing["id"])
-        if (credentials[0] === "basic" && credentials[1] === "header" && credentials.length === 4){
-            triggerRequestBasic(JSON.stringify(form), credentials).then((result: string): void => {
+        if (credentials.length > 0) {
+            // No, or basic security definition
+            triggerRequest(JSON.stringify(form), credentials).then((result: string): void => {
                 if (result !== "Error" && JSON.parse(result).value){
                     const attribute: HTMLInputElement | null = document.getElementById(aId) as HTMLInputElement
                     if (attribute) attribute.value = JSON.parse(result).value
@@ -276,16 +277,19 @@ function getCredentials(thing: string): string[]{
         const devices = JSON.parse(config)["devices"]
         for (let i: number = 0; i < devices.length; i++){
             const device = devices[i]
+            // correct thing
             if (device["id"] === thing){
-                // basic security definition
-                if(device["securityDefinitions"]["basic_sc"]
-                    && device["securityDefinitions"]["basic_sc"]["scheme"] === "basic"){
-                    credentials.push(device["securityDefinitions"]["basic_sc"]["scheme"])
-                    credentials.push(device["securityDefinitions"]["basic_sc"]["in"])
-                    credentials.push(device["credentials"]["basic_sc"]["username"])
-                    credentials.push(device["credentials"]["basic_sc"]["password"])
-                }
-                //toDo implement other security definitions
+                if (device["securityDefinitions"]){
+                    // basic security definition
+                    if(device["securityDefinitions"]["basic_sc"]
+                        && device["securityDefinitions"]["basic_sc"]["scheme"] === "basic"){
+                        credentials.push(device["securityDefinitions"]["basic_sc"]["scheme"])
+                        credentials.push(device["securityDefinitions"]["basic_sc"]["in"])
+                        credentials.push(device["credentials"]["basic_sc"]["username"])
+                        credentials.push(device["credentials"]["basic_sc"]["password"])
+                    }
+                    //toDo implement other security definitions
+                }else credentials.push("none") // no security definition in config
             }
         }
     }
@@ -415,20 +419,30 @@ function changeType(value: string, type: string): string | number | boolean {
 /**
  Triggers requests for an attribute of a specified Thing to the backend and returns the answer as a string.
  The Backend triggers a request to the Thing and forwards the answer back to this function.
- This function works with the basic WoT security definition with the credentials in the header
- toDo: function for other definitions.
  @param {string} form - The form parameter of the thing.
  @param {string[]} credentials - Credentials to access the device
  @returns {Promise<string>} A promise that resolves to the fetched answer as a string.
  */
-async function triggerRequestBasic(form: string, credentials: string[]): Promise<string>{
-    console.log(credentials)
+async function triggerRequest(form: string, credentials: string[]): Promise<string>{
     try {
-        const response: Response = await fetch(urlET, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'username': credentials[2], 'password': credentials[3]},
-            body: form
-        })
+        let response: Response = new Response()
+        if (credentials[0] === "none"){
+            // no security definition in config
+            response = await fetch(urlET, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json'},
+                body: form
+            })
+        }
+        else if (credentials[0] === "basic" && credentials[1] === "header"){
+            // basic in header security definition in config
+            response= await fetch(urlET, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'username': credentials[2], 'password': credentials[3]},
+                body: form
+            })
+        }
+        // toDo implement other security definitions
         if (response.ok) return await response.text()
         return "Error"
     } catch (error) {
