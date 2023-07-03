@@ -110,15 +110,13 @@ function getAttributes(thing_string: string, att_key: string, ind: number): JSX.
                                    if (checkType(event.currentTarget.value, type)) {
                                        const form = thing[att_key][values[i]]["forms"][0]
                                        // transform new value to correct type and add to body
+                                       const newValue: string = event.currentTarget.value
                                        form["value"] = changeType(event.currentTarget.value, type)
+                                       form["htv:methodName"] = "PUT"
                                        // send request to change value
                                        triggerRequest(JSON.stringify(form)).then((result: string): void => {
-                                           console.log("Property "+ values[i] +" was changed to: "
-                                               + JSON.parse(result).value)
-                                           const attribute: HTMLInputElement| null =
-                                               document.getElementById(aId) as HTMLInputElement
-                                           if (attribute) attribute.value = JSON.parse(result).value
-                                           alert("Values can't be set in the moment.")
+                                           console.log("Property \""+ values[i] +"\" was changed to: "
+                                               + newValue + result)
                                        })
                                    }
                                    else alert("Wrong input type, please try again.")
@@ -139,7 +137,7 @@ function getAttributes(thing_string: string, att_key: string, ind: number): JSX.
                 <button id={bId} onClick={(): void => {
                     let form: string = JSON.stringify(thing[att_key][values[i]]["forms"][0])
                     triggerRequest(form).then((result: string): void =>
-                        console.log(att_key.slice(0, -1) + ": " + JSON.parse(result).name + " was called."))
+                        console.log(att_key.slice(0, -1) + " \"" + values[i] + "\" was called." + result))
                     displayAttributes(thing["id"], "block", "none")
                 }} key={i} className={"button"}>{values[i]}
                 </button>
