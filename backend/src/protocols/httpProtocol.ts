@@ -36,11 +36,29 @@ export class HttpProtocol implements ProtocolInterface {
 
     /**
      * Sends data via the HTTP protocol.
-     * @param url - The destination URL.
+     * @param url to send request to
      * @param data - The data to send.
      */
-    send(url: string, data: any): void {
-        console.log('Sending data via HTTP:', data);
+    async send(url: string, data: any): Promise<void> {
+        console.log('Sending data via HTTP');
+        const { contentType, value} = data
+        const method = data['htv:methodName']
+        console.log(contentType)
+        console.log(value)
+        console.log(method)
+        let cleaned_url = url.replace("localhost", "host.docker.internal")
+
+        const response = await fetch(cleaned_url, {
+            method: method,
+            headers: {'Content-Type': contentType},
+            body: value
+        })
+
+        if(response.status == 200){
+            console.log("Action successfully called")
+            return
+        }
+
     }
 
     /**

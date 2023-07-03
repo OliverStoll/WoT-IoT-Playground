@@ -9,9 +9,12 @@ callRouter.post('/', (req, res): void => {
         return;
     }
 
-    const { href } = req.body;
-    sendRequest(href).then(resp => {
-        res.status(200).send(JSON.stringify(JSON.parse(resp)))
+    sendRequest(req.body).then(resp => {
+        let parsedResponse = ""
+        if(resp){
+            parsedResponse = JSON.stringify(JSON.parse(resp))
+        }
+        res.status(200).send(parsedResponse)
     })
 
 
