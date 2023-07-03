@@ -166,14 +166,19 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
                         form["sender"] = sender
                         const credentials: string[] = getCredentials(thing["id"])
                         if (credentials[0] === "basic" && credentials[1] === "header" && credentials.length === 4) {
+                            if (att_key === "events"){
+                                // the answer will only come when the Event happened, so we have to do this before.
+                                console.log(sender + " subscribed to event from " + thing["name"])
+                                displayAttributes(sender, "block", "none")
+                            }
                             triggerRequestBasic(JSON.stringify(form), credentials).then((result: string): void => {
                                 if (att_key == "actions" && result !== "Error" && JSON.parse(result).name) {
                                     console.log(att_key.slice(0, -1) + ": " + JSON.parse(result).name +
                                         " was called by " + sender)
                                     displayAttributes(thing["id"], "block", "none")
                                 } else if (att_key == "events" && result !== "Error") {
-                                    console.log(sender + " subscribed to event from " + thing["name"])
-                                    displayAttributes(sender, "block", "none")
+                                    console.log(thing["title"] + "emitted event \"" + values[i] + "\" and "
+                                        + sender + " received it.")
                                 }else alert("Something went wrong. Please try again.")
                             })
                         } else alert("No correct security definition.")
