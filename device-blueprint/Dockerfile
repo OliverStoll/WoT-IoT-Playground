@@ -16,7 +16,7 @@ RUN npm install
 COPY . .
 
 # mount the scenario.json file as a volume to ./app/scenario.json
-VOLUME [ "./mount_volume", "./mount_volume" ]
+VOLUME [ "./mount_volume", "./scenario_volume" ]
 
 # Transpile the TypeScript code to JavaScript
 RUN npm run "build"

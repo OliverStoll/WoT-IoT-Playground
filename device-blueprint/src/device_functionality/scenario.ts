@@ -1,7 +1,7 @@
 const fs = require("fs");
 
 
-export function get_device_scenario_file(config_path: string = "./mount_volume/scenario.json", backup_path: string = "./scenario_backup.json") {
+export function get_device_scenario_file(config_path: string = "./scenario_volume/scenario.json", backup_path: string = "./scenario_backup.json") {
 
     // check if scenario.json exists
     let scenario;

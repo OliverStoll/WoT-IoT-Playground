@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Device Tests" type="JavaScriptTestRunnerJest">
+  <configuration default="false" name="Device Tests (Single)" type="JavaScriptTestRunnerJest">
     <node-interpreter value="project" />
     <jest-package value="$PROJECT_DIR$/device-blueprint/node_modules/jest" />
     <working-dir value="$PROJECT_DIR$/device-blueprint" />

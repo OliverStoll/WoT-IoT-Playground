@@ -17,6 +17,14 @@ test('GET properties -> [200]', async () => {
     expect(response.status).toBe(200);
 });
 
+
+test('GET properties -> {temperature: number}', async () => {
+    const response = await axios.get(`${base_url}/properties`);
+
+    // check that response.data is a JSON object that contains the property 'temperature'
+    expect(response.data).toEqual(expect.objectContaining({temperature: expect.any(Number)}));
+});
+
 // Test make request
 test('POST make_request -> [200]', async () => {
     let url = `${base_url}/actions/make_request?method=GET&url=http://localhost:3001/test-device-2/properties/temperature`
