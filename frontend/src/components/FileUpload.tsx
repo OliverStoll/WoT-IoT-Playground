@@ -74,7 +74,7 @@ function handleFilesAdded(files: File[]): void {
                         sendPostRequest(file, urlScenario).then((result: string): void => {
                             if (uploadDiv) uploadDiv.innerText =
                                 "Drag 'n' drop a playbook file here, or click to select file"
-                            console.log(result)
+                            if(result === "Error") alert("Wrong playbook file. Please try another one.")
                         })
                         break
                     }
@@ -155,9 +155,9 @@ async function sendPostRequest(data: string, url: string): Promise<string> {
             body: data
         })
         if (response.ok) return response.text()
-        return "Error: The server could not handle the request, please try again!"
+        return "Error"
     } catch {
-        return "Error: The server could not handle the request, please try again!"
+        return "Error"
     }
 }
 

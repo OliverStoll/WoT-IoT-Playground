@@ -73,8 +73,11 @@ function getThings(conf: string[]): JSX.Element[] {
                                  document.getElementById(thing["id"] + "control")
                              // When control button is not there => thing is small => make it big and get the values
                              if (control && control.style.getPropertyValue("display") !== "block"){
-                                 getValues(JSON.stringify(thing), "controller")
-                                 displayAttributes(thing["id"], "none", "block")
+                                 const credentials: string[] = getCredentials(thing["title"])
+                                 if (credentials.length > 0) {
+                                     getValues(JSON.stringify(thing), "controller")
+                                     displayAttributes(thing["id"], "none", "block")
+                                 }else alert("No correct security definition.")
                              }
                          }}
                     />
@@ -105,7 +108,11 @@ function getThings(conf: string[]): JSX.Element[] {
  */
 function getAttributes(thing_string: string, att_key: string, ind: number, sender: string = "controller"): JSX.Element {
     const thing = JSON.parse(thing_string)
-    const values: string[] = Object.keys(thing[att_key])
+    // get all the attribute names except the "shutdown" and "make_request" action, they are only for internal usage.
+    const values: string[] = Object.keys(thing[att_key]).filter((value: string) => value !== "shutdown"
+        && value !== "make_request")
+    // current device to hide when action is called
+    const currentDevice: string = sender === "controller" ? thing["id"] : sender
     const attributes: JSX.Element[] = Array.from({length: values.length},
         function (_, i: number): JSX.Element {
             if (att_key == "properties") {
@@ -121,14 +128,14 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                                    if (event.key == "Enter") {
                                        const type: string = thing[att_key][values[i]]["type"]
                                        const value: string = event.currentTarget.value
-                                       // check if the input value is valid (always a string but should have right content)
+                                       // check if the input value is valid (always string but should have right content)
                                        if (checkType(value, type)) {
                                            const form = thing[att_key][values[i]]["forms"][0]
                                            // transform new value to correct type and add to body
                                            form["value"] = changeType(value, type)
                                            form["htv:methodName"] = "PUT"
                                            form["sender"] = sender
-                                           const credentials: string[] = getCredentials(thing["id"])
+                                           const credentials: string[] = getCredentials(thing["title"])
                                            // send request to change value
                                            if (credentials.length > 0) {
                                                // No, or basic security definition
@@ -136,13 +143,14 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                                                    .then((result: string): void => {
                                                        if (result !== "Error") {
                                                            console.log("Property \"" + values[i] + "\" from "
-                                                               + thing["name"] +  " got changed to \""
+                                                               + thing["title"] +  " got changed to \""
                                                                + value + "\" by " + sender)
                                                        }
                                                    })
                                            } else alert("No correct security definition.")
                                        }
                                        else alert("Wrong input type, please try again.")
+                                       displayAttributes(currentDevice, "block", "none")
                                    }
                                }}
                         />
@@ -156,19 +164,17 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                     <button id={bId} onClick={(): void => {
                         let form = thing[att_key][values[i]]["forms"][0]
                         form["sender"] = sender
-                        const credentials: string[] = getCredentials(thing["id"])
+                        const credentials: string[] = getCredentials(thing["title"])
                         if (credentials.length > 0) {
-                            // current device to hide when action is called
-                            const currentDevice: string = sender === "controller" ? thing["id"] : sender
                             // No, or basic security definition
                             if (att_key === "events"){
                                 // the answer will only come when the Event happened, so we have to do this before.
-                                console.log(sender + " subscribed to event \"" + values[i] + "\" from " + thing["name"])
+                                console.log(sender + " subscribed to event \"" + values[i] + "\" from " + thing["title"])
                                 displayAttributes(currentDevice, "block", "none")
                             }
                             triggerRequest(JSON.stringify(form), credentials).then((result: string): void => {
                                 if (att_key == "actions" && result !== "Error") {
-                                    console.log(att_key.slice(0, -1) + " \"" + values[i] + "\" from " + thing["name"]
+                                    console.log(att_key.slice(0, -1) + " \"" + values[i] + "\" from " + thing["title"]
                                         + " got called by " + sender)
                                     displayAttributes(currentDevice, "block", "none")
                                 } else if (att_key == "events" && result !== "Error") {
@@ -208,7 +214,7 @@ function getOtherDevices(thing: string, devices: string[]): JSX.Element {
             })
         otherDeviceAttributes.push(
             <div id={thing + "_" + currentDevice["id"] + "_remote"} className={"other-device-attributes"} key={i}>
-                <div>{currentDevice["name"]}: </div>
+                <div>{currentDevice["title"]}: </div>
                 {attributes}
             </div>
         )
@@ -248,7 +254,7 @@ function getValues(thing_string: string, sender: string = "controller"): void {
         const aId: string = thing["id"] + "-" + values[i] + "-" + "field-" + sender
         const form = thing["properties"][values[i]]["forms"][0]
         form["sender"] = sender
-        const credentials: string[] = getCredentials(thing["id"])
+        const credentials: string[] = getCredentials(thing["title"])
         if (credentials.length > 0) {
             // No, or basic security definition
             triggerRequest(JSON.stringify(form), credentials).then((result: string): void => {
@@ -263,7 +269,7 @@ function getValues(thing_string: string, sender: string = "controller"): void {
 
 /**
  * Gets the security type and credentials for a specific device from the configuration file.
- * @param {string} thing - The ID of the thing.
+ * @param {string} thing - The name of the thing. !!!not optimal but we don't have the ID in the config
  * @return {string[]} - Array with the security type, the way of transmitting and the credentials.
  */
 function getCredentials(thing: string): string[]{
@@ -273,7 +279,7 @@ function getCredentials(thing: string): string[]{
         for (let i: number = 0; i < devices.length; i++){
             const device = devices[i]
             // correct thing
-            if (device["id"] === thing){
+            if (device["title"] === thing){
                 if (device["securityDefinitions"]){
                     // basic security definition
                     if(device["securityDefinitions"]["basic_sc"]
@@ -288,6 +294,8 @@ function getCredentials(thing: string): string[]{
             }
         }
     }
+    //toDo delete only for testing
+    credentials.push("none")
     return credentials
 }
 
