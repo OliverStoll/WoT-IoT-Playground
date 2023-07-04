@@ -15,12 +15,12 @@ let config: string = '';
 
 /**
  * Handle POST request to /api/config to receive and process the configuration file.
- * config file is saved to wot-blueprint
+ * config file is saved to device-blueprint
  * docker containers are started according to config file
  */
 configRouter.post('/', (req, res) => {
     if (req.get('Content-Type') === 'application/json') {
-        fileName = path.join(__dirname, '../../../wot-blueprint/config.json');
+        fileName = path.join(__dirname, '../../../device-blueprint/config_backup.json');
         let configRaw = req.body;
 
         // TODO: Add log_server URLs for other protocols
@@ -62,7 +62,7 @@ configRouter.post('/', (req, res) => {
  */
 configRouter.get('/', (req, res) => {
     if (fs.existsSync(fileName)) {
-        // Send config.json if it exists
+        // Send config_backup.json if it exists
         const fileContent = fs.readFileSync(fileName, 'utf8');
         const config = JSON.parse(fileContent);
         res.send(config);

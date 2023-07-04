@@ -4,8 +4,8 @@
 # Ignore log files
 *.log
 
-#ignore config.json
-#*config.json           # Auskommentiert damit wir mit einer richtigen config.json arbeiten können
+#ignore config_backup.json
+#*config_backup.json           # Auskommentiert damit wir mit einer richtigen config_backup.json arbeiten können
 
 # Ignore compiled binaries
 *.class

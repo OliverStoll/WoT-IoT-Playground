@@ -1,0 +1,24 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Start Device" type="js.build_tools.npm">
+    <package-json value="$PROJECT_DIR$/device-blueprint/package.json" />
+    <command value="run" />
+    <scripts>
+      <script value="start"/>
+    </scripts>
+    <node-interpreter value="project" />
+    <envs>
+      <env name="LOG_SERVER" value="http://localhost:5001/api/logs" />
+    </envs>
+    <method v="2">
+      <option name="NpmBeforeRunTask" enabled="true">
+        <package-json value="$PROJECT_DIR$/device-blueprint/package.json" />
+        <command value="run" />
+        <scripts>
+            <script value="build"/>
+        </scripts>
+        <node-interpreter value="project" />
+        <envs />
+      </option>
+    </method>
+  </configuration>
+</component>

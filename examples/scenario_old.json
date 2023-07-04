@@ -34,36 +34,6 @@
       },
       "actions": {
         "brew_coffee": {
-          "actions": [
-            {
-              "action": "set",
-              "property": "temperature",
-              "value": 97
-            },
-            {
-              "action": "increment",
-              "property": "coffee_counter",
-              "value": 1
-            },
-            {
-              "action": "trigger_event",
-              "event": "coffee_brewed"
-            },
-            {
-              "action": "condition",
-              "property": "coffee_counter",
-              "condition": {
-                "operator": ">",
-                "value": 3
-              },
-              "actions_true": [
-                {
-                  "action": "trigger_event",
-                  "event": "coffee_ground_full"
-                }
-              ]
-            }
-          ]
         }
       },
       "events": {
