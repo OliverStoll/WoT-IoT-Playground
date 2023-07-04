@@ -123,11 +123,12 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
                                onKeyDown={(event): void => {
                                    if (event.key == "Enter") {
                                        const type: string = thing[att_key][values[i]]["type"]
+                                       const value: string = event.currentTarget.value
                                        // check if the input value is valid (always a string but should have right content)
-                                       if (checkType(event.currentTarget.value, type)) {
+                                       if (checkType(value, type)) {
                                            const form = thing[att_key][values[i]]["form"]
                                            // transform new value to correct type and add to body
-                                           form["value"] = changeType(event.currentTarget.value, type)
+                                           form["value"] = changeType(value, type)
                                            form["htv:methodName"] = "PUT"
                                            form["sender"] = sender
                                            const credentials: string[] = getCredentials(thing["id"])
@@ -137,11 +138,9 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
                                                triggerRequest(JSON.stringify(form), credentials)
                                                    .then((result: string): void => {
                                                        if (result !== "Error") {
-                                                           console.log("Property " + values[i] + " was changed to \""
-                                                               + event.currentTarget.value + "\" by " + sender)
-                                                           // const property: HTMLInputElement | null =
-                                                           //     document.getElementById(pId) as HTMLInputElement
-                                                           // if (property) property.value = JSON.parse(result).value
+                                                           console.log("Property \"" + values[i] + "\" from "
+                                                               + thing["name"] +  " got changed to \""
+                                                               + value + "\" by " + sender)
                                                        }
                                                    })
                                            } else alert("No correct security definition.")
@@ -166,18 +165,21 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
                         form["sender"] = sender
                         const credentials: string[] = getCredentials(thing["id"])
                         if (credentials.length > 0) {
+                            // current device to hide when action is called
+                            const currentDevice: string = sender === "controller" ? thing["id"] : sender
                             // No, or basic security definition
                             if (att_key === "events"){
                                 // the answer will only come when the Event happened, so we have to do this before.
-                                console.log(sender + " subscribed to event from " + thing["name"])
-                                displayAttributes(sender, "block", "none")
+                                console.log(sender + " subscribed to event \"" + values[i] + "\" from " + thing["name"])
+                                displayAttributes(currentDevice, "block", "none")
                             }
                             triggerRequest(JSON.stringify(form), credentials).then((result: string): void => {
                                 if (att_key == "actions" && result !== "Error") {
-                                    console.log(att_key.slice(0, -1) + ": " + values[i] + " was called by " + sender)
-                                    displayAttributes(thing["id"], "block", "none")
+                                    console.log(att_key.slice(0, -1) + " \"" + values[i] + "\" from " + thing["name"]
+                                        + " got called by " + sender)
+                                    displayAttributes(currentDevice, "block", "none")
                                 } else if (att_key == "events" && result !== "Error") {
-                                    console.log(thing["title"] + "emitted event \"" + values[i] + "\" and "
+                                    console.log(thing["title"] + " emitted event \"" + values[i] + "\" and "
                                         + sender + " received it.")
                                 }else alert("Something went wrong. Please try again.")
                             })
@@ -201,27 +203,32 @@ function getAttributes(thing_string: string, att_key: string, ind: number, port:
  */
 function getOtherDevices(thing: string, devices: string[]): JSX.Element {
     const deviceButtons: JSX.Element[] = []
+    const otherDeviceAttributes: JSX.Element[] = []
     for (let i: number = 0; i < devices.length; i++){
         const currentDevice = JSON.parse(devices[i])
         // don't show the own device inside the thing
         if (currentDevice["id"] === thing) continue
+        //create a representation of every attribute of the thing
+        const values: string[] = Object.keys(currentDevice[att_keys[0]])
+        const port: string = currentDevice["properties"][values[0]]["form"]["href"].split("localhost:")[1].slice(0,4)
+        const attributes: JSX.Element[] = Array.from({length: att_keys.length},
+            function (_, ind: number): JSX.Element {
+                return getAttributes(devices[i], att_keys[ind], ind, port, thing)
+            })
+        otherDeviceAttributes.push(
+            <div id={thing + "_" + currentDevice["id"] + "_remote"} className={"other-device-attributes"} key={i}>
+                <div>{currentDevice["name"]}: </div>
+                {attributes}
+            </div>
+        )
         const button: JSX.Element =
             <button className={"button"} key={i} onClick={(): void => {
-                const deviceName: HTMLElement | null = document.getElementById(thing + "device-name")
-                if (deviceName) deviceName.innerHTML = currentDevice["name"] + ": "
-                const deviceAttr: HTMLElement | null = document.getElementById(thing + "device-attributes")
+                const deviceAttr: HTMLElement | null =
+                    document.getElementById(thing + "_" + currentDevice["id"] + "_remote")
                 if (deviceAttr) deviceAttr.style.display = "block"
                 const thingDevices: HTMLElement | null = document.getElementById(thing + "devices")
                 if (thingDevices) thingDevices.style.display = "none"
-                //create a representation of every attribute of the thing
-                const values: string[] = Object.keys(currentDevice[att_keys[0]])
-                const port: string = currentDevice["properties"][values[0]]["form"]["href"].split("localhost:")[1].slice(0,4)
-                const attributes: JSX.Element[] = Array.from({length: att_keys.length},
-                    function (_, ind: number): JSX.Element {
-                        return getAttributes(devices[i], att_keys[ind], ind, port, thing)
-                    })
                 getValues(devices[i], thing)
-                console.log(attributes)
             }}>{currentDevice["name"]}
             </button>
         deviceButtons.push(button)
@@ -233,10 +240,7 @@ function getOtherDevices(thing: string, devices: string[]): JSX.Element {
                 <div>Other Devices:</div>
                 {deviceButtons}
             </div>
-            <div id={thing + "device-attributes"} className={"device-attributes"}>
-                <div id={thing + "device-name"}></div>
-                <div></div>
-            </div>
+            <div>{otherDeviceAttributes}</div>
         </div>
     )
 }
@@ -307,10 +311,10 @@ function getCredentials(thing: string): string[]{
 function displayOtherDevices(thing: string): void {
     const thingAttributes: HTMLElement | null = document.getElementById(thing + "attributes")
     const deviceController: HTMLElement | null = document.getElementById(thing + "device-controller")
-    const deviceAttr: HTMLElement | null = document.getElementById(thing + "device-attributes")
+    const deviceAttr: HTMLCollectionOf<Element> = document.getElementsByClassName("other-device-attributes")
     const thingDevices: HTMLElement | null = document.getElementById(thing + "devices")
     if (thingDevices) thingDevices.style.display = "none"
-    if (thingAttributes && thingDevices && deviceAttr && deviceController) {
+    if (thingAttributes && thingDevices && deviceController) {
         if (thingAttributes.style.display === "block") {
             thingAttributes.style.display = "none"
             thingDevices.style.display = "block"
@@ -318,7 +322,10 @@ function displayOtherDevices(thing: string): void {
         } else {
             thingAttributes.style.display = "block"
             thingDevices.style.display = "none"
-            deviceAttr.style.display = "none"
+            for (let element of deviceAttr){
+                const device: HTMLElement | null = document.getElementById(element.id)
+                if (device) device.style.display = "none"
+            }
         }
     }
 }
@@ -330,6 +337,7 @@ function displayOtherDevices(thing: string): void {
  @param {string} disThing - Display value for the specific thing
  */
 function displayAttributes(thing: string, disOthers: string, disThing:string): void {
+    console.log(thing+"  "+ disOthers +"   "+ disThing)
     //change display type of all the other things
     const things: HTMLCollectionOf<Element> = document.getElementsByClassName("thing")
     for (let i: number = 0; i<things.length; i++){
@@ -345,8 +353,11 @@ function displayAttributes(thing: string, disOthers: string, disThing:string): v
     if (thingExitIcon) thingExitIcon.style.display = disThing
     const otherDevices: HTMLElement | null = document.getElementById(thing + "device-controller")
     if (otherDevices) otherDevices.style.display = "none"
-    const otherDeviceAttribute: HTMLElement | null = document.getElementById(thing + "device-attributes")
-    if (otherDeviceAttribute) otherDeviceAttribute.style.display = "none"
+    const deviceAttr: HTMLCollectionOf<Element> = document.getElementsByClassName("other-device-attributes")
+    for (let element of deviceAttr){
+        const device: HTMLElement | null = document.getElementById(element.id)
+        if (device) device.style.display = "none"
+    }
     const thingContainer: HTMLElement | null = document.getElementById(thing)
     if (thingContainer){
         if (disThing === "block") {
