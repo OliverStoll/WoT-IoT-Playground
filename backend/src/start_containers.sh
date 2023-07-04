@@ -24,9 +24,12 @@ cd - || exit
 
 for (( i=0; i< num_devices; i++ ))
 do
-  echo "Running docker id $i"
+  device_title=$(jq --raw-output ".devices[$i].title" $json_file)
+  device_name=$(echo "$device_title" | tr ' ' '_' | tr '[:upper:]' '[:lower:]')
+
   port=$((3000 + i))
   # execute docker run command detached with port mapping and environment variable
-  docker run -d -p $port:$port --name wot-device-$i -e PORT=$port -e DEVICE_IDX=$i wot-device
+  docker run -d -p $port:$port --name "$device_name" -e PORT=$port -e DEVICE_IDX=$i wot-device
+  echo "Running docker for device: $device_name"
 done
 sleep 10
