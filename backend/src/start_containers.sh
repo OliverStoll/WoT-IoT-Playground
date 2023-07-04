@@ -29,7 +29,7 @@ do
 
   port=$((3000 + i))
   # execute docker run command detached with port mapping and environment variable
-  docker run -d -p $port:$port --name "$device_name" -e PORT=$port -e DEVICE_IDX=$i wot-device
+  docker run -d -p $port:$port --name "$device_name" -e PORT=$port -e DEVICE_IDX=$i --network="web-of-things-playground_default" wot-device
   echo "Running docker for device: $device_name"
 done
 sleep 10
