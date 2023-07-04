@@ -2,7 +2,12 @@ import {useEffect, useState} from "react"
 import './component_css/ThingRepresentationStyle.css'
 
 const urlTD: string = 'http://localhost:5001/api/logs/thingDescriptions'
+const urlConfig: string = 'http://localhost:5001/api/config'
 const urlET: string = 'http://localhost:5001/api/call'
+
+// important attributes you want to show inside the things
+const att_keys: string[] = ["properties", "actions", "events"]
+let config: string
 
 /**
  Renders a component that fetches and displays a list of thing representations.
@@ -12,14 +17,21 @@ const urlET: string = 'http://localhost:5001/api/call'
 const ThingRepresentation = () => {
     const [things, setThings] = useState<JSX.Element[]>([])
     useEffect(() : void => {
-        // get all TD from backend
-        fetchThingDescriptions().then(function (res: string) :void {
-            // if an error occurred or the list is empty-> return
-            if (res === "Error" || res === "[]") return
-            // parse the TD to show them
-            setThings(getThings(JSON.parse(res)))
+        // get config for security credentials
+        fetchFiles(urlConfig).then(function (conf: string) :void {
+            // if an error occurred or the config is empty-> return
+            if (conf === "Error" || conf === "No config file found") return
+            config = conf
         })
-    },[]);
+        // get all TD from backend
+        fetchFiles(urlTD).then(function (thingDescriptions: string) :void {
+            // if an error occurred or the list is empty-> return
+            if (thingDescriptions === "Error" || thingDescriptions === "[]") return
+            // parse the TD to show them
+            setThings(getThings(JSON.parse(thingDescriptions)))
+        })
+    },[])
+
     // container will all things to display
     return <div className={"thing-container"} id="thing-container" onLoad={(): void => {
         // when a config is loaded, change the text of the upload div and show the kill button
@@ -43,10 +55,6 @@ const ThingRepresentation = () => {
 function getThings(conf: string[]): JSX.Element[] {
     return Array.from({length: conf.length}, function (_, index: number) {
         const thing = JSON.parse(conf[index])
-        // important attributes you want to show
-        const attToShow: string[] = ["actions", "properties", "events"]
-        const att_keys: string[] = Object.keys(thing)
-            .filter(function (key: string){ return attToShow.includes(key)})
         //create a button for the important attributes of every thing description
         const attributes: JSX.Element[] = Array.from({length: att_keys.length},
             function (_, ind: number): JSX.Element {
@@ -61,8 +69,13 @@ function getThings(conf: string[]): JSX.Element[] {
                     />
                     <img src="../../resources/wot_icon.png" alt="Thing icon" className={"thing-icon"}
                          onClick={(): void => {
-                             getValues(JSON.stringify(thing))
-                             displayAttributes(thing["id"], "none", "block")
+                             const control: HTMLElement | null =
+                                 document.getElementById(thing["id"] + "control")
+                             // When control button is not there => thing is small => make it big and get the values
+                             if (control && control.style.getPropertyValue("display") !== "block"){
+                                 getValues(JSON.stringify(thing), "controller")
+                                 displayAttributes(thing["id"], "none", "block")
+                             }
                          }}
                     />
                 </div>
@@ -74,7 +87,7 @@ function getThings(conf: string[]): JSX.Element[] {
                 </div>
                 <img src="../../resources/pngwing.com.png" alt="close icon" className={"close-icon"}
                      id={thing["id"]+ "exit"} onClick={() =>
-                        displayAttributes(thing["id"], "block", "none")}
+                    displayAttributes(thing["id"], "block", "none")}
                 />
             </div>
         )
@@ -87,63 +100,92 @@ function getThings(conf: string[]): JSX.Element[] {
  * @param {string} thing_string - The thing configuration in string format.
  * @param {string} att_key - The attribute key.
  * @param {number} ind - The index of the attribute.
+ * @param {string} sender - ID from the device that is calling the attribute or "controller" if direct call
  * @returns {JSX.Element} Element representing the attributes.
  */
-function getAttributes(thing_string: string, att_key: string, ind: number): JSX.Element {
+function getAttributes(thing_string: string, att_key: string, ind: number, sender: string = "controller"): JSX.Element {
     const thing = JSON.parse(thing_string)
     const values: string[] = Object.keys(thing[att_key])
     const attributes: JSX.Element[] = Array.from({length: values.length},
         function (_, i: number): JSX.Element {
             if (att_key == "properties") {
                 // handle properties
-                const aId: string = thing["id"] + "-" + values[i] + "-" + "field"
+                const pId: string = thing["id"] + "-" + values[i] + "-" + "field-" + sender
                 return (
                     //input field for values => shows current value and sets new value on enter
                     <div key={i} className={"thing-properties"}>
                         {/*name of the property*/}
                         {values[i]}:
-                        <input id={aId} className={"properties-input"}
+                        <input id={pId} className={"properties-input"}
                                onKeyDown={(event): void => {
-                               if (event.key == "Enter") {
-                                   const type: string = thing[att_key][values[i]]["type"]
-                                   // check if the input value is valid (always a string but should have right content)
-                                   if (checkType(event.currentTarget.value, type)) {
-                                       const form = thing[att_key][values[i]]["forms"][0]
-                                       // transform new value to correct type and add to body
-                                       const newValue: string = event.currentTarget.value
-                                       form["value"] = changeType(event.currentTarget.value, type)
-                                       form["htv:methodName"] = "PUT"
-                                       // send request to change value
-                                       triggerRequest(JSON.stringify(form)).then((result: string): void => {
-                                           console.log("Property \""+ values[i] +"\" was changed to: "
-                                               + newValue + result)
-                                       })
+                                   if (event.key == "Enter") {
+                                       const type: string = thing[att_key][values[i]]["type"]
+                                       const value: string = event.currentTarget.value
+                                       // check if the input value is valid (always a string but should have right content)
+                                       if (checkType(value, type)) {
+                                           const form = thing[att_key][values[i]]["forms"][0]
+                                           // transform new value to correct type and add to body
+                                           form["value"] = changeType(value, type)
+                                           form["htv:methodName"] = "PUT"
+                                           form["sender"] = sender
+                                           const credentials: string[] = getCredentials(thing["id"])
+                                           // send request to change value
+                                           if (credentials.length > 0) {
+                                               // No, or basic security definition
+                                               triggerRequest(JSON.stringify(form), credentials)
+                                                   .then((result: string): void => {
+                                                       if (result !== "Error") {
+                                                           console.log("Property \"" + values[i] + "\" from "
+                                                               + thing["name"] +  " got changed to \""
+                                                               + value + "\" by " + sender)
+                                                       }
+                                                   })
+                                           } else alert("No correct security definition.")
+                                       }
+                                       else alert("Wrong input type, please try again.")
                                    }
-                                   else alert("Wrong input type, please try again.")
-                               }
                                }}
                         />
                     </div>
                 )
             }
-            // handle events
-            if (att_key == "events") {
-                const eId: string = thing["id"] + "-" + values[i] + "-" + "event"
-                return (<div id={eId} key={i} className={"thing-events"}>{values[i]}</div>)
+            if (att_key == "actions" || (att_key == "events" && sender !== "controller")) {
+                // handle actions or events if they are called by another device
+                const bId: string = thing["id"] + "-" + values[i] + "-" + "button- " + sender
+                return (
+                    <button id={bId} onClick={(): void => {
+                        let form = thing[att_key][values[i]]["forms"][0]
+                        form["sender"] = sender
+                        const credentials: string[] = getCredentials(thing["id"])
+                        if (credentials.length > 0) {
+                            // current device to hide when action is called
+                            const currentDevice: string = sender === "controller" ? thing["id"] : sender
+                            // No, or basic security definition
+                            if (att_key === "events"){
+                                // the answer will only come when the Event happened, so we have to do this before.
+                                console.log(sender + " subscribed to event \"" + values[i] + "\" from " + thing["name"])
+                                displayAttributes(currentDevice, "block", "none")
+                            }
+                            triggerRequest(JSON.stringify(form), credentials).then((result: string): void => {
+                                if (att_key == "actions" && result !== "Error") {
+                                    console.log(att_key.slice(0, -1) + " \"" + values[i] + "\" from " + thing["name"]
+                                        + " got called by " + sender)
+                                    displayAttributes(currentDevice, "block", "none")
+                                } else if (att_key == "events" && result !== "Error") {
+                                    console.log(thing["title"] + " emitted event \"" + values[i] + "\" and "
+                                        + sender + " received it.")
+                                }else alert("Something went wrong. Please try again.")
+                            })
+                        } else alert("No correct security definition.")
+                    }} key={i} className={"button"}>{values[i]}
+                    </button>
+                )
             }
-            // handle actions
-            const bId: string = thing["id"] + "-" + values[i] + "-" + "button"
-            return (
-                <button id={bId} onClick={(): void => {
-                    let form: string = JSON.stringify(thing[att_key][values[i]]["forms"][0])
-                    triggerRequest(form).then((result: string): void =>
-                        console.log(att_key.slice(0, -1) + " \"" + values[i] + "\" was called." + result))
-                    displayAttributes(thing["id"], "block", "none")
-                }} key={i} className={"button"}>{values[i]}
-                </button>
-            )
+            // handle other attributes
+            const aId: string = thing["id"] + "-" + values[i] + "-" + att_key + "-" + sender
+            return (<div id={aId} key={i} className={"thing-others"}>{values[i]}</div>)
         })
-    return (<div id={thing["id"] + "-" + att_key} key={ind}> {att_key}: {attributes}</div>)
+    return (<div id={thing["id"] + "-" + att_key + "-" + sender} key={ind}> {att_key}: {attributes}</div>)
 }
 
 /**
@@ -154,18 +196,30 @@ function getAttributes(thing_string: string, att_key: string, ind: number): JSX.
  */
 function getOtherDevices(thing: string, devices: string[]): JSX.Element {
     const deviceButtons: JSX.Element[] = []
-    for (let i: number = 0; i< devices.length; i++){
+    const otherDeviceAttributes: JSX.Element[] = []
+    for (let i: number = 0; i < devices.length; i++){
         const currentDevice = JSON.parse(devices[i])
         // don't show the own device inside the thing
         if (currentDevice["id"] === thing) continue
+        //create a representation of every attribute of the thing
+        const attributes: JSX.Element[] = Array.from({length: att_keys.length},
+            function (_, ind: number): JSX.Element {
+                return getAttributes(devices[i], att_keys[ind], ind, thing)
+            })
+        otherDeviceAttributes.push(
+            <div id={thing + "_" + currentDevice["id"] + "_remote"} className={"other-device-attributes"} key={i}>
+                <div>{currentDevice["name"]}: </div>
+                {attributes}
+            </div>
+        )
         const button: JSX.Element =
             <button className={"button"} key={i} onClick={(): void => {
-                const deviceName: HTMLElement | null = document.getElementById(thing + "device-name")
-                if (deviceName) deviceName.innerHTML = currentDevice["title"] + ": "
-                const deviceAttr: HTMLElement | null = document.getElementById(thing + "device-attributes")
+                const deviceAttr: HTMLElement | null =
+                    document.getElementById(thing + "_" + currentDevice["id"] + "_remote")
                 if (deviceAttr) deviceAttr.style.display = "block"
                 const thingDevices: HTMLElement | null = document.getElementById(thing + "devices")
                 if (thingDevices) thingDevices.style.display = "none"
+                getValues(devices[i], thing)
             }}>{currentDevice["title"]}
             </button>
         deviceButtons.push(button)
@@ -177,30 +231,64 @@ function getOtherDevices(thing: string, devices: string[]): JSX.Element {
                 <div>Other Devices:</div>
                 {deviceButtons}
             </div>
-            <div id={thing + "device-attributes"} className={"device-attributes"}>
-                <div id={thing + "device-name"}></div>
-            </div>
+            <div>{otherDeviceAttributes}</div>
         </div>
     )
 }
 
-
-
 /**
  * Retrieves and sets the values for the properties of a thing.
  * @param {string} thing_string - The thing configuration in string format.
+ * @param {string} sender - ID from the device that is calling the property or "controller" if direct call
  */
-function getValues(thing_string: string): void {
+function getValues(thing_string: string, sender: string = "controller"): void {
     const thing = JSON.parse(thing_string)
     const values: string[] = Object.keys(thing["properties"])
     for (let i: number = 0; i < values.length; i++) {
-        const aId: string = thing["id"] + "-" + values[i] + "-" + "field"
+        const aId: string = thing["id"] + "-" + values[i] + "-" + "field-" + sender
         const form = thing["properties"][values[i]]["forms"][0]
-        triggerRequest(JSON.stringify(form)).then((result: string): void => {
-            const attribute: HTMLInputElement | null = document.getElementById(aId) as HTMLInputElement
-            if (attribute) attribute.value = result
-        })
+        form["sender"] = sender
+        const credentials: string[] = getCredentials(thing["id"])
+        if (credentials.length > 0) {
+            // No, or basic security definition
+            triggerRequest(JSON.stringify(form), credentials).then((result: string): void => {
+                if (result !== "Error"){
+                    const attribute: HTMLInputElement | null = document.getElementById(aId) as HTMLInputElement
+                    if (attribute) attribute.value = result
+                }else alert("Somthing went wrong. Please try again.")
+            })
+        }else alert("No correct security definition.")
     }
+}
+
+/**
+ * Gets the security type and credentials for a specific device from the configuration file.
+ * @param {string} thing - The ID of the thing.
+ * @return {string[]} - Array with the security type, the way of transmitting and the credentials.
+ */
+function getCredentials(thing: string): string[]{
+    const credentials: string[] = []
+    if (config){
+        const devices = JSON.parse(config)["devices"]
+        for (let i: number = 0; i < devices.length; i++){
+            const device = devices[i]
+            // correct thing
+            if (device["id"] === thing){
+                if (device["securityDefinitions"]){
+                    // basic security definition
+                    if(device["securityDefinitions"]["basic_sc"]
+                        && device["securityDefinitions"]["basic_sc"]["scheme"] === "basic"){
+                        credentials.push(device["securityDefinitions"]["basic_sc"]["scheme"])
+                        credentials.push(device["securityDefinitions"]["basic_sc"]["in"])
+                        credentials.push(device["credentials"]["basic_sc"]["username"])
+                        credentials.push(device["credentials"]["basic_sc"]["password"])
+                    }
+                    //toDo implement other security definitions
+                }else credentials.push("none") // no security definition in config
+            }
+        }
+    }
+    return credentials
 }
 
 
@@ -214,10 +302,10 @@ function getValues(thing_string: string): void {
 function displayOtherDevices(thing: string): void {
     const thingAttributes: HTMLElement | null = document.getElementById(thing + "attributes")
     const deviceController: HTMLElement | null = document.getElementById(thing + "device-controller")
-    const deviceAttr: HTMLElement | null = document.getElementById(thing + "device-attributes")
+    const deviceAttr: HTMLCollectionOf<Element> = document.getElementsByClassName("other-device-attributes")
     const thingDevices: HTMLElement | null = document.getElementById(thing + "devices")
     if (thingDevices) thingDevices.style.display = "none"
-    if (thingAttributes && thingDevices && deviceAttr && deviceController) {
+    if (thingAttributes && thingDevices && deviceController) {
         if (thingAttributes.style.display === "block") {
             thingAttributes.style.display = "none"
             thingDevices.style.display = "block"
@@ -225,7 +313,10 @@ function displayOtherDevices(thing: string): void {
         } else {
             thingAttributes.style.display = "block"
             thingDevices.style.display = "none"
-            deviceAttr.style.display = "none"
+            for (let element of deviceAttr){
+                const device: HTMLElement | null = document.getElementById(element.id)
+                if (device) device.style.display = "none"
+            }
         }
     }
 }
@@ -252,8 +343,11 @@ function displayAttributes(thing: string, disOthers: string, disThing:string): v
     if (thingExitIcon) thingExitIcon.style.display = disThing
     const otherDevices: HTMLElement | null = document.getElementById(thing + "device-controller")
     if (otherDevices) otherDevices.style.display = "none"
-    const otherDeviceAttribute: HTMLElement | null = document.getElementById(thing + "device-attributes")
-    if (otherDeviceAttribute) otherDeviceAttribute.style.display = "none"
+    const deviceAttr: HTMLCollectionOf<Element> = document.getElementsByClassName("other-device-attributes")
+    for (let element of deviceAttr){
+        const device: HTMLElement | null = document.getElementById(element.id)
+        if (device) device.style.display = "none"
+    }
     const thingContainer: HTMLElement | null = document.getElementById(thing)
     if (thingContainer){
         if (disThing === "block") {
@@ -299,7 +393,7 @@ function checkType(value: string, type: string): boolean {
  * @param {string} type - The type the value should have
  * @returns The transformed value
  */
-function changeType(value: string, type: string) {
+function changeType(value: string, type: string): string | number | boolean {
     let transformedValue
     switch (type){
         case "number": {
@@ -327,33 +421,47 @@ function changeType(value: string, type: string) {
  Triggers requests for an attribute of a specified Thing to the backend and returns the answer as a string.
  The Backend triggers a request to the Thing and forwards the answer back to this function.
  @param {string} form - The form parameter of the thing.
+ @param {string[]} credentials - Credentials to access the device
  @returns {Promise<string>} A promise that resolves to the fetched answer as a string.
  */
-async function triggerRequest(form: string): Promise<string>{
+async function triggerRequest(form: string, credentials: string[]): Promise<string>{
     try {
-        const response: Response = await fetch(urlET, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: form
-        })
+        let response: Response = new Response()
+        if (credentials[0] === "none"){
+            // no security definition in config
+            response = await fetch(urlET, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json'},
+                body: form
+            })
+        }
+        else if (credentials[0] === "basic" && credentials[1] === "header"){
+            // basic in header security definition in config
+            response= await fetch(urlET, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'username': credentials[2], 'password': credentials[3]},
+                body: form
+            })
+        }
+        // toDo implement other security definitions
         if (response.ok) return await response.text()
-        return "ERROR"
+        return "Error"
     } catch (error) {
         return "Error"
     }
 }
 
 /**
- Fetches thing descriptions from a specified URL and returns them as a string.
- @returns {Promise<string>} A promise that resolves to the fetched thing descriptions as a string.
+ Fetches thing descriptions or config file from a specified URL and returns them as a string.
+ @param {string} url - Url to get the specific file
+ @returns {Promise<string>} A promise that resolves to the fetched thing descriptions or config file as a string.
  */
-async function fetchThingDescriptions(): Promise <string> {
+async function fetchFiles(url: string): Promise <string> {
     try {
-        const response: Response = await fetch(urlTD);
+        const response: Response = await fetch(url);
         if (response.ok) return await response.text()
         else return "Error"
     } catch (error) {
-        console.error('Error fetching thing descriptions:', error);
         return "Error"
     }
 }
