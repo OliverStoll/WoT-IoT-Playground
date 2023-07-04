@@ -46,7 +46,9 @@ configRouter.post('/', (req, res) => {
             }
             sendRequest(requestObject).then(resp => {
                 if(resp){
-                    thingDescriptions.push(JSON.stringify(JSON.parse(resp)))
+                    let externalDevice = JSON.parse(resp)
+                    externalDevice['external'] = true
+                    thingDescriptions.push(JSON.stringify(externalDevice))
                 }
             })
         }

@@ -11,8 +11,22 @@ playbookRouter.post('/', async (req, res): Promise<void> => {
 
     const playbook = req.body;
 
+    // return 400 if wrong format of playbook file
     if (!playbook.steps || !Array.isArray(playbook.steps)) {
         res.status(400).send('Invalid playbook format');
+        return;
+    }
+    // Check if all devices in playbook file are actually present
+    const allDevicesPresent = playbook.steps.every((step) => {
+        return step.deviceId && thingDescriptions.some((description) => {
+            const parsedDescription = JSON.parse(description);
+            return parsedDescription.title === step.deviceId;
+        });
+    });
+
+    if (!allDevicesPresent) {
+        console.log('Not all devices in playbook file are present')
+        res.status(400).send('Not all devices in playbook file are present');
         return;
     }
 
