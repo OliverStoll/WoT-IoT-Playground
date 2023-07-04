@@ -16,15 +16,19 @@ playbookRouter.post('/', async (req, res): Promise<void> => {
         res.status(400).send('Invalid playbook format');
         return;
     }
-    // Check if all devices in playbook file are actually present
-    const allDevicesPresent = playbook.steps.every((step) => {
-        return step.deviceId && thingDescriptions.some((description) => {
-            const parsedDescription = JSON.parse(description);
-            return parsedDescription.title === step.deviceId;
-        });
-    });
 
-    if (!allDevicesPresent) {
+    // Check if all devices in playbook file are actually present
+    // Generate set of devices in playbook
+    const uniqueDeviceIds = [...new Set(
+        playbook.steps.map((step) => (step.deviceId !== undefined ? step.deviceId : undefined))
+    )].filter(((deviceId) => deviceId !== undefined))
+    //Generate set of devices in config
+    const uniqueTitles = [...new Set(thingDescriptions.map((description) => JSON.parse(description).title))];
+
+    //check if all playbook devices are in config
+    const allDeviceIdsInTitles = uniqueDeviceIds.every((deviceId) => uniqueTitles.includes(deviceId));
+
+    if (!allDeviceIdsInTitles) {
         console.log('Not all devices in playbook file are present')
         res.status(400).send('Not all devices in playbook file are present');
         return;
