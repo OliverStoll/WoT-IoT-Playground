@@ -39,7 +39,7 @@
     },
     {
       "title": "Smart Kettle",
-      "description": "A smart waterboiler with a range of capabilities",
+      "description": "A smart water-boiler with a range of capabilities",
       "properties": {
         "temperature": {
           "type": "number",
