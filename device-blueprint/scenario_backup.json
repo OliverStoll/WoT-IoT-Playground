@@ -50,14 +50,6 @@
       "actions": {
         "setTemperature": {
           "description": "Sets the temperature of the coffee machine using an action",
-          "uriVariables": {
-            "temperature": {
-              "type": "integer",
-              "description": "Temperature to set the coffee machine to",
-              "minimum": 0,
-              "maximum": 100
-            }
-          },
           "action_list": [
             {
               "action_type": "set",
@@ -105,8 +97,8 @@
       }
     },
     {
-      "title": "TEST DEVICE 3",
-      "description": "A smart coffee machine with a range of capabilities",
+      "title": "Smart Kettle",
+      "description": "A smart waterboiler with a range of capabilities",
       "properties": {
         "temperature": {
           "type": "number",
@@ -115,26 +107,13 @@
         }
       },
       "actions": {
-        "setTemperature": {
+        "makeHotWater": {
           "description": "Sets the temperature of the coffee machine using an action",
-          "uriVariables": {
-            "temperature": {
-              "type": "integer",
-              "description": "Temperature to set the coffee machine to",
-              "minimum": 0,
-              "maximum": 100
-            }
-          },
           "action_list": [
             {
               "action_type": "set",
               "property": "temperature",
               "value": 97
-            },
-            {
-              "action_type": "set",
-              "property": "temperature",
-              "variable": "temperature"
             },
             {
               "action_type": "increment",

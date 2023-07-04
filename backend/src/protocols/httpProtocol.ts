@@ -1,5 +1,6 @@
-import { ProtocolInterface } from '../interfaces/protocolInterface';
-import { Application } from 'express';
+import {ProtocolInterface} from '../interfaces/protocolInterface';
+import {Application} from 'express';
+
 const http = require('http')
 
 export class HttpProtocol implements ProtocolInterface {
@@ -40,13 +41,10 @@ export class HttpProtocol implements ProtocolInterface {
      * @param data - The data to send.
      */
     async send(url: string, data: any): Promise<void> {
-        console.log('Sending data via HTTP');
         const { contentType, value} = data
         const method = data['htv:methodName']
-        console.log(contentType)
-        console.log(value)
-        console.log(method)
         let cleaned_url = url.replace("localhost", "host.docker.internal")
+        console.log(`Sending data via HTTP to url ${cleaned_url} using content type: ${contentType}, value ${value} and method: ${method}`);
 
         const response = await fetch(cleaned_url, {
             method: method,

@@ -1,11 +1,11 @@
 const express = require('express');
 import {Application} from 'express'
+import {ProtocolInterface} from "./interfaces/protocolInterface";
+import {HttpProtocol} from "./protocols/httpProtocol";
+
 const dotenv = require('dotenv');
 const cors = require('cors')
 const bodyParser = require('body-parser')
-
-import {ProtocolInterface} from "./interfaces/protocolInterface";
-import {HttpProtocol} from "./protocols/httpProtocol";
 
 // initialize the express app
 const app: Application = express()
@@ -34,8 +34,10 @@ app.use(bodyParser.json());
 
 // log all incoming requests
 app.use((req, res, next): void => {
-    console.log(`${req.method} request: ${req.url}`)
-    console.log(req.body)
+    // log if the request is not GET to /api/logs
+    if(req.method != "GET" || req.url != "/api/logs") {
+        console.log(`${req.method} request: ${req.url} - ${JSON.stringify(req.body)}`)
+    }
     next()
 })
 
