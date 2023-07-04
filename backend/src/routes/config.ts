@@ -4,6 +4,7 @@ const express = require('express');
 const fs = require('fs');
 const thingDescriptions = require('./logs').thingDescriptions;
 const logs = require('./logs').logs;
+const sendRequest = require('../utils/sendRequest');
 
 const configRouter = express.Router();
 
@@ -35,6 +36,22 @@ configRouter.post('/', (req, res) => {
             return;
         }
         console.log(`Config saved to file ${fileName}`);
+
+        // parse external devices
+        const externalDevicesList = JSON.parse(config)['externalDevices']
+        // iterate over list and send a get request to each of the elements
+        for(const externalDeviceUrl of externalDevicesList){
+            const requestObject: {href: string} = {
+                href: externalDeviceUrl
+            }
+            sendRequest(requestObject).then(resp => {
+                if(resp){
+                    let externalDevice = JSON.parse(resp)
+                    externalDevice['external'] = true
+                    thingDescriptions.push(JSON.stringify(externalDevice))
+                }
+            })
+        }
 
         const scriptPath = path.join(__dirname, '../../src/start_containers.sh');
         const script = spawn('bash', [scriptPath], {

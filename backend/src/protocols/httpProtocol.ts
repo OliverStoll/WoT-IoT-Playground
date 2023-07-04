@@ -25,7 +25,6 @@ export class HttpProtocol implements ProtocolInterface {
     }
 
 
-
     /**
      * Connects to the HTTP protocol by starting the server.
      */
@@ -53,7 +52,7 @@ export class HttpProtocol implements ProtocolInterface {
         })
 
         if(response.status == 200){
-            console.log("Action successfully called")
+            console.log("Action/Event successfully called")
             return
         }
 
@@ -64,7 +63,7 @@ export class HttpProtocol implements ProtocolInterface {
      * @param url - The URL to make the HTTP GET request.
      * @returns A Promise that resolves with the received data.
      */
-    receive(url: string): Promise<any> {
+    async receive(url: string): Promise<string> {
         console.log('Receiving data via HTTP');
 
         return new Promise((resolve, reject) => {
