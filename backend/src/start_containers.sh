@@ -1,6 +1,6 @@
 #!/bin/bash
-# script that extracts the number of devices from scenario and runs a docker container for each device with an increasing id
-# get the num devices from config_backup.json with jq
+# script that extracts the number of devices from scenario and runs a docker container for each device
+# get the num devices from scenario.json with jq
 json_file="../device-blueprint/mount_volume/scenario.json"
 # echo if the file exists
 if [ -f "$json_file" ]; then

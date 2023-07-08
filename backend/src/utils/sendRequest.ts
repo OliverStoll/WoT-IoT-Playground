@@ -1,7 +1,7 @@
 import {ProtocolInterface} from "../interfaces/protocolInterface";
 import {HttpProtocol} from "../protocols/httpProtocol";
 
-async function sendRequest(data) {
+async function sendRequest(data): Promise<string> {
     // handler for http wot devices
     const { href } = data
     const method = data['htv:methodName']
@@ -27,7 +27,7 @@ async function sendRequest(data) {
         JSON.parse(response)
     }
     catch (e) {
-        console.log(`Response for Request to URL: ${href} is not valid JSON!`)
+        console.log(`Could not get value from URL: ${href}`)
         response = ""
     }
 
