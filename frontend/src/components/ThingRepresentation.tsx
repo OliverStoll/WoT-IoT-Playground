@@ -8,6 +8,7 @@ const urlET: string = 'http://localhost:5001/api/call'
 // important attributes you want to show inside the things
 const att_keys: string[] = ["properties", "actions", "events"]
 let config: string
+let thingDescriptions: string[]
 
 /**
  Renders a component that fetches and displays a list of thing representations.
@@ -24,11 +25,12 @@ const ThingRepresentation = () => {
             config = conf
         })
         // get all TD from backend
-        fetchFiles(urlTD).then(function (thingDescriptions: string) :void {
+        fetchFiles(urlTD).then(function (tD: string) :void {
             // if an error occurred or the list is empty-> return
-            if (thingDescriptions === "Error" || thingDescriptions === "[]") return
+            if (tD === "Error" || tD === "[]") return
             // parse the TD to show them
-            setThings(getThings(JSON.parse(thingDescriptions)))
+            thingDescriptions = JSON.parse(tD)
+            setThings(getThings())
         })
     },[])
 
@@ -49,12 +51,11 @@ const ThingRepresentation = () => {
 /**
  Converts a list of thing configurations into an array of JSX elements representing each thing.
  Each thing element includes an icon, along with selected attributes of the thing.
- @param {string[]} conf - The list of thing configurations.
  @returns {JSX.Element[]} An array of JSX elements representing the things.
  */
-function getThings(conf: string[]): JSX.Element[] {
-    return Array.from({length: conf.length}, function (_, index: number) {
-        const thing = JSON.parse(conf[index])
+function getThings(): JSX.Element[] {
+    return Array.from({length: thingDescriptions.length}, function (_, index: number) {
+        const thing = JSON.parse(thingDescriptions[index])
         //create a button for the important attributes of every thing description
         const attributes: JSX.Element[] = Array.from({length: att_keys.length},
             function (_, ind: number): JSX.Element {
@@ -88,7 +89,7 @@ function getThings(conf: string[]): JSX.Element[] {
                 <div className={"thing-attributes"} id={thing["id"]+ "attributes"}>{attributes}</div>
                 {/*container with a list of all other devices for remote control*/}
                 <div className={"thing-device-controller"} id={thing["id"]+ "device-controller"}>
-                    {getOtherDevices(thing["id"], conf)}
+                    {getOtherDevices(thing["id"])}
                 </div>
                 <img src="../../resources/pngwing.com.png" alt="close icon" className={"close-icon"}
                      id={thing["id"]+ "exit"} onClick={() =>
@@ -136,8 +137,20 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                                                const form = thing[att_key][values[i]]["forms"][0]
                                                // transform new value to correct type and add to body
                                                form["value"] = changeType(value, type)
-                                               form["htv:methodName"] = "PUT"
                                                form["sender"] = sender
+                                               if (form["href"].startsWith("http")) {
+                                                   // if http protocol we have to change the method
+                                                   // to be able to set a value
+                                                   form["htv:methodName"] = "PUT"
+                                                   if (sender !== "controller"){
+                                                       // when sender is another device => set property with
+                                                       // make_request action from the other device
+                                                       form["htv:methodName"] = "POST"
+                                                       form["href"] = getMakeRequestHref(sender, "PUT")
+                                                           + form["href"]
+                                                   }
+                                               }
+                                               //toDo implement set property for other protocols
                                                const credentials: string[] = getCredentials(thing["title"])
                                                // send request to change value
                                                if (credentials.length > 0) {
@@ -168,6 +181,10 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                     <button id={bId} onClick={(): void => {
                         const form = thing[att_key][values[i]]["forms"][0]
                         form["sender"] = sender
+                        if (sender !== "controller"){
+                            // when sender is another device => get property with make_request action from the other device
+                            form["href"] = getMakeRequestHref(sender, "POST")+ form["href"]
+                        }
                         const credentials: string[] = getCredentials(thing["title"])
                         if (credentials.length > 0) {
                             // No, or basic security definition
@@ -182,7 +199,7 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                                         + " got called by " + sender)
                                     displayAttributes(currentDevice, "block", "none")
                                 } else if (att_key == "events" && result !== "Error") {
-                                    console.log(thing["title"] + " emitted event \"" + values[i] + "\" and "
+                                    alert(thing["title"] + " emitted event \"" + values[i] + "\" and "
                                         + sender + " received it.")
                                 }else alert("Something went wrong. Please try again.")
                             })
@@ -201,26 +218,25 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
 /**
  * Create buttons for all the other devices for the remote control.
  * @param {string} thing - The id of the current thing
- * @param {string[]} devices - An array with all the other devices
  * @returns {JSX.Element[]} - An array with buttons for the other devices.
  */
-function getOtherDevices(thing: string, devices: string[]): JSX.Element {
+function getOtherDevices(thing: string): JSX.Element {
     // if device current device is a remote device, don't get control icon
-    if (checkIfRemote(thing, devices)){
+    if (checkIfRemote(thing)){
         const controlIcon: HTMLElement | null = document.getElementById(thing+ "control")
         if (controlIcon) controlIcon.style.visibility = "hidden"
         return <div/>
     }
     const deviceButtons: JSX.Element[] = []
     const otherDeviceAttributes: JSX.Element[] = []
-    for (let i: number = 0; i < devices.length; i++){
-        const currentDevice = JSON.parse(devices[i])
+    for (let i: number = 0; i < thingDescriptions.length; i++){
+        const currentDevice = JSON.parse(thingDescriptions[i])
         // don't show the own device inside the thing
         if (currentDevice["id"] === thing) continue
         //create a representation of every attribute of the thing
         const attributes: JSX.Element[] = Array.from({length: att_keys.length},
             function (_, ind: number): JSX.Element {
-                return getAttributes(devices[i], att_keys[ind], ind, thing)
+                return getAttributes(thingDescriptions[i], att_keys[ind], ind, thing)
             })
         otherDeviceAttributes.push(
             <div id={thing + "_" + currentDevice["id"] + "_remote"} className={"other-device-attributes"} key={i}>
@@ -235,7 +251,7 @@ function getOtherDevices(thing: string, devices: string[]): JSX.Element {
                 if (deviceAttr) deviceAttr.style.display = "block"
                 const thingDevices: HTMLElement | null = document.getElementById(thing + "devices")
                 if (thingDevices) thingDevices.style.display = "none"
-                getValues(devices[i], thing)
+                getValues(thingDescriptions[i], thing)
             }}>{currentDevice["title"]}
             </button>
         deviceButtons.push(button)
@@ -266,6 +282,15 @@ function getValues(thing_string: string, sender: string = "controller"): void {
         const property: HTMLElement | null = document.getElementById(aId)
         if(property) property.style.display = "inline-block"
         const form = thing["properties"][values[i]]["forms"][0]
+        if (form["href"].startsWith("http")) {
+            // if http protocol we have to change the method to call the make_request action
+            if (sender !== "controller") {
+                // when sender is another device => get property with make_request action from the other device
+                form["htv:methodName"] = "POST"
+                form["href"] = getMakeRequestHref(sender, "GET") + form["href"]
+            }
+        }
+        //toDo implement make_request for other protocols
         form["sender"] = sender
         const credentials: string[] = getCredentials(thing["title"])
         if (credentials.length > 0) {
@@ -309,13 +334,33 @@ function getCredentials(thing: string): string[]{
                         credentials.push(device["credentials"]["basic_sc"]["password"])
                     }
                     //toDo implement other security definitions
-                }else credentials.push("none") // no security definition in config
+                }
+                else credentials.push("none") // no security definition in config
             }
         }
     }
     //toDo delete only for testing
     credentials.push("none")
     return credentials
+}
+
+/**
+ * Gets the href property from the make_request function of the Thing. With the make_request function you can get
+ * properties or call action from other devices. => for http only
+ * @param {string} sender - The ID of the device that wants to call the action
+ * @param {string} method - The ID of the device that wants to call the action
+ * @return {string} - The href properties of the action
+ */
+function getMakeRequestHref(sender: string, method: string): string {
+    let href: string = ""
+    for (let i: number = 0; i < thingDescriptions.length; i++) {
+        const currentDevice = JSON.parse(thingDescriptions[i])
+        if (currentDevice["id"] === sender) {
+            href = currentDevice["actions"]["make_request"]["forms"][0]["href"].split("{")[0]
+                + "?method=" + method + "&url="
+        }
+    }
+    return href
 }
 
 
@@ -443,12 +488,11 @@ function changeType(value: string, type: string): string | number | boolean {
 /**
  * Checks if a given Thing is a remote device or not
  * @param {string} thing- ID of the Thing
- * @param {string} devices - A list with all the devices
  * @returns A boolean depending on if the Thing is remote or not
  */
-function checkIfRemote(thing: string, devices: string[]): boolean{
-    for (let i: number = 0; i < devices.length; i++){
-        const currentDevice = JSON.parse(devices[i])
+function checkIfRemote(thing: string): boolean{
+    for (let i: number = 0; i < thingDescriptions.length; i++){
+        const currentDevice = JSON.parse(thingDescriptions[i])
         if (currentDevice["id"] === thing){
             return currentDevice["external"]
         }
