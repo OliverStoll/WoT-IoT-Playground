@@ -60,14 +60,16 @@ function getThings(conf: string[]): JSX.Element[] {
             function (_, ind: number): JSX.Element {
             return getAttributes(JSON.stringify(thing), att_keys[ind], ind)
         })
+        // change icon depending on local or remote device
+        const icon: string = thing["external"] ? "../../resources/wot_remote.png" : "../../resources/wot_icon.png"
         // create div for every thing description with a symbol and all attributes
         return (
             <div id={thing["id"]} className={"thing"} key={index + "-thing"}>
                 <div className={"thing-icon-container"}>
-                    <img src="../../resources/control_icon.webp" alt="controll icon" className={"control-icon"}
+                    <img src="../../resources/control_icon.webp" alt="control icon" className={"control-icon"}
                          id={thing["id"]+ "control"} onClick={(): void => displayOtherDevices(thing["id"])}
                     />
-                    <img src="../../resources/wot_icon.png" alt="Thing icon" className={"thing-icon"}
+                    <img src={icon} alt="Thing icon" className={"thing-icon"}
                          onClick={(): void => {
                              const control: HTMLElement | null =
                                  document.getElementById(thing["id"] + "control")
@@ -117,39 +119,41 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
         function (_, i: number): JSX.Element {
             if (att_key == "properties") {
                 // handle properties
-                const pId: string = thing["id"] + "-" + values[i] + "-" + "field-" + sender
+                const pId: string = thing["id"] + "-" + values[i] + "-" + sender
                 return (
                     //input field for values => shows current value and sets new value on enter
-                    <div key={i} className={"thing-properties"}>
+                    <div id={pId} key={i} className={"thing-properties"}>
                         {/*name of the property*/}
                         {values[i]}:
-                        <input id={pId} className={"properties-input"}
+                        <input id={pId + "-field"} className={"properties-input"}
                                onKeyDown={(event): void => {
                                    if (event.key == "Enter") {
-                                       const type: string = thing[att_key][values[i]]["type"]
-                                       const value: string = event.currentTarget.value
-                                       // check if the input value is valid (always string but should have right content)
-                                       if (checkType(value, type)) {
-                                           const form = thing[att_key][values[i]]["forms"][0]
-                                           // transform new value to correct type and add to body
-                                           form["value"] = changeType(value, type)
-                                           form["htv:methodName"] = "PUT"
-                                           form["sender"] = sender
-                                           const credentials: string[] = getCredentials(thing["title"])
-                                           // send request to change value
-                                           if (credentials.length > 0) {
-                                               // No, or basic security definition
-                                               triggerRequest(JSON.stringify(form), credentials)
-                                                   .then((result: string): void => {
-                                                       if (result !== "Error") {
-                                                           console.log("Property \"" + values[i] + "\" from "
-                                                               + thing["title"] +  " got changed to \""
-                                                               + value + "\" by " + sender)
-                                                       }
-                                                   })
-                                           } else alert("No correct security definition.")
-                                       }
-                                       else alert("Wrong input type, please try again.")
+                                       if (!thing[att_key][values[i]]["readOnly"]) {
+                                           const type: string = thing[att_key][values[i]]["type"]
+                                           const value: string = event.currentTarget.value
+                                           // check if the input value is valid (always string but should have right content)
+                                           if (checkType(value, type)) {
+                                               const form = thing[att_key][values[i]]["forms"][0]
+                                               // transform new value to correct type and add to body
+                                               form["value"] = changeType(value, type)
+                                               form["htv:methodName"] = "PUT"
+                                               form["sender"] = sender
+                                               const credentials: string[] = getCredentials(thing["title"])
+                                               // send request to change value
+                                               if (credentials.length > 0) {
+                                                   // No, or basic security definition
+                                                   triggerRequest(JSON.stringify(form), credentials)
+                                                       .then((result: string): void => {
+                                                           if (result !== "Error") {
+                                                               console.log("Property \"" + values[i] + "\" from "
+                                                                   + thing["title"] +  " got changed to \""
+                                                                   + value + "\" by " + sender)
+                                                           }
+                                                       })
+                                               } else alert("No correct security definition.")
+                                           }
+                                           else alert("Wrong input type! Input should be from type: " + type)
+                                       }else alert("This property is read only!")
                                        displayAttributes(currentDevice, "block", "none")
                                    }
                                }}
@@ -162,7 +166,7 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                 const bId: string = thing["id"] + "-" + values[i] + "-" + "button- " + sender
                 return (
                     <button id={bId} onClick={(): void => {
-                        let form = thing[att_key][values[i]]["forms"][0]
+                        const form = thing[att_key][values[i]]["forms"][0]
                         form["sender"] = sender
                         const credentials: string[] = getCredentials(thing["title"])
                         if (credentials.length > 0) {
@@ -201,6 +205,12 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
  * @returns {JSX.Element[]} - An array with buttons for the other devices.
  */
 function getOtherDevices(thing: string, devices: string[]): JSX.Element {
+    // if device current device is a remote device, don't get control icon
+    if (checkIfRemote(thing, devices)){
+        const controlIcon: HTMLElement | null = document.getElementById(thing+ "control")
+        if (controlIcon) controlIcon.style.visibility = "hidden"
+        return <div/>
+    }
     const deviceButtons: JSX.Element[] = []
     const otherDeviceAttributes: JSX.Element[] = []
     for (let i: number = 0; i < devices.length; i++){
@@ -251,7 +261,10 @@ function getValues(thing_string: string, sender: string = "controller"): void {
     const thing = JSON.parse(thing_string)
     const values: string[] = Object.keys(thing["properties"])
     for (let i: number = 0; i < values.length; i++) {
-        const aId: string = thing["id"] + "-" + values[i] + "-" + "field-" + sender
+        const aId: string = thing["id"] + "-" + values[i] + "-" + sender
+        // show property attribute
+        const property: HTMLElement | null = document.getElementById(aId)
+        if(property) property.style.display = "inline-block"
         const form = thing["properties"][values[i]]["forms"][0]
         form["sender"] = sender
         const credentials: string[] = getCredentials(thing["title"])
@@ -259,9 +272,15 @@ function getValues(thing_string: string, sender: string = "controller"): void {
             // No, or basic security definition
             triggerRequest(JSON.stringify(form), credentials).then((result: string): void => {
                 if (result !== "Error"){
-                    const attribute: HTMLInputElement | null = document.getElementById(aId) as HTMLInputElement
-                    if (attribute) attribute.value = result
-                }else alert("Somthing went wrong. Please try again.")
+                    if (result !== ""){
+                        const attribute: HTMLInputElement | null =
+                            document.getElementById(aId + "-field") as HTMLInputElement
+                        if (attribute) attribute.value = result
+                    }else {
+                        // if property has no value, hide it
+                        if (property) property.style.display = "none"
+                    }
+                }else alert("Something went wrong. Please try again.")
             })
         }else alert("No correct security definition.")
     }
@@ -321,7 +340,7 @@ function displayOtherDevices(thing: string): void {
         } else {
             thingAttributes.style.display = "block"
             thingDevices.style.display = "none"
-            for (let element of deviceAttr){
+            for (const element of deviceAttr){
                 const device: HTMLElement | null = document.getElementById(element.id)
                 if (device) device.style.display = "none"
             }
@@ -331,7 +350,7 @@ function displayOtherDevices(thing: string): void {
 
 /**
  Toggles the display of attributes for a specific thing and hides all the other things or the other way around
- @param {string} thing - The identifier of the thing.
+ @param {string} thing - The ID of the thing.
  @param {string} disOthers - Display value for the other things
  @param {string} disThing - Display value for the specific thing
  */
@@ -352,7 +371,7 @@ function displayAttributes(thing: string, disOthers: string, disThing:string): v
     const otherDevices: HTMLElement | null = document.getElementById(thing + "device-controller")
     if (otherDevices) otherDevices.style.display = "none"
     const deviceAttr: HTMLCollectionOf<Element> = document.getElementsByClassName("other-device-attributes")
-    for (let element of deviceAttr){
+    for (const element of deviceAttr){
         const device: HTMLElement | null = document.getElementById(element.id)
         if (device) device.style.display = "none"
     }
@@ -371,7 +390,7 @@ function displayAttributes(thing: string, disOthers: string, disThing:string): v
 
 
 
-//---------------------------- functions that handle text input --------------------------------------------------------
+//---------------------------- functions that handle text input or check something -------------------------------------
 
 /**
  * Checks if the input value has the correct type.
@@ -419,6 +438,22 @@ function changeType(value: string, type: string): string | number | boolean {
         }
     }
     return transformedValue
+}
+
+/**
+ * Checks if a given Thing is a remote device or not
+ * @param {string} thing- ID of the Thing
+ * @param {string} devices - A list with all the devices
+ * @returns A boolean depending on if the Thing is remote or not
+ */
+function checkIfRemote(thing: string, devices: string[]): boolean{
+    for (let i: number = 0; i < devices.length; i++){
+        const currentDevice = JSON.parse(devices[i])
+        if (currentDevice["id"] === thing){
+            return currentDevice["external"]
+        }
+    }
+    return false
 }
 
 
