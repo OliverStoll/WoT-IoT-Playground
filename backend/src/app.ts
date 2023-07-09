@@ -67,5 +67,8 @@ app.use('/api/call', callRouter)
 // redirect requests to /api/script to the playbookRouter
 app.use('/api/script', playbookRouter)
 
+module.exports = app
+
+
 
 
