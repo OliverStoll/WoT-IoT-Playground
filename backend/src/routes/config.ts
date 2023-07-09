@@ -1,3 +1,5 @@
+import {Request, Response} from "express";
+
 const { spawn } = require('child_process')
 const path = require('path')
 const express = require('express')
@@ -13,13 +15,69 @@ let fileName: string = ''
 
 // WoT config file parsed to string
 let config: string = ''
-
 /**
- * Handle POST request to /api/config to receive and process the configuration file.
- * config file is saved to device-blueprint
- * docker containers are started according to config file
+ * @swagger
+ * /api/config:
+ *   post:
+ *     summary: Send the config to the controller to generate the things
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               devices:
+ *                  type: array
+ *                  items:
+ *                     type: object
+ *                     example: {
+ *                          "title": "Coffee-machine",
+ *                          "description": "A smart coffee machine with a range of capabilities",
+ *                          "properties": {
+ *                          "temperature": {
+ *                              "type": "number",
+ *                              "description": "Current temperature of the coffee machine",
+ *                              "startValue": 0
+ *                              }
+ *                          },
+ *                          "actions": {
+ *                              "brew_coffee": {
+ *                                  "description": "Sets the temperature of the coffee machine using an action",
+ *                                  "temperature": {
+ *                                      "type": "integer",
+ *                                      "description": "Temperature to set the coffee machine to",
+ *                                      "minimum": 0,
+ *                                      "maximum": 100
+ *                                      },
+ *                                  "action_list": [{
+ *                                          "action_type": "set",
+ *                                          "property": "temperature",
+ *                                          "value": 97
+ *                                              }
+ *                                          ]
+ *                                  }
+ *                              },
+ *                          "events": {
+ *                              "temperatureSet": {
+ *                              "description": "Temperature set event",
+ *                              "data": {
+ *                                  "type": "string"
+ *                                  }
+ *                              }
+ *                          }
+ *                      }
+ *               externalDevices:
+ *                  type: array
+ *                  items:
+ *                      type: string
+ *                      description: URL of external devices
+ *                      example:
+ *                          "http://plugfest.thingweb.io:8083/smart-coffee-machine"
+ *
+ *
  */
-configRouter.post('/', (req, res): void => {
+configRouter.post('/', (req: Request, res: Response): void => {
     if (req.get('Content-Type') === 'application/json') {
         fileName = path.join(__dirname, '../../../device-blueprint/config_backup.json')
         let configRaw = req.body
@@ -29,6 +87,8 @@ configRouter.post('/', (req, res): void => {
         config = JSON.stringify(configRaw)
     }
 
+
+
     fs.writeFile(fileName, config, (err): void => {
         if (err || config === '') {
             console.log('Error: Could not save configuration file!')
@@ -36,6 +96,10 @@ configRouter.post('/', (req, res): void => {
             return
         }
         console.log(`Config saved to file ${fileName}`);
+
+        if(!JSON.parse(config)['devices']){
+            res.status(400).send("Invalid config file")
+        }
 
         // parse external devices
         const externalDevicesList = JSON.parse(config)['externalDevices']
@@ -77,6 +141,12 @@ configRouter.post('/', (req, res): void => {
 
     })
 })
+
+/**
+ * Handle POST request to /api/config to receive and process the configuration file.
+ * config file is saved to device-blueprint
+ * docker containers are started according to config file
+ */
 
 /**
  * Handle GET request to /api/config to retrieve the configuration file.

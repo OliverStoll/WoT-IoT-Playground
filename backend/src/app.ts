@@ -1,15 +1,21 @@
 const express = require('express')
-import {Application} from 'express'
-import {ProtocolInterface} from "./interfaces/protocolInterface"
+import {Application, NextFunction, Request, Response} from 'express'
+import {ProtocolInterface} from './interfaces/protocolInterface'
 import {HttpProtocol} from "./protocols/httpProtocol"
 
 const dotenv = require('dotenv')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 
+import swaggerUi from 'swagger-ui-express'
+import swaggerDocument from './api-docs.json'
+
+
 // initialize the express app
 const app: Application = express()
 const httpPort: string | 5001 = process.env.PORT || 5001
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 // for communication with the frontend use HTTP
 const protocol: ProtocolInterface = new HttpProtocol(app, httpPort)
@@ -32,8 +38,10 @@ dotenv.config()
 app.use(cors())
 app.use(bodyParser.json())
 
+
+
 // log all incoming requests
-app.use((req, res, next): void => {
+app.use((req: Request, res: Response, next: NextFunction): void => {
     // log if the request is not GET to /api/logs
     if(req.method != "GET" || req.url != "/api/logs") {
         console.log(`${req.method} request: ${req.url} - ${JSON.stringify(req.body)}`)
@@ -43,7 +51,7 @@ app.use((req, res, next): void => {
 
 
 // dummy endpoint to check if backend is running
-app.get('/', (req, res): void => {
+app.get('/', (req: Request, res: Response): void => {
     res.send("Success: backend is running")
 })
 
