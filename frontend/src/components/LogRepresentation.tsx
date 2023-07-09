@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import {useEffect, useState} from 'react'
 import './component_css/LogRepresentationStyle.css'
 
 const urlLogs: string = 'http://localhost:5001/api/logs'
@@ -78,7 +78,7 @@ const LogRepresentation = () => {
    */
   useEffect(() => {
     fetchLogs().then((r: void) => r)
-    const interval: NodeJS.Timer = setInterval(fetchLogs, 5000)
+    const interval: any = setInterval(fetchLogs, 5000)
     return (): void => {
       clearInterval(interval)
     }
