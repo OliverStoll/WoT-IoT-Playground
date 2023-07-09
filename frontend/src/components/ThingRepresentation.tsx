@@ -138,7 +138,7 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                                            const value: string = event.currentTarget.value
                                            // check if the input value is valid (always string but should have right content)
                                            if (checkType(value, type)) {
-                                               const form = getForm(thing[att_key][values[i]]["forms"])
+                                               const form = getForm(thing[att_key][values[i]])
                                                // transform new value to correct type and add to body
                                                form["value"] = changeType(value, type)
                                                form["sender"] = sender
@@ -178,7 +178,7 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                     </div>
                 )
             }
-            const form = getForm(thing[att_key][values[i]]["forms"])
+            const form = getForm(thing[att_key][values[i]])
             if (form && (att_key == "actions" || (att_key == "events" && sender !== "controller"))) {
                 // handle actions, or events if they are called by another device
                 const bId: string = thing["id"] + "-" + values[i] + "-" + "button- " + sender
@@ -285,7 +285,7 @@ function getValues(thing_string: string, sender = "controller"): void {
         // show property attribute
         const property: HTMLElement | null = document.getElementById(aId)
         if(property) property.style.display = "inline-block"
-        const form = getForm(thing["properties"][values[i]]["forms"])
+        const form = getForm(thing["properties"][values[i]])
         // if there is no form with the right protocol hide the property
         if (!form && property) property.style.display = "none"
         else {
@@ -374,14 +374,15 @@ function getMakeRequestHref(sender: string, method: string): string {
 /**
  * Gets the form for a specific protocol for an API call
  * => only takes actions without parameter since they are not implemented yet
- * @param {string[]} forms - The list of forms from an
+ * @param {any} attribute - The attribute where you want to get the form
  * @return The form property for the specified protocol
  */
-function getForm(forms: string[]) {
+function getForm(attribute: any) {
+    const forms = attribute["forms"]
     for (let i = 0; i < forms.length; i++){
         const form: any = forms[i]
         if (form["href"].startsWith(preferredProtocol) && !form["href"].includes("{?")
-            && !form["uriVariables"] && !form["input"]) return form
+            && !form["uriVariables"] && !attribute["input"]) return form
     }
     return
 }
