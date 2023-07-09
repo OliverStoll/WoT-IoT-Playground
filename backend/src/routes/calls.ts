@@ -20,14 +20,13 @@ const sendRequest = require('../utils/sendRequest')
  *                 description: The href to the property/action/event of the thing
  *               'htv:methodName':
  *                 type: string
- *                 example: 'PUT'
+ *                 example: 'GET'
  *                 description: The method to call
  *               contentType:
  *                 type: string
  *                 example: 'application/json'
  *               value:
  *                 type: string
- *                 example: '33'
  *                 description: If updating a property you can set a new value
  *             required:
  *               - href
@@ -49,7 +48,6 @@ const sendRequest = require('../utils/sendRequest')
  *             schema:
  *               type: string
  *             example: "Empty request body"
- *
  */
 callRouter.post('/', (req: Request, res: Response): void => {
     if (!req.body) {

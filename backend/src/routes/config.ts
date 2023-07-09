@@ -15,6 +15,7 @@ let fileName: string = ''
 
 // WoT config file parsed to string
 let config: string = ''
+
 /**
  * @swagger
  * /api/config:
@@ -74,8 +75,29 @@ let config: string = ''
  *                      description: URL of external devices
  *                      example:
  *                          "http://plugfest.thingweb.io:8083/smart-coffee-machine"
+ *     responses:
+ *       '200':
+ *         description: Successfully processed config file
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *             example: "Config was processed!"
  *
- *
+ *       '400':
+ *         description: Invalid config file
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *             example: "Invalid config file"
+ *       '500':
+ *         description: Config file could not be saved on backend server
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *             example: 'Error: Could not save configuration file!'
  */
 configRouter.post('/', (req: Request, res: Response): void => {
     if (req.get('Content-Type') === 'application/json') {
@@ -142,16 +164,57 @@ configRouter.post('/', (req: Request, res: Response): void => {
     })
 })
 
-/**
- * Handle POST request to /api/config to receive and process the configuration file.
- * config file is saved to device-blueprint
- * docker containers are started according to config file
- */
 
 /**
- * Handle GET request to /api/config to retrieve the configuration file.
+ * @swagger
+ * /api/config:
+ *   get:
+ *     summary: Get the configuration file
+ *     responses:
+ *       '200':
+ *         description: Successfully retrieved the configuration file
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               example:
+ *                 devices:
+ *                   - title: Coffee-machine
+ *                     description: A smart coffee machine with a range of capabilities
+ *                     properties:
+ *                       temperature:
+ *                         type: number
+ *                         description: Current temperature of the coffee machine
+ *                         startValue: 0
+ *                     actions:
+ *                       brew_coffee:
+ *                         description: Sets the temperature of the coffee machine using an action
+ *                         temperature:
+ *                           type: integer
+ *                           description: Temperature to set the coffee machine to
+ *                           minimum: 0
+ *                           maximum: 100
+ *                           action_list:
+ *                             - action_type: set
+ *                               property: temperature
+ *                               value: 97
+ *                     events:
+ *                       temperatureSet:
+ *                         description: Temperature set event
+ *                         data:
+ *                           type: string
+ *                 externalDevices:
+ *                   - http://plugfest.thingweb.io:8083/smart-coffee-machine
+ *       '404':
+ *         description: Configuration file not found
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *             example: No config file found
  */
-configRouter.get('/', (req, res) => {
+
+configRouter.get('/', (req: Request, res: Response): void => {
     if (fs.existsSync(fileName)) {
         // Send config_backup.json if it exists
         const fileContent = fs.readFileSync(fileName, 'utf8')
@@ -164,7 +227,32 @@ configRouter.get('/', (req, res) => {
 })
 
 /**
- * Handle POST request to /api/shutdown to shut down all containers and remove the thing image.
+ * @swagger
+ * /api/config/shutdown:
+ *   post:
+ *     summary: Shutdown all thing containers, thing image and delete the config file
+ *     responses:
+ *       '200':
+ *         description: Shutdown successful
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *             example: Shutdown successful
+ *       '404':
+ *         description: No config to shut down
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *             example: No config to shut down
+ *       '500':
+ *         description: Error while deleting config
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *             example: Error while deleting config.
  */
 configRouter.post('/shutdown', (req, res) => {
     if (fs.existsSync(fileName)) {
