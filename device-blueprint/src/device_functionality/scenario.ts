@@ -1,17 +1,16 @@
 const fs = require("fs");
 
 
-export function get_device_scenario_file(config_path: string = "./scenario_volume/scenario.json", backup_path: string = "./scenario_backup.json") {
+export function get_device_scenario_file() {
 
-    // check if scenario.json exists
-    let scenario;
-    if (fs.existsSync(config_path)) {
-        console.log(`Mounted file used from ${config_path}.\n`)
-        scenario = JSON.parse(fs.readFileSync(config_path, "utf-8"));
-    } else {
-        console.log(`Scenario file not found at ${config_path}.\n`);
-        scenario = JSON.parse(fs.readFileSync(backup_path, "utf-8"));
-    }
+    // get scenario from SCENARIO environment variable
+    let scenario_string = process.env.SCENARIO;
+    let scenario = JSON.parse(scenario_string);
+
+
+    // print the scenario
+    console.log("SCENARIO:");
+    console.log(scenario);
 
     // get the scenario for this device
     let device_idx = Number(process.env.DEVICE_IDX);

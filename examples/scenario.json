@@ -1,201 +1,103 @@
 {
   "devices": [
     {
-      "@context": [
-        "http://w3.org/ns/td",
-        { "htv": "http://www.w3.org/2011/http#" }
-      ],
-      "@type": [ "Thing" ],
-      "id": "coffee-machine",
-      "name": "Coffee-machine",
-      "securityDefinitions": {
-        "basic_sc": {"scheme": "basic", "in":"header"}
-      },
-      "security": ["basic_sc"],
-      "credentials": {
-        "basic_sc": {
-          "username": "admin",
-          "password": "adminpw"
-        }
-      },
+      "title": "Coffee-machine",
+      "description": "A smart coffee machine with a range of capabilities",
       "properties": {
         "temperature": {
-          "start_value": 30,
-          "type": "number"
-        },
-        "coffee_counter": {
-          "start_value": 0,
-          "type": "number"
-        },
-        "coffee_ground": {
-          "start_value": 0,
-          "type": "number"
+          "type": "number",
+          "description": "Current temperature of the coffee machine",
+          "startValue": 0
         }
       },
       "actions": {
         "brew_coffee": {
-          "actions": [
+          "description": "Sets the temperature of the coffee machine using an action",
+          "temperature": {
+            "type": "integer",
+            "description": "Temperature to set the coffee machine to",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "action_list": [
             {
-              "action": "set",
+              "action_type": "set",
               "property": "temperature",
               "value": 97
-            },
-            {
-              "action": "increment",
-              "property": "coffee_counter",
-              "value": 1
-            },
-            {
-              "action": "trigger_event",
-              "event": "coffee_brewed"
-            },
-            {
-              "action": "condition",
-              "property": "coffee_counter",
-              "condition": {
-                "operator": ">",
-                "value": 3
-              },
-              "actions_true": [
-                {
-                  "action": "trigger_event",
-                  "event": "coffee_ground_full"
-                }
-              ]
             }
           ]
         }
       },
       "events": {
-        "coffee_brewed": {
-
+        "temperatureSet": {
+          "description": "Temperature set event",
+          "data": {
+            "type": "string"
+          }
         }
       }
     },
     {
-      "@context": [
-        "http://w3.org/ns/td",
-        {
-          "htv": "http://www.w3.org/2011/http#"
-        }
-      ],
-      "@type": [
-        "Thing"
-      ],
-      "id": "smart-kettle",
-      "name": "kettle",
-      "securityDefinitions": {
-        "basic_sc": {
-          "scheme": "basic",
-          "in": "header"
-        }
-      },
-      "security": [
-        "basic_sc"
-      ],
-      "credentials": {
-        "basic_sc": {
-          "username": "admin",
-          "password": "adminpw"
-        }
-      },
+      "title": "Smart Kettle",
+      "description": "A smart water-boiler with a range of capabilities",
       "properties": {
         "temperature": {
-          "start_value": 0,
-          "type": "number"
-        },
-        "water_counter": {
-          "start_value": 0,
-          "type": "number"
+          "type": "number",
+          "description": "Current temperature of the coffee machine",
+          "startValue": 0
         }
       },
       "actions": {
-        "boil_water": {
-          "actions": [
+        "makeHotWater": {
+          "description": "Sets the temperature of the coffee machine using an action",
+          "action_list": [
             {
-              "action": "set",
+              "action_type": "set",
               "property": "temperature",
               "value": 97
             },
             {
-              "action": "increment",
-              "property": "water_counter",
+              "action_type": "increment",
+              "property": "temperature",
               "value": 1
             },
             {
-              "action": "trigger_event",
-              "event": "water_boiled"
+              "action_type": "sleep",
+              "value": 4
+            },
+            {
+              "action_type": "emit_event",
+              "event_name": "temperatureSet",
+              "payload_property": "temperature"
+            },
+            {
+              "action_type": "condition",
+              "property": "temperature",
+              "condition": {
+                "operator": ">",
+                "value": 99,
+                "action_list_true": [
+                  {
+                    "action_type": "emit_event",
+                    "event_name": "temperatureSet"
+                  }
+                ]
+              }
             }
           ]
         }
       },
       "events": {
-        "water_boiled": {
-        }
-      }
-    },
-    {
-      "@context": [
-        "http://w3.org/ns/td",
-        {
-          "htv": "http://www.w3.org/2011/http#"
-        }
-      ],
-      "@type": [
-        "Thing"
-      ],
-      "id": "notification-device",
-      "name": "Notification device",
-      "securityDefinitions": {
-        "basic_sc": {
-          "scheme": "basic",
-          "in": "header"
-        }
-      },
-      "security": [
-        "basic_sc"
-      ],
-      "credentials": {
-        "basic_sc": {
-          "username": "admin",
-          "password": "adminpw"
-        }
-      },
-      "properties": {
-        "notification": {
-          "start_value": 0,
-          "type": "number"
-        },
-        "notification_counter": {
-          "start_value": 0,
-          "type": "number"
-        }
-      },
-      "actions": {
-        "notify": {
-          "actions": [
-            {
-              "action": "set",
-              "property": "notification",
-              "value": 1
-            },
-            {
-              "action": "increment",
-              "property": "notification_counter",
-              "value": 1
-            },
-            {
-              "action": "trigger_event",
-              "event": "notified"
-            }
-
-          ]
-        }
-      },
-      "events": {
-        "notified": {
+        "temperatureSet": {
+          "description": "Temperature set event",
+          "data": {
+            "type": "string"
+          }
         }
       }
     }
+  ],
+  "externalDevices": [
+    "http://plugfest.thingweb.io:8083/smart-coffee-machine"
   ]
 }
