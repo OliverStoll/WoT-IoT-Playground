@@ -14,18 +14,13 @@ function createLog(logData): string {
     let logMessage: string = `${timestamp},${host.id},`
 
     // If caller is unknown than set it to controller
-    let callerIp: string = "controller"
-    if(caller){
-        if(caller.ip != "Unknown"){
-            callerIp = caller.ip
-        }
-    }
+    let callerName: string = caller ? caller : 'controller'
 
 
     // Generate logs according to the type
     switch (type) {
         case 'property_read': {
-            logMessage += `property "${payload.name}" with a value of ${payload.value} was accessed by: ${callerIp}:${caller.port}`
+            logMessage += `property "${payload.name}" with a value of ${payload.value} was accessed by: ${callerName}`
             break
         }
         case 'property_changed': {
@@ -33,11 +28,11 @@ function createLog(logData): string {
             break
         }
         case 'action_called': {
-            logMessage += `action "${payload}" was called by: ${callerIp}:${caller.port}`
+            logMessage += `action "${payload}" was called by: ${callerName}`
             break
         }
         case 'event_called': {
-            logMessage += `event "${payload.name}" was registered to by: ${callerIp}:${caller.port}`
+            logMessage += `event "${payload.name}" was registered to by: ${callerName}`
             break
         }
         case 'event_triggered': {

@@ -1,5 +1,5 @@
-import { ProtocolInterface } from "../interfaces/protocolInterface"
-import { HttpProtocol } from "../protocols/httpProtocol"
+import {ProtocolInterface} from "../interfaces/protocolInterface"
+import {HttpProtocol} from "../protocols/httpProtocol"
 
 /**
  * Sends a request to a web of things (WoT) device.
@@ -30,7 +30,7 @@ async function sendRequest(data: { href: string, 'htv:methodName'?: string }): P
     try {
         JSON.parse(response)
     } catch (e) {
-        console.log(`Could not get value from URL: ${href}`)
+        console.log(`No response from URL: ${href}`)
         response = ""
     }
 

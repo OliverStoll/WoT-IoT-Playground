@@ -19,10 +19,7 @@ interface Log {
         port: number;
     }
     payload: any;
-    caller?: {
-        ip: string;
-        port: string;
-    }
+    caller?: string;
 }
 
 export interface LoggingInfo {
@@ -41,7 +38,7 @@ export function initializeLoggingInfo(description_json: any, device_port: number
     }
 }
 
-export function sendLog(log_type: LogType, payload: any, logging_info: LoggingInfo): void {
+export function sendLog(log_type: LogType, payload: any, logging_info: LoggingInfo, caller?: string): void {
     // create a log object that includes my device id, the type of log, and the time
     let log: Log = {
         type: log_type,
@@ -53,14 +50,9 @@ export function sendLog(log_type: LogType, payload: any, logging_info: LoggingIn
         payload: payload,
     }
 
-    // check if the request is of type that has a caller
-    const caller_log_types = [LogType.PROPERTY_READ, LogType.ACTION_CALLED, LogType.EVENT_SUBSCRIBED]
-    if (caller_log_types.includes(log_type)) {
-        // console.log("Adding caller to log");
-        log['caller'] = {
-            ip: "Unknown",
-            port: ""
-        }
+    // if a caller is provided, add it to the log
+    if (caller) {
+        log['caller'] = caller;
     }
 
     console.log(`LOG [${log.type}] with payload: ${JSON.stringify(log).substring(0, 80)} ...`);
@@ -86,9 +78,13 @@ async function sendRequest(url: string, method: string, body: any): Promise<void
     }
 }
 
-export async function fetchData(url: string) {
+export async function fetchData(url: string, method: string, body=""): Promise<any> {
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            method: method,
+            headers: {'Content-Type': 'application/json',},
+            body: JSON.stringify(body),
+        });
         // console.log(response);
         // console.log(response.json());
         return await response.json();

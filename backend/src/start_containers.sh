@@ -12,7 +12,7 @@ fi
 
 
 # get the num devices from config_backup.json with jq
-json_file="../device-blueprint/config_backup.json"
+json_file="../device-blueprint/config.json"
 
 # check if the file does not exists
 if not [ -f "$json_file" ]; then
@@ -37,7 +37,7 @@ sleep 1
 echo "Building the image..."
 sleep 1
 cd ../device-blueprint || exit
-docker build -t wot-device .
+docker build -t wot-device .      # CURRENTLY NOT REBUILDING THE IMAGE !
 cd - || exit
 for (( i=0; i< $num_devices; i++ ))
 do

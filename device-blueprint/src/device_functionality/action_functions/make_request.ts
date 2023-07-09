@@ -7,10 +7,13 @@ export async function execute_action_make_request(execute_action_data: ExecuteAc
     let url = variables['url'];
     let method = variables['method'];
 
+    // adding caller as query parameter
+    url += `?caller=${execute_action_data.thing.id}`;
+
     console.log(`Making ${method} request to ${url}`);
 
-    // make a fetch get request to the url  // TODO: use method
-    await fetchData(url).then(data => {
+    // make a fetch get request to the url
+    await fetchData(url, method).then(data => {
         console.log(`Got data from ${url}: ${data}`);
         // TODO: somehow pass the data back or log it?
         return data;

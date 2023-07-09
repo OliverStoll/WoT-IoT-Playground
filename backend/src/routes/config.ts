@@ -101,7 +101,7 @@ let config: string = ''
  */
 configRouter.post('/', (req: Request, res: Response): void => {
     if (req.get('Content-Type') === 'application/json') {
-        fileName = path.join(__dirname, '../../../device-blueprint/config_backup.json')
+        fileName = path.join(__dirname, '../../../device-blueprint/config.json')
         let configRaw = req.body
 
         // TODO: Add log_server URLs for other protocols

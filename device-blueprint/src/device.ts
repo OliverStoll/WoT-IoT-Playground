@@ -93,17 +93,26 @@ function setPropertyHandler(thing: ExposedThing, properties_dict: PropertiesDict
 function setActionHandler(thing: any, actions_dict: ActionsDict, properties_dict: PropertiesDict) {
     for (let action_name in actions_dict) {
         thing.setActionHandler(action_name, async (_params, options) => {
-            sendLog(LogType.ACTION_CALLED, action_name, logging_info);
+
             let action = actions_dict[action_name];
             let action_list = action.action_list;
             console.log(`ACTION [${action_name}]`);
-
             // Check if uriVariables are provided
+
+            let caller;
             let variables:  object = {};
             if (options && typeof options === "object" && "uriVariables" in options) {
                 variables = options.uriVariables;
-                // console.log(variables);
+
+                // if caller variable is provided, log it
+                if ("caller" in variables) {
+                    caller = variables["caller"] as string;
+                    console.log(`Caller: ${caller}`);
+                }
             }
+
+            // Log the action call
+            sendLog(LogType.ACTION_CALLED, action_name, logging_info, caller);
 
             // Execute the action
             await executeMethodActions(properties_dict, thing, action_list, variables);

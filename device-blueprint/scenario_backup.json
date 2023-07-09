@@ -29,7 +29,7 @@
         }
       },
       "events": {
-        "temperatureSet": {
+        "isHot": {
           "description": "Temperature set event",
           "data": {
             "type": "string"
@@ -88,7 +88,7 @@
         }
       },
       "events": {
-        "temperatureSet": {
+        "isHot": {
           "description": "Temperature set event",
           "data": {
             "type": "string"
