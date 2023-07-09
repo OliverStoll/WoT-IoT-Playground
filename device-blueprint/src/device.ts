@@ -131,6 +131,8 @@ export let logging_info = initializeLoggingInfo(scenario_json, device_port);
 let servient = initialize_servient(protocols, device_port);
 
 
+
+
 servient.start().then((WoT) => {
     WoT.produce(scenario_json).then((thing) => {
         // initialize all properties, actions and events from the scenario file
