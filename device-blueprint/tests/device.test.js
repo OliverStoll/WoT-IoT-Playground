@@ -49,7 +49,7 @@ test('GET temperature -> [200]', async () => {
 
 // Test Action
 test('POST Action -> [200]', async () => {
-    const response = await axios.post(`${base_url}/actions/setTemperature?temperature=45`, {}, base_config);
+    const response = await axios.post(`${base_url}/actions/brew_coffee`, {}, base_config);
     console.log(response.data);
     expect(response.status).toBe(200);
 });

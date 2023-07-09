@@ -1,4 +1,4 @@
-import {ExecuteActionData, executeMethodActions} from "../actions";
+import {ExecuteActionData, executeEntireAction} from "../actions";
 import {_Property, Condition} from "../../device";
 
 export function execute_action_condition(execute_action_data: ExecuteActionData) {
@@ -9,10 +9,13 @@ export function execute_action_condition(execute_action_data: ExecuteActionData)
     let thing = execute_action_data.thing;
 
     if (evaluateCondition(action.condition, property)) {
-        executeMethodActions(properties_dict, thing, action.condition.action_list_true, variables);
+        executeEntireAction(properties_dict, thing, action.condition.action_list_true, variables);
+        return "True"
     } else if (action.condition.action_list_false) {
-        executeMethodActions(properties_dict, thing, action.condition.action_list_false, variables);
+        executeEntireAction(properties_dict, thing, action.condition.action_list_false, variables);
+        return "False"
     }
+    // tODO: return doesnt work
 }
 
 export function evaluateCondition(condition: Condition, property: _Property) {

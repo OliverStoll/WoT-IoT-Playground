@@ -7,7 +7,7 @@ import {initializeLoggingInfo, LogType, sendLog} from "./logging/logging";
 import {initializePropertyValues} from "./device_functionality/properties";
 import {ExposedThing} from "@node-wot/core";
 
-const {executeMethodActions} = require('./device_functionality/actions');
+const {executeEntireAction} = require('./device_functionality/actions');
 
 // create a property dictionary type
 export interface PropertiesDict {
@@ -110,12 +110,19 @@ function setActionHandler(thing: any, actions_dict: ActionsDict, properties_dict
                     console.log(`Caller: ${caller}`);
                 }
             }
+            // check if caller
+            if (caller === undefined) {
+                console.log("Caller not provided, setting to default");
+            }
 
             // Log the action call
             sendLog(LogType.ACTION_CALLED, action_name, logging_info, caller);
 
             // Execute the action
-            await executeMethodActions(properties_dict, thing, action_list, variables);
+            let return_values = await executeEntireAction(properties_dict, thing, action_list, variables);
+            console.log(`Action [${action_name}] executed with return values: ${JSON.stringify(return_values)}`);
+
+            return JSON.stringify(return_values);
         });
     }
 }
