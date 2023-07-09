@@ -1,5 +1,5 @@
 const createLog = require('../utils/logger')
-import { Router } from 'express'
+import {Request, Response, Router} from 'express'
 const logRouter = new Router()
 
 // All logs are stored in a string array
@@ -64,7 +64,7 @@ let thingDescriptions: string[] = []
  *               type: string
  *             example: Empty request body or unknown type
  */
-logRouter.post('/', (req, res): void => {
+logRouter.post('/', (req: Request, res: Response): void => {
     if (!req.body) {
         res.status(400).send('Empty request body');
         return
@@ -108,7 +108,7 @@ logRouter.post('/', (req, res): void => {
  *     produces:
  *       - text/plain
  */
-logRouter.get('/', (req, res): void => {
+logRouter.get('/', (req: Request, res: Response): void => {
     if (logs.length > 0) {
         res.send(logs.join(';'))
     } else {

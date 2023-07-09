@@ -1,4 +1,4 @@
-import { Router } from 'express'
+import {Request, Response, Router} from 'express'
 const playbookRouter = new Router()
 const sendRequest = require('../utils/sendRequest')
 const thingDescriptions = require('./logs').thingDescriptions
@@ -52,7 +52,7 @@ const thingDescriptions = require('./logs').thingDescriptions
  *               type: string
  *             example: Empty request body or invalid playbook format
  */
-playbookRouter.post('/', async (req, res): Promise<void> => {
+playbookRouter.post('/', async (req: Request, res: Response): Promise<void> => {
     if (!req.body) {
         res.status(400).send('Empty request body')
         return

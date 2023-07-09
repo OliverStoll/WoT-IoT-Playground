@@ -254,7 +254,7 @@ configRouter.get('/', (req: Request, res: Response): void => {
  *               type: string
  *             example: Error while deleting config.
  */
-configRouter.post('/shutdown', (req, res) => {
+configRouter.post('/shutdown', (req: Request, res: Response) => {
     if (fs.existsSync(fileName)) {
         fs.unlink(fileName, (err) => {
             if (err) {
