@@ -39,7 +39,7 @@ sleep 1
 cd ../device-blueprint || exit
 docker build -t wot-device .
 cd - || exit
-for (( i=0; i< $num_devices; i++ ))
+for (( i=0; i< num_devices; i++ ))
 do
   device_title=$(jq --raw-output ".devices[$i].title" $json_file)
   device_name=$(echo "$device_title" | tr ' ' '_' | tr '[:upper:]' '[:lower:]')
