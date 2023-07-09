@@ -1,20 +1,24 @@
-import { Router } from 'express';
-const playbookRouter = new Router();
-const sendRequest = require('../utils/sendRequest');
-const thingDescriptions = require('./logs').thingDescriptions;
+import { Router } from 'express'
+const playbookRouter = new Router()
+const sendRequest = require('../utils/sendRequest')
+const thingDescriptions = require('./logs').thingDescriptions
 
+/**
+ * Handle POST request to /api/script to receive and process the playbook file.
+ * uses the sendRequest util so send requests to things
+ */
 playbookRouter.post('/', async (req, res): Promise<void> => {
     if (!req.body) {
-        res.status(400).send('Empty request body');
-        return;
+        res.status(400).send('Empty request body')
+        return
     }
 
-    const playbook = req.body;
+    const playbook = req.body
 
     // return 400 if wrong format of playbook file
     if (!playbook.steps || !Array.isArray(playbook.steps)) {
-        res.status(400).send('Invalid playbook format');
-        return;
+        res.status(400).send('Invalid playbook format')
+        return
     }
 
     // Check if all devices in playbook file are actually present
@@ -22,18 +26,19 @@ playbookRouter.post('/', async (req, res): Promise<void> => {
     const uniqueDeviceIds = [...new Set(
         playbook.steps.map((step) => (step.deviceId !== undefined ? step.deviceId : undefined))
     )].filter(((deviceId) => deviceId !== undefined))
-    //Generate set of devices in config
-    const uniqueTitles = [...new Set(thingDescriptions.map((description) => JSON.parse(description).title))];
+    // Generate set of devices in config
+    const uniqueTitles = [...new Set(thingDescriptions.map((description) => JSON.parse(description).title))]
 
-    //check if all playbook devices are in config
-    const allDeviceIdsInTitles = uniqueDeviceIds.every((deviceId) => uniqueTitles.includes(deviceId));
+    // check if all playbook devices are in config
+    const allDeviceIdsInTitles: boolean = uniqueDeviceIds.every((deviceId) => uniqueTitles.includes(deviceId))
 
     if (!allDeviceIdsInTitles) {
         console.log('Not all devices in playbook file are present')
-        res.status(400).send('Not all devices in playbook file are present');
+        res.status(400).send('Not all devices in playbook file are present')
         return;
     }
 
+    // iterate over all steps in the playbook
     for (const step of playbook.steps) {
         if (step.deviceId && step.type && step.value) {
 
@@ -42,34 +47,38 @@ playbookRouter.post('/', async (req, res): Promise<void> => {
             const filteredDescription = thingDescriptions.filter((description) => {
                 const parsedDescription = JSON.parse(description)
                 return parsedDescription.title == step.deviceId
-            });
+            })
+            // use the thing description in JSON format
             let filteredDescriptionParsed = JSON.parse(filteredDescription[0])
 
             switch (step.type){
                 case 'property':
                     console.log("property")
+                    // get the url of the property endpoint for the thing
                     const href_element_property = filteredDescriptionParsed.properties[step.value].forms[0].href
-                    console.log(href_element_property)
-                    console.log(filteredDescriptionParsed.properties[step.value])
-                    // handler for http wot devices
+
+                    // create the request object
                     const requestObject = {
                         href: href_element_property,
                         'htv:methodName': 'GET',
                         contentType : 'application/json'
                     }
                     const resp_property = sendRequest(requestObject)
-                    console.log(resp_property)
+                    console.log('propertyResponse: ', resp_property)
 
                     break
                 case 'action':
                     console.log('action')
+                    // get the url of the action endpoint for the thing
                     const href_element: string = filteredDescriptionParsed.actions[step.value].forms[0].href
 
+                    // create the request object
                     const requestObjectAction = {
                         href: href_element,
                         'htv:methodName': 'POST',
                         contentType : 'application/json'
                     }
+                    // send the request with the request object
                     const resp_action = sendRequest(requestObjectAction)
                     console.log('actionResponse: ', resp_action)
                     break
@@ -78,22 +87,23 @@ playbookRouter.post('/', async (req, res): Promise<void> => {
                     console.log('event')
                     break
                 default: {
-                    res.status(400).send('Invalid playbook format');
+                    res.status(400).send('Invalid playbook format')
                 }
             }
 
 
         } else if (step.sleep) {
             console.log(`playbook: sleep ${step.sleep} seconds`)
-            await new Promise(r => setTimeout(r, step.sleep*1000));
+            // wait as specified in sleep in seconds
+            await new Promise(r => setTimeout(r, step.sleep*1000))
         } else {
-            res.status(400).send('Invalid playbook format');
-            return;
+            res.status(400).send('Invalid playbook format')
+            return
         }
     }
 
-    res.status(200).send('Playbook processed successfully');
+    res.status(200).send('Playbook processed successfully')
 
 })
 
-module.exports = playbookRouter;
+module.exports = playbookRouter

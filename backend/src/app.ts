@@ -1,25 +1,25 @@
-const express = require('express');
+const express = require('express')
 import {Application} from 'express'
-import {ProtocolInterface} from "./interfaces/protocolInterface";
-import {HttpProtocol} from "./protocols/httpProtocol";
+import {ProtocolInterface} from "./interfaces/protocolInterface"
+import {HttpProtocol} from "./protocols/httpProtocol"
 
-const dotenv = require('dotenv');
+const dotenv = require('dotenv')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 
 // initialize the express app
 const app: Application = express()
-const httpPort: string | 5001 = process.env.PORT || 5001;
+const httpPort: string | 5001 = process.env.PORT || 5001
 
 // for communication with the frontend use HTTP
 const protocol: ProtocolInterface = new HttpProtocol(app, httpPort)
 protocol.connect()
 
 // import the configRouter for handling of wot config files
-const configRouter = require('./routes/config');
+const configRouter = require('./routes/config')
 
 // import the logRouter for handling of wot logs
-const logRouter = require('./routes/logs').logRouter;
+const logRouter = require('./routes/logs').logRouter
 
 // import the callRouter for handling of wot calls
 const callRouter = require('./routes/calls')
@@ -28,9 +28,9 @@ const callRouter = require('./routes/calls')
 const playbookRouter = require('./routes/playbook')
 
 
-dotenv.config();
-app.use(cors());
-app.use(bodyParser.json());
+dotenv.config()
+app.use(cors())
+app.use(bodyParser.json())
 
 // log all incoming requests
 app.use((req, res, next): void => {
