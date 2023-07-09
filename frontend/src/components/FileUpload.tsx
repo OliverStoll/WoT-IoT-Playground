@@ -1,9 +1,9 @@
 import { Accept, useDropzone } from "react-dropzone"
 import './component_css/FileUploadStyle.css'
 
-const urlConfig: string = 'http://localhost:5001/api/config'
-const urlScenario: string = 'http://localhost:5001/api/script'
-const urlKill: string = 'http://localhost:5001/api/config/shutdown'
+const urlConfig = 'http://localhost:5001/api/config'
+const urlScenario = 'http://localhost:5001/api/script'
+const urlKill = 'http://localhost:5001/api/config/shutdown'
 
 // add file types of config file here
 const allowedFileTypes: Accept = {'application/json': ['.json']}
@@ -120,7 +120,7 @@ function validateFile (file: string): boolean {
  @returns {string} the content type of the file as a string or an empty string if something went wrong
  */
 function checkContentType(file: string): string {
-    let contentType: string = ""
+    let contentType = ""
     // if thing-container exists, we know that it is already a config uploaded
     const div: HTMLElement | null = document.getElementById("thing-container")
     //content type is json

@@ -1,14 +1,18 @@
 import {useEffect, useState} from "react"
 import './component_css/ThingRepresentationStyle.css'
 
-const urlTD: string = 'http://localhost:5001/api/logs/thingDescriptions'
-const urlConfig: string = 'http://localhost:5001/api/config'
-const urlET: string = 'http://localhost:5001/api/call'
+const urlTD = 'http://localhost:5001/api/logs/thingDescriptions'
+const urlConfig = 'http://localhost:5001/api/config'
+const urlET = 'http://localhost:5001/api/call'
 
 // important attributes you want to show inside the things
 const att_keys: string[] = ["properties", "actions", "events"]
+// config for the playground
 let config: string
+//list of all Thing Descriptions
 let thingDescriptions: string[]
+// preferred protocol for API calls
+const preferredProtocol = "http"
 
 /**
  Renders a component that fetches and displays a list of thing representations.
@@ -109,7 +113,7 @@ function getThings(): JSX.Element[] {
  * @param {string} sender - ID from the device that is calling the attribute or "controller" if direct call
  * @returns {JSX.Element} Element representing the attributes.
  */
-function getAttributes(thing_string: string, att_key: string, ind: number, sender: string = "controller"): JSX.Element {
+function getAttributes(thing_string: string, att_key: string, ind: number, sender = "controller"): JSX.Element {
     const thing = JSON.parse(thing_string)
     // get all the attribute names except the "shutdown" and "make_request" action, they are only for internal usage.
     const values: string[] = Object.keys(thing[att_key]).filter((value: string) => value !== "shutdown"
@@ -134,11 +138,11 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                                            const value: string = event.currentTarget.value
                                            // check if the input value is valid (always string but should have right content)
                                            if (checkType(value, type)) {
-                                               const form = thing[att_key][values[i]]["forms"][0]
+                                               const form = getForm(thing[att_key][values[i]]["forms"])
                                                // transform new value to correct type and add to body
                                                form["value"] = changeType(value, type)
                                                form["sender"] = sender
-                                               if (form["href"].startsWith("http")) {
+                                               if (preferredProtocol === "http") {
                                                    // if http protocol we have to change the method
                                                    // to be able to set a value
                                                    form["htv:methodName"] = "PUT"
@@ -174,14 +178,14 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                     </div>
                 )
             }
-            if (att_key == "actions" || (att_key == "events" && sender !== "controller")) {
-                // handle actions or events if they are called by another device
+            const form = getForm(thing[att_key][values[i]]["forms"])
+            if (form && (att_key == "actions" || (att_key == "events" && sender !== "controller"))) {
+                // handle actions, or events if they are called by another device
                 const bId: string = thing["id"] + "-" + values[i] + "-" + "button- " + sender
                 return (
                     <button id={bId} onClick={(): void => {
-                        const form = thing[att_key][values[i]]["forms"][0]
                         form["sender"] = sender
-                        if (sender !== "controller"){
+                        if (sender !== "controller" && preferredProtocol === "http"){
                             // when sender is another device => get property with make_request action from the other device
                             form["href"] = getMakeRequestHref(sender, "POST")+ form["href"]
                         }
@@ -229,7 +233,7 @@ function getOtherDevices(thing: string): JSX.Element {
     }
     const deviceButtons: JSX.Element[] = []
     const otherDeviceAttributes: JSX.Element[] = []
-    for (let i: number = 0; i < thingDescriptions.length; i++){
+    for (let i = 0; i < thingDescriptions.length; i++){
         const currentDevice = JSON.parse(thingDescriptions[i])
         // don't show the own device inside the thing
         if (currentDevice["id"] === thing) continue
@@ -273,41 +277,43 @@ function getOtherDevices(thing: string): JSX.Element {
  * @param {string} thing_string - The thing configuration in string format.
  * @param {string} sender - ID from the device that is calling the property or "controller" if direct call
  */
-function getValues(thing_string: string, sender: string = "controller"): void {
+function getValues(thing_string: string, sender = "controller"): void {
     const thing = JSON.parse(thing_string)
     const values: string[] = Object.keys(thing["properties"])
-    for (let i: number = 0; i < values.length; i++) {
+    for (let i = 0; i < values.length; i++) {
         const aId: string = thing["id"] + "-" + values[i] + "-" + sender
         // show property attribute
         const property: HTMLElement | null = document.getElementById(aId)
         if(property) property.style.display = "inline-block"
-        const form = thing["properties"][values[i]]["forms"][0]
-        if (form["href"].startsWith("http")) {
-            // if http protocol we have to change the method to call the make_request action
-            if (sender !== "controller") {
+        const form = getForm(thing["properties"][values[i]]["forms"])
+        // if there is no form with the right protocol hide the property
+        if (!form && property) property.style.display = "none"
+        else {
+            if (preferredProtocol === "http" && sender !== "controller" ) {
                 // when sender is another device => get property with make_request action from the other device
+                // if http protocol we have to change the method to call the make_request action
                 form["htv:methodName"] = "POST"
                 form["href"] = getMakeRequestHref(sender, "GET") + form["href"]
             }
+            //toDo implement make_request for other protocols
+            form["sender"] = sender
+            const credentials: string[] = getCredentials(thing["title"])
+            if (credentials.length > 0) {
+                // No, or basic security definition
+                triggerRequest(JSON.stringify(form), credentials).then((result: string): void => {
+                    if (result !== "Error"){
+                        if (result !== ""){
+                            const attribute: HTMLInputElement | null =
+                                document.getElementById(aId + "-field") as HTMLInputElement
+                            if (attribute) attribute.value = result
+                        }else {
+                            // if property has no value, hide it
+                            if (property) property.style.display = "none"
+                        }
+                    }else alert("Something went wrong. Please try again.")
+                })
+            }else alert("No correct security definition.")
         }
-        //toDo implement make_request for other protocols
-        form["sender"] = sender
-        const credentials: string[] = getCredentials(thing["title"])
-        if (credentials.length > 0) {
-            // No, or basic security definition
-            triggerRequest(JSON.stringify(form), credentials).then((result: string): void => {
-                if (result !== "Error"){
-                    if (result !== ""){
-                        const attribute: HTMLInputElement | null =
-                            document.getElementById(aId + "-field") as HTMLInputElement
-                        if (attribute) attribute.value = result
-                    }else {
-                        // if property has no value, hide it
-                        if (property) property.style.display = "none"
-                    }
-                }else alert("Something went wrong. Please try again.")
-            })
-        }else alert("No correct security definition.")
     }
 }
 
@@ -320,7 +326,7 @@ function getCredentials(thing: string): string[]{
     const credentials: string[] = []
     if (config){
         const devices = JSON.parse(config)["devices"]
-        for (let i: number = 0; i < devices.length; i++){
+        for (let i = 0; i < devices.length; i++){
             const device = devices[i]
             // correct thing
             if (device["title"] === thing){
@@ -352,15 +358,32 @@ function getCredentials(thing: string): string[]{
  * @return {string} - The href properties of the action
  */
 function getMakeRequestHref(sender: string, method: string): string {
-    let href: string = ""
-    for (let i: number = 0; i < thingDescriptions.length; i++) {
+    // make_requests is an automatically created action to communicate with another Thing
+    let href = ""
+    for (let i = 0; i < thingDescriptions.length; i++) {
         const currentDevice = JSON.parse(thingDescriptions[i])
         if (currentDevice["id"] === sender) {
+            // the first form is always http in this function
             href = currentDevice["actions"]["make_request"]["forms"][0]["href"].split("{")[0]
                 + "?method=" + method + "&url="
         }
     }
     return href
+}
+
+/**
+ * Gets the form for a specific protocol for an API call
+ * => only takes actions without parameter since they are not implemented yet
+ * @param {string[]} forms - The list of forms from an
+ * @return The form property for the specified protocol
+ */
+function getForm(forms: string[]) {
+    for (let i = 0; i < forms.length; i++){
+        const form: any = forms[i]
+        if (form["href"].startsWith(preferredProtocol) && !form["href"].includes("{?")
+            && !form["uriVariables"] && !form["input"]) return form
+    }
+    return
 }
 
 
@@ -402,7 +425,7 @@ function displayOtherDevices(thing: string): void {
 function displayAttributes(thing: string, disOthers: string, disThing:string): void {
     //change display type of all the other things
     const things: HTMLCollectionOf<Element> = document.getElementsByClassName("thing")
-    for (let i: number = 0; i<things.length; i++){
+    for (let i = 0; i<things.length; i++){
         const th: HTMLElement | null =  document.getElementById(things[i].id)
         if (things[i].id !== thing && th) th.style.display = disOthers
     }
@@ -445,7 +468,7 @@ function displayAttributes(thing: string, disOthers: string, disThing:string): v
  */
 function checkType(value: string, type: string): boolean {
     // initial value is true since all other values are handled as strings
-    let bool: boolean = true
+    let bool= true
     switch (type){
         case "number": {
             if (Number.isNaN(Number(value))) bool = false
@@ -491,7 +514,7 @@ function changeType(value: string, type: string): string | number | boolean {
  * @returns A boolean depending on if the Thing is remote or not
  */
 function checkIfRemote(thing: string): boolean{
-    for (let i: number = 0; i < thingDescriptions.length; i++){
+    for (let i = 0; i < thingDescriptions.length; i++){
         const currentDevice = JSON.parse(thingDescriptions[i])
         if (currentDevice["id"] === thing){
             return currentDevice["external"]
