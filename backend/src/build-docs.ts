@@ -11,14 +11,14 @@ const swaggerOptions = {
             version: '1.0.0',
         },
     },
-    apis: ['./app.ts', './routes/*.ts'], // Passe den Pfad zu deiner app.ts-Datei an
+    apis: ['./app.ts', './routes/*.ts'], // Add all routes
 };
 
-// Swagger-Spezifikation generieren
+// Generate Swagger specification
 const swaggerSpec = swaggerJSDoc(swaggerOptions);
 
-// Speichere die Swagger-Dokumentation als JSON-Datei
+// Save file as JSON
 const docsOutputPath: string = path.join(__dirname, 'api-docs.json');
 fs.writeFileSync(docsOutputPath, JSON.stringify(swaggerSpec, null, 2));
 
-console.log('Swagger-Dokumentation generiert und gespeichert.');
+console.log('Swagger documentation generated and saved');
