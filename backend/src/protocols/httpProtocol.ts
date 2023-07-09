@@ -1,5 +1,5 @@
 import {ProtocolInterface} from '../interfaces/protocolInterface';
-import {Application} from 'express';
+import {Application, Response} from 'express';
 
 const http = require('http')
 
@@ -7,12 +7,12 @@ export class HttpProtocol implements ProtocolInterface {
     /**
      * Express server instance
      */
-    private server: Application;
+    private server: Application
 
     /**
      * Port for the HTTP server
      */
-    port: string | 5001;
+    port: string | 5001
 
     /**
      * Constructs a new HttpProtocol instance.
@@ -20,8 +20,8 @@ export class HttpProtocol implements ProtocolInterface {
      * @param port - The port for the HTTP server.
      */
     constructor(server: Application, port: string | 5001) {
-        this.server = server;
-        this.port = port;
+        this.server = server
+        this.port = port
     }
 
 
@@ -30,7 +30,7 @@ export class HttpProtocol implements ProtocolInterface {
      */
     connect(): void {
         this.server.listen(this.port, (): void => {
-            console.log(`HTTP Server running on port: ${this.port}`);
+            console.log(`HTTP Server running on port: ${this.port}`)
         });
     }
 
@@ -40,20 +40,26 @@ export class HttpProtocol implements ProtocolInterface {
      * @param data - The data to send.
      */
     async send(url: string, data: any): Promise<void> {
-        const { contentType, value} = data
+        const {contentType, value} = data
         const method = data['htv:methodName']
-        let cleaned_url = url.replace("localhost", "host.docker.internal")
-        console.log(`Sending data via HTTP to url ${cleaned_url} using content type: ${contentType}, value ${value} and method: ${method}`);
+        let cleaned_url: string = url.replace("localhost", "host.docker.internal")
+        console.log(`Sending data via HTTP to url ${cleaned_url} using content type: ${contentType}, value ${value} and method: ${method}`)
 
-        const response = await fetch(cleaned_url, {
-            method: method,
-            headers: {'Content-Type': contentType},
-            body: value
-        })
+        try {
+            const response: Response = await fetch(cleaned_url, {
+                method: method,
+                headers: { 'Content-Type': contentType },
+                body: value
+            });
 
-        if(response.status == 200){
-            console.log("Action/Event successfully called")
-            return
+            if (response.status === 200) {
+                console.log("Action/Event/Property successfully called");
+                return;
+            } else {
+                console.log("Action/Event/Property call failed with status:", response.status);
+            }
+        } catch (error) {
+            console.error("An error occurred during the HTTP request:", error);
         }
 
     }
@@ -63,21 +69,21 @@ export class HttpProtocol implements ProtocolInterface {
      * @param url - The URL to make the HTTP GET request.
      * @returns A Promise that resolves with the received data.
      */
-    async receive(url: string): Promise<string> {
+    async receive(url: string): Promise<any> {
         console.log('Receiving data via HTTP');
 
-        return new Promise((resolve, reject) => {
-            //TODO: remove, when href sends right ip
-            const urlCleaned = url.replace('localhost', 'host.docker.internal')
+        return new Promise((resolve, reject): void => {
+            // TODO: remove, when href sends the correct IP
+            const urlCleaned: string = url.replace('localhost', 'host.docker.internal');
 
-            http.get(urlCleaned, res => {
-                let data: string = '';
+            const req = http.get(urlCleaned, res => {
+                let data: string = ''
 
                 res.on('data', chunk => {
                     data += chunk;
                 });
 
-                res.on('end', () => {
+                res.on('end', (): void => {
                     resolve(data);
                 });
 
@@ -85,7 +91,13 @@ export class HttpProtocol implements ProtocolInterface {
                     reject(error);
                 });
             });
+
+            req.on('error', error => {
+                reject(error);
+            });
+        }).catch(error => {
+            console.error('An error occurred during the HTTP request:', error);
+            return '' // Return an empty string when an error occurs
         });
     }
-
 }

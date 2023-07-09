@@ -5,15 +5,16 @@
  */
 function createLog(logData): string {
     // Parse JSON log
-    const { type, host, caller, payload } = logData;
+    const { type, host, caller, payload } = logData
 
     // Generate timestamp for log
-    const timestamp: string = new Date().toISOString();
+    const timestamp: string = new Date().toISOString()
 
     // Define general log message
-    let logMessage: string = `${timestamp},${host.id},`;
+    let logMessage: string = `${timestamp},${host.id},`
 
-    let callerIp = "controller"
+    // If caller is unknown than set it to controller
+    let callerIp: string = "controller"
     if(caller){
         if(caller.ip != "Unknown"){
             callerIp = caller.ip
@@ -24,39 +25,39 @@ function createLog(logData): string {
     // Generate logs according to the type
     switch (type) {
         case 'property_read': {
-            logMessage += `property "${payload.name}" with a value of ${payload.value} was accessed by: ${callerIp}:${caller.port}`;
-            break;
+            logMessage += `property "${payload.name}" with a value of ${payload.value} was accessed by: ${callerIp}:${caller.port}`
+            break
         }
         case 'property_changed': {
-            logMessage += `property "${payload.name}" was changed to ${payload.value}`;
-            break;
+            logMessage += `property "${payload.name}" was changed to ${payload.value}`
+            break
         }
         case 'action_called': {
-            logMessage += `action "${payload}" was called by: ${callerIp}:${caller.port}`;
-            break;
+            logMessage += `action "${payload}" was called by: ${callerIp}:${caller.port}`
+            break
         }
         case 'event_called': {
-            logMessage += `event "${payload.name}" was registered to by: ${callerIp}:${caller.port}`;
-            break;
+            logMessage += `event "${payload.name}" was registered to by: ${callerIp}:${caller.port}`
+            break
         }
         case 'event_triggered': {
-            logMessage += `event "${payload.name}" was triggered`;
-            break;
+            logMessage += `event "${payload.name}" was triggered`
+            break
         }
         case 'created': {
-            logMessage += `created successfully`;
-            break;
+            logMessage += `created successfully`
+            break
         }
         case 'deleted': {
-            logMessage += `deleted successfully`;
-            break;
+            logMessage += `deleted successfully`
+            break
         }
         default: {
-            logMessage = '';
+            logMessage = ''
         }
     }
 
-    return logMessage;
+    return logMessage
 }
 
-module.exports = createLog;
+module.exports = createLog
