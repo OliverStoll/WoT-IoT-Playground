@@ -45,15 +45,21 @@ export class HttpProtocol implements ProtocolInterface {
         let cleaned_url: string = url.replace("localhost", "host.docker.internal")
         console.log(`Sending data via HTTP to url ${cleaned_url} using content type: ${contentType}, value ${value} and method: ${method}`)
 
-        const response: Response = await fetch(cleaned_url, {
-            method: method,
-            headers: {'Content-Type': contentType},
-            body: value
-        })
+        try {
+            const response: Response = await fetch(cleaned_url, {
+                method: method,
+                headers: { 'Content-Type': contentType },
+                body: value
+            });
 
-        if (response.status == 200) {
-            console.log("Action/Event successfully called")
-            return
+            if (response.status === 200) {
+                console.log("Action/Event/Property successfully called");
+                return;
+            } else {
+                console.log("Action/Event/Property call failed with status:", response.status);
+            }
+        } catch (error) {
+            console.error("An error occurred during the HTTP request:", error);
         }
 
     }
@@ -63,28 +69,35 @@ export class HttpProtocol implements ProtocolInterface {
      * @param url - The URL to make the HTTP GET request.
      * @returns A Promise that resolves with the received data.
      */
-    async receive(url: string): Promise<string> {
-        console.log('Receiving data via HTTP')
+    async receive(url: string): Promise<any> {
+        console.log('Receiving data via HTTP');
 
         return new Promise((resolve, reject): void => {
-            //TODO: remove, when href sends right ip
-            const urlCleaned: string = url.replace('localhost', 'host.docker.internal')
+            // TODO: remove, when href sends the correct IP
+            const urlCleaned: string = url.replace('localhost', 'host.docker.internal');
 
-            http.get(urlCleaned, res => {
+            const req = http.get(urlCleaned, res => {
                 let data: string = ''
 
                 res.on('data', chunk => {
-                    data += chunk
-                })
+                    data += chunk;
+                });
 
-                res.on('end', () => {
-                    resolve(data)
-                })
+                res.on('end', (): void => {
+                    resolve(data);
+                });
 
                 res.on('error', error => {
-                    reject(error)
-                })
-            })
-        })
+                    reject(error);
+                });
+            });
+
+            req.on('error', error => {
+                reject(error);
+            });
+        }).catch(error => {
+            console.error('An error occurred during the HTTP request:', error);
+            return '' // Return an empty string when an error occurs
+        });
     }
 }

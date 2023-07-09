@@ -78,7 +78,7 @@ const LogRepresentation = () => {
    */
   useEffect(() => {
     fetchLogs().then((r: void) => r)
-    const interval: number = setInterval(fetchLogs, 5000)
+    const interval: NodeJS.Timer = setInterval(fetchLogs, 5000)
     return (): void => {
       clearInterval(interval)
     }

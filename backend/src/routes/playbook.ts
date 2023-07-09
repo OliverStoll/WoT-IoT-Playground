@@ -1,13 +1,58 @@
-import { Router } from 'express'
+import {Request, Response, Router} from 'express'
 const playbookRouter = new Router()
 const sendRequest = require('../utils/sendRequest')
 const thingDescriptions = require('./logs').thingDescriptions
 
 /**
- * Handle POST request to /api/script to receive and process the playbook file.
- * uses the sendRequest util so send requests to things
+ * @swagger
+ * /api/script:
+ *   post:
+ *     summary: Receive and process the playbook file
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               steps:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     deviceId:
+ *                       type: string
+ *                       description: The ID of the device
+ *                       example: "Coffee-machine"
+ *                     type:
+ *                       type: string
+ *                       description: The type of step (property, action, event)
+ *                       example: property
+ *                     value:
+ *                       type: string
+ *                       description: The value associated with the step
+ *                       example: temperature
+ *                     sleep:
+ *                       type: number
+ *                       description: The sleep time in seconds(optional). Can also be provided alone, without other properties
+ *                       example: 3
+ *     responses:
+ *       '200':
+ *         description: Playbook processed successfully
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *             example: Playbook processed successfully
+ *       '400':
+ *         description: Empty request body or invalid playbook format
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *             example: Empty request body or invalid playbook format
  */
-playbookRouter.post('/', async (req, res): Promise<void> => {
+playbookRouter.post('/', async (req: Request, res: Response): Promise<void> => {
     if (!req.body) {
         res.status(400).send('Empty request body')
         return

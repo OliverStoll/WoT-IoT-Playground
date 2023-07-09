@@ -1,32 +1,35 @@
-import {ProtocolInterface} from "../interfaces/protocolInterface";
-import {HttpProtocol} from "../protocols/httpProtocol";
+import { ProtocolInterface } from "../interfaces/protocolInterface"
+import { HttpProtocol } from "../protocols/httpProtocol"
 
-async function sendRequest(data): Promise<string> {
-    // handler for http wot devices
+/**
+ * Sends a request to a web of things (WoT) device.
+ *
+ * @param data - The request data, including the URL and method.
+ * @returns A Promise that resolves to the response as a string.
+ */
+async function sendRequest(data: { href: string, 'htv:methodName'?: string }): Promise<string> {
+    // Handler for HTTP WoT devices
     const { href } = data
-    const method = data['htv:methodName']
+    const method: string = data['htv:methodName']
     let response: string = ""
-    if(href.split('://')[0]=='http'){
+
+    if (href.split('://')[0] == 'http') {
         const protocol: ProtocolInterface = new HttpProtocol(this, 5001)
-        if(!method || method == "GET"){
+
+        if (!method || method === "GET") {
             response = await protocol.receive(href)
-
+        } else {
+            protocol.send(href, data)
         }
-        else{
-            protocol.send(href, data);
-        }
-
-    }
-    // TODO implement other protocols
-    else{
-        return "Error: Only Http implemented. Add more protocols by extending the ProtocolInterface"
+    } else {
+        // TODO: Implement other protocols
+        return "Error: Only HTTP implemented. Add more protocols by extending the ProtocolInterface"
     }
 
-    // check if response object is valid json to avoid backend crashes
-    try{
+    // Check if the response object is valid JSON to avoid backend crashes
+    try {
         JSON.parse(response)
-    }
-    catch (e) {
+    } catch (e) {
         console.log(`Could not get value from URL: ${href}`)
         response = ""
     }
@@ -34,4 +37,4 @@ async function sendRequest(data): Promise<string> {
     return response
 }
 
-module.exports = sendRequest;
+export = sendRequest

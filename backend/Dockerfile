@@ -27,6 +27,17 @@ RUN apt-get update && apt-get install -y jq
 # Install docker
 RUN yes | apt-get install docker.io
 
+
+
+# Generate api documentation
+WORKDIR /app/src
+#COPY src/build-docs.ts .
+# Generate the Swagger documentation
+RUN npx ts-node build-docs.ts
+
+# Switch back to the original working directory
+WORKDIR /app
+
 # Build the application
 RUN npm run build
 

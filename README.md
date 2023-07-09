@@ -52,6 +52,10 @@ docker-compose up
 - downloading logs
 - shutdown devices
 
+## API Documentation
+The API documentation of the controller is available, when running with docker compose.
+URL: http://localhost:5001/api-docs
+
 ## Local Development
 If you want to run the services locally (without docker) use the commands here: 
 

@@ -1,3 +1,5 @@
+import {Request, Response} from "express";
+
 const { spawn } = require('child_process')
 const path = require('path')
 const express = require('express')
@@ -15,11 +17,89 @@ let fileName: string = ''
 let config: string = ''
 
 /**
- * Handle POST request to /api/config to receive and process the configuration file.
- * config file is saved to device-blueprint
- * docker containers are started according to config file
+ * @swagger
+ * /api/config:
+ *   post:
+ *     summary: Send the config to the controller to generate the things
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               devices:
+ *                  type: array
+ *                  items:
+ *                     type: object
+ *                     example: {
+ *                          "title": "Coffee-machine",
+ *                          "description": "A smart coffee machine with a range of capabilities",
+ *                          "properties": {
+ *                          "temperature": {
+ *                              "type": "number",
+ *                              "description": "Current temperature of the coffee machine",
+ *                              "startValue": 0
+ *                              }
+ *                          },
+ *                          "actions": {
+ *                              "brew_coffee": {
+ *                                  "description": "Sets the temperature of the coffee machine using an action",
+ *                                  "temperature": {
+ *                                      "type": "integer",
+ *                                      "description": "Temperature to set the coffee machine to",
+ *                                      "minimum": 0,
+ *                                      "maximum": 100
+ *                                      },
+ *                                  "action_list": [{
+ *                                          "action_type": "set",
+ *                                          "property": "temperature",
+ *                                          "value": 97
+ *                                              }
+ *                                          ]
+ *                                  }
+ *                              },
+ *                          "events": {
+ *                              "temperatureSet": {
+ *                              "description": "Temperature set event",
+ *                              "data": {
+ *                                  "type": "string"
+ *                                  }
+ *                              }
+ *                          }
+ *                      }
+ *               externalDevices:
+ *                  type: array
+ *                  items:
+ *                      type: string
+ *                      description: URL of external devices
+ *                      example:
+ *                          "http://plugfest.thingweb.io:8083/smart-coffee-machine"
+ *     responses:
+ *       '200':
+ *         description: Successfully processed config file
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *             example: "Config was processed!"
+ *
+ *       '400':
+ *         description: Invalid config file
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *             example: "Invalid config file"
+ *       '500':
+ *         description: Config file could not be saved on backend server
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *             example: 'Error: Could not save configuration file!'
  */
-configRouter.post('/', (req, res): void => {
+configRouter.post('/', (req: Request, res: Response): void => {
     if (req.get('Content-Type') === 'application/json') {
         fileName = path.join(__dirname, '../../../device-blueprint/config_backup.json')
         let configRaw = req.body
@@ -29,6 +109,8 @@ configRouter.post('/', (req, res): void => {
         config = JSON.stringify(configRaw)
     }
 
+
+
     fs.writeFile(fileName, config, (err): void => {
         if (err || config === '') {
             console.log('Error: Could not save configuration file!')
@@ -36,6 +118,10 @@ configRouter.post('/', (req, res): void => {
             return
         }
         console.log(`Config saved to file ${fileName}`);
+
+        if(!JSON.parse(config)['devices']){
+            res.status(400).send("Invalid config file")
+        }
 
         // parse external devices
         const externalDevicesList = JSON.parse(config)['externalDevices']
@@ -78,10 +164,57 @@ configRouter.post('/', (req, res): void => {
     })
 })
 
+
 /**
- * Handle GET request to /api/config to retrieve the configuration file.
+ * @swagger
+ * /api/config:
+ *   get:
+ *     summary: Get the configuration file
+ *     responses:
+ *       '200':
+ *         description: Successfully retrieved the configuration file
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               example:
+ *                 devices:
+ *                   - title: Coffee-machine
+ *                     description: A smart coffee machine with a range of capabilities
+ *                     properties:
+ *                       temperature:
+ *                         type: number
+ *                         description: Current temperature of the coffee machine
+ *                         startValue: 0
+ *                     actions:
+ *                       brew_coffee:
+ *                         description: Sets the temperature of the coffee machine using an action
+ *                         temperature:
+ *                           type: integer
+ *                           description: Temperature to set the coffee machine to
+ *                           minimum: 0
+ *                           maximum: 100
+ *                           action_list:
+ *                             - action_type: set
+ *                               property: temperature
+ *                               value: 97
+ *                     events:
+ *                       temperatureSet:
+ *                         description: Temperature set event
+ *                         data:
+ *                           type: string
+ *                 externalDevices:
+ *                   - http://plugfest.thingweb.io:8083/smart-coffee-machine
+ *       '404':
+ *         description: Configuration file not found
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *             example: No config file found
  */
-configRouter.get('/', (req, res) => {
+
+configRouter.get('/', (req: Request, res: Response): void => {
     if (fs.existsSync(fileName)) {
         // Send config_backup.json if it exists
         const fileContent = fs.readFileSync(fileName, 'utf8')
@@ -94,9 +227,34 @@ configRouter.get('/', (req, res) => {
 })
 
 /**
- * Handle POST request to /api/shutdown to shut down all containers and remove the thing image.
+ * @swagger
+ * /api/config/shutdown:
+ *   post:
+ *     summary: Shutdown all thing containers, thing image and delete the config file
+ *     responses:
+ *       '200':
+ *         description: Shutdown successful
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *             example: Shutdown successful
+ *       '404':
+ *         description: No config to shut down
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *             example: No config to shut down
+ *       '500':
+ *         description: Error while deleting config
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *             example: Error while deleting config.
  */
-configRouter.post('/shutdown', (req, res) => {
+configRouter.post('/shutdown', (req: Request, res: Response) => {
     if (fs.existsSync(fileName)) {
         fs.unlink(fileName, (err) => {
             if (err) {
