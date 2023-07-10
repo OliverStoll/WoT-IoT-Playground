@@ -88,7 +88,7 @@ function getThings(): JSX.Element[] {
                                      displayAttributes(thing["id"], "none", "block")
                                      // scroll to the right of the input field
                                      const inputField: HTMLInputElement | null =
-                                         document.getElementById(thing["id"] + "-field") as HTMLInputElement
+                                         document.getElementById(thing["id"] + "-field-controller") as HTMLInputElement
                                      if (inputField) inputField.scrollLeft = inputField.scrollWidth
                                  }else alert("No correct security definition.")
                              }
@@ -233,8 +233,8 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
             address = getMakeRequestHref(sender, "POST")+ address
         }
         attributes.push(
-            <input id={thing["id"] + "-field"} className={"action-input"} defaultValue={address} key={"action-input"}
-                   onKeyDown={(event): void => {
+            <input id={thing["id"] + "-field-" + sender} className={"action-input"}
+                   defaultValue={address} key={"action-input"} onKeyDown={(event): void => {
                        if (event.key == "Enter") {
                            const value: string = event.currentTarget.value
                            const credentials: string[] = getCredentials(thing_string)
@@ -300,7 +300,7 @@ function getOtherDevices(thing: string): JSX.Element {
                 getValues(thingDescriptions[i], thing)
                 // scroll to the right of the input field
                 const inputField: HTMLInputElement | null =
-                    document.getElementById(currentDevice["id"] + "-field") as HTMLInputElement
+                    document.getElementById(currentDevice["id"] + "-field-" + thing) as HTMLInputElement
                 if (inputField) inputField.scrollLeft = inputField.scrollWidth
             }}>{currentDevice["title"]}
             </button>
