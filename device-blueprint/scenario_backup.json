@@ -23,6 +23,12 @@
       "actions": {
         "brew_coffee": {
           "description": "Sets the temperature of the coffee machine using an action",
+          "uriVariables": {
+            "caller": {
+              "type": "string",
+              "description": "Name of the caller of the action"
+            }
+          },
           "action_list": [
             {
               "action_type": "set",
@@ -93,6 +99,12 @@
       "actions": {
         "makeIce": {
           "description": "Sets the temperature of the coffee machine using an action",
+          "uriVariables": {
+            "caller": {
+              "type": "string",
+              "description": "Name of the caller of the action"
+            }
+          },
           "action_list": [
             {
               "action_type": "increment",

@@ -4,7 +4,9 @@
     <node-options value="" />
     <jest-package value="$PROJECT_DIR$/device-blueprint/node_modules/jest" />
     <working-dir value="$PROJECT_DIR$/device-blueprint" />
-    <envs />
+    <envs>
+      <env name="REMOVE_CONTAINER" value="false" />
+    </envs>
     <scope-kind value="ALL" />
     <method v="2">
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="Build &amp; Run Device (1)" run_configuration_type="docker-deploy" />

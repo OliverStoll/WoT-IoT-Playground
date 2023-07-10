@@ -55,7 +55,7 @@ export function sendLog(log_type: LogType, payload: any, logging_info: LoggingIn
         log['caller'] = caller;
     }
 
-    console.log(`LOG [${log.type}] with payload: ${JSON.stringify(log).substring(0, 80)} ...`);
+    // console.log(`LOG [${log.type}] with payload: ${JSON.stringify(log)} ...`);
 
     // send the log to the log server
     sendRequest(logging_info.log_server, 'POST', log).catch((error) => {

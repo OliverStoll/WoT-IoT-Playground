@@ -7,20 +7,20 @@
         <option name="envVars">
           <list>
             <DockerEnvVarImpl>
-              <option name="name" value="PORT" />
-              <option name="value" value="3000" />
-            </DockerEnvVarImpl>
-            <DockerEnvVarImpl>
               <option name="name" value="DEVICE_IDX" />
               <option name="value" value="0" />
+            </DockerEnvVarImpl>
+            <DockerEnvVarImpl>
+              <option name="name" value="PORT" />
+              <option name="value" value="3010" />
             </DockerEnvVarImpl>
           </list>
         </option>
         <option name="portBindings">
           <list>
             <DockerPortBindingImpl>
-              <option name="containerPort" value="3000" />
-              <option name="hostPort" value="3000" />
+              <option name="containerPort" value="3010" />
+              <option name="hostPort" value="3010" />
             </DockerPortBindingImpl>
           </list>
         </option>

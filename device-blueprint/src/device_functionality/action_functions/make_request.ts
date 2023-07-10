@@ -1,7 +1,6 @@
 import {ExecuteActionData} from "../actions";
 
 export async function execute_action_make_request(execute_action_data: ExecuteActionData) {
-    console.log(execute_action_data.thing.title)
     // check if url present variables
     let variables = execute_action_data.variables as unknown as { url: string, method: string };
     let url = variables['url'];
@@ -9,17 +8,17 @@ export async function execute_action_make_request(execute_action_data: ExecuteAc
 
     // append url with id as caller query param, if method is not GET
     if (method !== 'GET') {
-        url += `?caller=${execute_action_data.thing.id}`;
+        url += `?caller=${execute_action_data.thing.title}`;
     }
 
     console.log(`Making ${method} request to ${url}`);
 
     // make a fetch get request to the url
-    await fetchData(url, method).then(data => {
-        console.log(`Got data from ${url}: ${data}`);
-        // TODO: somehow pass the data back or log it?
+    let return_data = await fetchData(url, method).then(data => {
         return data;
     })
+
+    return return_data;
 }
 
 

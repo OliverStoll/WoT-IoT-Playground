@@ -96,7 +96,8 @@ function setActionHandler(thing: any, actions_dict: ActionsDict, properties_dict
 
             let action = actions_dict[action_name];
             let action_list = action.action_list;
-            console.log(`ACTION [${action_name}]`);
+            console.log(`\n\nACTION [${action_name}]\n${JSON.stringify(action)}`);
+            console.log(options)
             // Check if uriVariables are provided
 
             let caller;

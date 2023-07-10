@@ -34,7 +34,7 @@ export async function executeEntireAction(properties_dict: PropertiesDict, thing
     for (const action of action_list) {
         let property: _Property = properties_dict[action.property];
 
-        console.log(`Executing action: ${JSON.stringify(action)}`);
+        console.log(`\tACTION STEP: ${JSON.stringify(action)}`);
 
         let execute_action_data: ExecuteActionData = {
             action: action,
@@ -49,7 +49,7 @@ export async function executeEntireAction(properties_dict: PropertiesDict, thing
         if (execute_action_function) {
             let return_value = await execute_action_function(execute_action_data);
             return_values.push(return_value);
-            console.log(`Action ${action.action_type} returned: ${return_value}`);  // TODO: actually return
+            // console.log(`Action ${action.action_type} returned: ${return_value}`);
         }
         else {
             return_values.push("Action type not supported");
