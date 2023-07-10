@@ -284,6 +284,7 @@ function getValues(thing_string: string, sender = "controller"): void {
         const aId: string = thing["id"] + "-" + values[i] + "-" + sender
         // show property attribute
         const property: HTMLElement | null = document.getElementById(aId)
+        // show property again, maybe it was hidden the last time because of an error
         if(property) property.style.display = "inline-block"
         const form = getForm(thing["properties"][values[i]])
         // if there is no form with the right protocol hide the property
@@ -306,9 +307,9 @@ function getValues(thing_string: string, sender = "controller"): void {
                             const attribute: HTMLInputElement | null =
                                 document.getElementById(aId + "-field") as HTMLInputElement
                             if (attribute) attribute.value = result
-                        }else {
+                        }else if (property){
                             // if property has no value, hide it
-                            if (property) property.style.display = "none"
+                            property.style.display = "none"
                         }
                     }else alert("Something went wrong. Please try again.")
                 })

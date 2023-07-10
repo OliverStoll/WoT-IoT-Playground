@@ -27,12 +27,10 @@ echo "Scenario File exists."
 # remove all newlines from the config string
 config=$(jq -c . < $json_file)
 echo "Config: $config"
-
 echo "$(pwd)"
 num_devices=$(jq '.devices | length' $json_file)
 echo "Devices: $num_devices"
 sleep 1
-
 # Check if the wot-device image is locally available
 echo "Building the image..."
 sleep 1
@@ -43,14 +41,12 @@ for (( i=0; i< num_devices; i++ ))
 do
   device_title=$(jq --raw-output ".devices[$i].title" $json_file)
   device_name=$(echo "$device_title" | tr ' ' '_' | tr '[:upper:]' '[:lower:]')
-
   # check if container with device name already exists and remove it
   if [ "$(docker ps -q -f name=${device_name} -f status=exited -f status=running)" ]; then
     # cleanup
     echo "Container already running. Stopping and removing..."
     docker rm -f "${device_name}"
   fi
-
   port=$((3000 + i))
   # execute docker run command detached with port mapping and environment variable
   docker run -d -p $port:$port --name "$device_name" -e PORT=$port -e DEVICE_IDX=$i -e SCENARIO="$config" --network="web-of-things-playground_default" wot-device
