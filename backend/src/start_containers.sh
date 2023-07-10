@@ -1,29 +1,22 @@
 #!/bin/bash
 # script that extracts the number of devices from scenario and runs a docker container for each device with an increasing id
-
 # print multiple lines
 printf "\n\n\#######   STARTING CONTAINER   #######\n\n\n"
-
 # check if pwd ends with backend/src
 if [[ $PWD == *"backend/src" ]]; then
   echo "TEST_SHELL is set to true. Changing directory to backend/"
   cd ..
 fi
-
-
 # get the num devices from config_backup.json with jq
 json_file="../device-blueprint/config.json"
-
 # check if the file does not exists
 if not [ -f "$json_file" ]; then
     echo "Scenario File does not exist."
     sleep 5
     exit 1
 fi
-
 echo "Scenario File exists."
 # load the config file as one string
-
 # remove all newlines from the config string
 config=$(jq -c . < $json_file)
 echo "Config: $config"
@@ -37,7 +30,7 @@ sleep 1
 cd ../device-blueprint || exit
 docker build -t wot-device .      # CURRENTLY NOT REBUILDING THE IMAGE !
 cd - || exit
-for (( i=0; i< num_devices; i++ ))
+for (( i=0; i<num_devices; i++ ))
 do
   device_title=$(jq --raw-output ".devices[$i].title" $json_file)
   device_name=$(echo "$device_title" | tr ' ' '_' | tr '[:upper:]' '[:lower:]')

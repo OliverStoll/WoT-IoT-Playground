@@ -201,10 +201,12 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                                 if (att_key == "actions" && result !== "Error") {
                                     console.log(att_key.slice(0, -1) + " \"" + values[i] + "\" from " + thing["title"]
                                         + " got called by " + sender)
+                                    console.log("Result: " + result)
                                     displayAttributes(currentDevice, "block", "none")
                                 } else if (att_key == "events" && result !== "Error") {
                                     alert(thing["title"] + " emitted event \"" + values[i] + "\" and "
                                         + sender + " received it.")
+                                    console.log("Result: " + result)
                                 }else alert("Something went wrong. Please try again.")
                             })
                         } else alert("No correct security definition.")
