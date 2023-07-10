@@ -77,18 +77,3 @@ async function sendRequest(url: string, method: string, body: any): Promise<void
         // console.log(response.status, response.statusText);
     }
 }
-
-export async function fetchData(url: string, method: string, body=""): Promise<any> {
-    try {
-        const response = await fetch(url, {
-            method: method,
-            headers: {'Content-Type': 'application/json',},
-            body: JSON.stringify(body),
-        });
-        // console.log(response);
-        // console.log(response.json());
-        return await response.json();
-    } catch (error) {
-        console.error(error);
-    }
-}
