@@ -26,4 +26,6 @@ export function execute_action_increment(execute_action_data: ExecuteActionData)
     } else {
         console.log(`No value or correct variable given for action ${action.action_type} on property ${action.property}`);
     }
+
+    return "Success"
 }

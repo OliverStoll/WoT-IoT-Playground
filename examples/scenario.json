@@ -41,7 +41,7 @@
             },
             {
               "action_type": "emit_event",
-              "event_name": "temperatureSet"
+              "event_name": "isHot"
             },
             {
               "action_type": "condition",

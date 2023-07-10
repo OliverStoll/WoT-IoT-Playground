@@ -1,5 +1,4 @@
 import {ExecuteActionData} from "../actions";
-import {fetchData} from "../../logging/logging";
 
 export async function execute_action_make_request(execute_action_data: ExecuteActionData) {
     // check if url present variables
@@ -7,15 +6,31 @@ export async function execute_action_make_request(execute_action_data: ExecuteAc
     let url = variables['url'];
     let method = variables['method'];
 
-    // adding caller as query parameter
-    url += `?caller=${execute_action_data.thing.id}`;
+    // append url with id as caller query param, if method is not GET
+    if (method !== 'GET') {
+        url += `?caller=${execute_action_data.thing.title}`;
+    }
 
     console.log(`Making ${method} request to ${url}`);
 
     // make a fetch get request to the url
-    await fetchData(url, method).then(data => {
-        console.log(`Got data from ${url}: ${data}`);
-        // TODO: somehow pass the data back or log it?
+    let return_data = await fetchData(url, method).then(data => {
         return data;
     })
+
+    return return_data;
+}
+
+
+async function fetchData(url: string, method: string, body=undefined): Promise<any> {
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: {'Content-Type': 'application/json',},
+            body: JSON.stringify(body),
+        });
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+    }
 }

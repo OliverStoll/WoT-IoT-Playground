@@ -5,6 +5,7 @@ export async function execute_action_sleep(execute_action_data: ExecuteActionDat
     let action = execute_action_data.action;
     // check if value or variable is given
     await wait(action.value as number);
+    return "Success"
 }
 
 function wait(s) {

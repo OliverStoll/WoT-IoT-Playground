@@ -16,5 +16,14 @@ export function execute_action_emit_event(execute_action_data: ExecuteActionData
         }
     }
     sendLog(LogType.EVENT_EMITTED, action.event_name, logging_info);  // other payload?
-    thing.emitEvent(action.event_name, payload)
+
+    // try to emit event
+    try {
+        thing.emitEvent(action.event_name, payload)
+        return "Success"
+    }
+    catch (e) {
+        console.log(`Event ${action.event_name} could not be emitted`);
+        return "Error"
+    }
 }

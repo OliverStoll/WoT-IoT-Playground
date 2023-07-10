@@ -5,7 +5,17 @@ export function get_device_scenario_file() {
 
     // get scenario from SCENARIO environment variable
     let scenario_string = process.env.SCENARIO;
-    let scenario = JSON.parse(scenario_string);
+    let scenario;
+
+    // check if scenario env variable is set
+    if (scenario_string === undefined) {
+        console.log("SCENARIO environment variable not set, using default scenario.");
+        // read the default scenario file
+        scenario = JSON.parse(fs.readFileSync("./scenario_backup.json", "utf8"));
+    } else {
+        // parse the scenario
+        scenario = JSON.parse(scenario_string);
+    }
 
 
     // print the scenario
