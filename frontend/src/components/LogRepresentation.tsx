@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react'
 import './component_css/LogRepresentationStyle.css'
 
-const urlLogs: string = 'http://localhost:5001/api/logs'
+const urlLogs = 'http://localhost:5001/api/logs'
 
 /**
  * Component that displays logs fetched from the server.

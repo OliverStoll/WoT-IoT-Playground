@@ -31,8 +31,8 @@ function createLog(logData): string {
             logMessage += `action "${payload}" was called by: ${callerName}`
             break
         }
-        case 'event_called': {
-            logMessage += `event "${payload.name}" was registered to by: ${callerName}`
+        case 'event_emitted': {
+            logMessage += `event "${payload}" was emitted`
             break
         }
         case 'event_triggered': {
