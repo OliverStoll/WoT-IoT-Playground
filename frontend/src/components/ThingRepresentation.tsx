@@ -478,6 +478,10 @@ function checkType(value: string, type: string): boolean {
             if (Number.isNaN(Number(value))) bool = false
             break
         }
+        case "integer": {
+            if (!Number.isInteger(Number(value))) bool = false
+            break
+        }
         case "boolean": {
             if (value.toLowerCase() !== "false" && value.toLowerCase() !== "true") bool = false
         }
@@ -496,6 +500,10 @@ function changeType(value: string, type: string): string | number | boolean {
     let transformedValue
     switch (type){
         case "number": {
+            transformedValue = Number(value)
+            break
+        }
+        case "integer": {
             transformedValue = Number(value)
             break
         }
