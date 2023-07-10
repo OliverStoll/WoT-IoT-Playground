@@ -3,6 +3,7 @@ const axios = require('axios');
 const shell = require('shelljs');
 
 const base_url = 'http://localhost:3000/coffee-machine';
+const base_url_2 = 'http://host.docker.internal:3001/smart-fridge';
 const base_config = {headers: {'Content-Type': 'application/json'}}
 
 // remove the docker container wot_device_1 before running the test, using a shell command
@@ -28,14 +29,6 @@ test('GET properties -> {temperature: number}', async () => {
 
     // check that response.data is a JSON object that contains the property 'temperature'
     expect(response.data).toEqual(expect.objectContaining({temperature: expect.any(Number)}));
-});
-
-// Test make request
-test('POST make_request -> [200]', async () => {
-    let url = `${base_url}/actions/make_request?method=GET&url=${base_url}/properties/temperature`
-    const response = await axios.post(url, {}, base_config);
-    console.log(response.data);
-    expect(response.status).toBe(200);
 });
 
 // Test PUT temperature
@@ -76,11 +69,22 @@ test('GET subscribe Event & trigger -> [200]', async () => {
     expect(response.status).toBe(200);
 });
 
+
+// Test make request
+test('POST make_request -> [200]', async () => {
+    let url = `${base_url}/actions/make_request?method=GET&url=${base_url_2}/properties/waterLevel`
+    const response = await axios.post(url, {}, base_config);
+    console.log(response.data);
+    expect(response.status).toBe(200);
+});
+
 // For the shutdown endpoint, it's commented out, so no need to test it.
 
 // after 10 seconds, remove the docker container wot_device_1 after running the test, using a shell command
+
 setTimeout(() => {
-    shell.exec('docker rm -f wot-device-1');
+        shell.exec('docker rm -f wot-device-1');
+        shell.exec('docker rm -f wot-device-2');
     },
     1000
 )
