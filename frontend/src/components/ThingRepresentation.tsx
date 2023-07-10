@@ -80,10 +80,16 @@ function getThings(): JSX.Element[] {
                                  document.getElementById(thing["id"] + "control")
                              // When control button is not there => thing is small => make it big and get the values
                              if (control && control.style.getPropertyValue("display") !== "block"){
-                                 const credentials: string[] = getCredentials(thing["title"])
+                                 // we also need credentials here because we want to get the properties
+                                 const credentials: string[] = getCredentials(thingDescriptions[index])
                                  if (credentials.length > 0) {
+                                     // No, or basic security definition
                                      getValues(JSON.stringify(thing), "controller")
                                      displayAttributes(thing["id"], "none", "block")
+                                     // scroll to the right of the input field
+                                     const inputField: HTMLInputElement | null =
+                                         document.getElementById(thing["id"] + "-field") as HTMLInputElement
+                                     if (inputField) inputField.scrollLeft = inputField.scrollWidth
                                  }else alert("No correct security definition.")
                              }
                          }}
@@ -122,6 +128,7 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
     const currentDevice: string = sender === "controller" ? thing["id"] : sender
     const attributes: JSX.Element[] = Array.from({length: values.length},
         function (_, i: number): JSX.Element {
+            const form = getForm(thing[att_key][values[i]])
             if (att_key == "properties") {
                 // handle properties
                 const pId: string = thing["id"] + "-" + values[i] + "-" + sender
@@ -138,7 +145,6 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                                            const value: string = event.currentTarget.value
                                            // check if the input value is valid (always string but should have right content)
                                            if (checkType(value, type)) {
-                                               const form = getForm(thing[att_key][values[i]])
                                                // transform new value to correct type and add to body
                                                form["value"] = changeType(value, type)
                                                form["sender"] = sender
@@ -155,7 +161,7 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                                                    }
                                                }
                                                //toDo implement set property for other protocols
-                                               const credentials: string[] = getCredentials(thing["title"])
+                                               const credentials: string[] = getCredentials(thing_string)
                                                // send request to change value
                                                if (credentials.length > 0) {
                                                    // No, or basic security definition
@@ -178,7 +184,6 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                     </div>
                 )
             }
-            const form = getForm(thing[att_key][values[i]])
             if (form && (att_key == "actions" || (att_key == "events" && sender !== "controller"))) {
                 // handle actions, or events if they are called by another device
                 const bId: string = thing["id"] + "-" + values[i] + "-" + "button- " + sender
@@ -186,10 +191,10 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                     <button id={bId} onClick={(): void => {
                         form["sender"] = sender
                         if (sender !== "controller" && preferredProtocol === "http"){
-                            // when sender is another device => get property with make_request action from the other device
+                            // when sender is another device => call action with make_request action from the other device
                             form["href"] = getMakeRequestHref(sender, "POST")+ form["href"]
                         }
-                        const credentials: string[] = getCredentials(thing["title"])
+                        const credentials: string[] = getCredentials(thing_string)
                         if (credentials.length > 0) {
                             // No, or basic security definition
                             if (att_key === "events"){
@@ -201,12 +206,12 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                                 if (att_key == "actions" && result !== "Error") {
                                     console.log(att_key.slice(0, -1) + " \"" + values[i] + "\" from " + thing["title"]
                                         + " got called by " + sender)
-                                    console.log("Result: " + result)
+                                    if (result !== "") console.log("Result: " + result)
                                     displayAttributes(currentDevice, "block", "none")
                                 } else if (att_key == "events" && result !== "Error") {
                                     alert(thing["title"] + " emitted event \"" + values[i] + "\" and "
                                         + sender + " received it.")
-                                    console.log("Result: " + result)
+                                    if (result !== "") console.log("Result: " + result)
                                 }else alert("Something went wrong. Please try again.")
                             })
                         } else alert("No correct security definition.")
@@ -218,6 +223,41 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
             const aId: string = thing["id"] + "-" + values[i] + "-" + att_key + "-" + sender
             return (<div id={aId} key={i} className={"thing-others"}>{values[i]}</div>)
         })
+    // add input field for customs actions
+    if (att_key === "actions"){
+        // get beginning of the address of the thing
+        const exampleForm = getForm(thing["actions"][values[0]])
+        let address: string = exampleForm["href"].split("actions/")[0] + "actions/"
+        if (sender !== "controller" && preferredProtocol === "http"){
+            // when sender is another device => get make request href
+            address = getMakeRequestHref(sender, "POST")+ address
+        }
+        attributes.push(
+            <input id={thing["id"] + "-field"} className={"action-input"} defaultValue={address} key={"action-input"}
+                   onKeyDown={(event): void => {
+                       if (event.key == "Enter") {
+                           const value: string = event.currentTarget.value
+                           const credentials: string[] = getCredentials(thing_string)
+                           const inputField: HTMLInputElement | null =
+                               document.getElementById(thing["id"] + "-field") as HTMLInputElement
+                           if (inputField) inputField.value = address
+                           if (credentials.length > 0) {
+                               // No, or basic security definition
+                               exampleForm["href"] = value
+                               exampleForm["sender"] = sender
+                               triggerRequest(JSON.stringify(exampleForm), credentials).then((result: string): void => {
+                                   if (result !== "Error") {
+                                       console.log("action from " + thing["title"] + " got called by " + sender)
+                                       if (result !== "") console.log("Result: " + result)
+                                       displayAttributes(currentDevice, "block", "none")
+                                   }
+                               })
+                           }
+                       }
+                   }}>
+            </input>
+        )
+    }
     return (<div id={thing["id"] + "-" + att_key + "-" + sender} key={ind}> {att_key}: {attributes}</div>)
 }
 
@@ -258,6 +298,10 @@ function getOtherDevices(thing: string): JSX.Element {
                 const thingDevices: HTMLElement | null = document.getElementById(thing + "devices")
                 if (thingDevices) thingDevices.style.display = "none"
                 getValues(thingDescriptions[i], thing)
+                // scroll to the right of the input field
+                const inputField: HTMLInputElement | null =
+                    document.getElementById(currentDevice["id"] + "-field") as HTMLInputElement
+                if (inputField) inputField.scrollLeft = inputField.scrollWidth
             }}>{currentDevice["title"]}
             </button>
         deviceButtons.push(button)
@@ -300,7 +344,7 @@ function getValues(thing_string: string, sender = "controller"): void {
             }
             //toDo implement make_request for other protocols
             form["sender"] = sender
-            const credentials: string[] = getCredentials(thing["title"])
+            const credentials: string[] = getCredentials(thing_string)
             if (credentials.length > 0) {
                 // No, or basic security definition
                 triggerRequest(JSON.stringify(form), credentials).then((result: string): void => {
@@ -322,17 +366,22 @@ function getValues(thing_string: string, sender = "controller"): void {
 
 /**
  * Gets the security type and credentials for a specific device from the configuration file.
- * @param {string} thing - The name of the thing. !!!not optimal but we don't have the ID in the config
+ * @param {string} thing_string - The string representation of the Thing
  * @return {string[]} - Array with the security type, the way of transmitting and the credentials.
  */
-function getCredentials(thing: string): string[]{
+function getCredentials(thing_string: string): string[]{
     const credentials: string[] = []
-    if (config){
+    const thing = JSON.parse(thing_string)
+    // no security definition
+    if (thing["security"][0] === "nosec_sc") credentials.push("none")
+    else if (config){
+        // if we have a security definition we have to get the credentials from the config
         const devices = JSON.parse(config)["devices"]
         for (let i = 0; i < devices.length; i++){
             const device = devices[i]
             // correct thing
-            if (device["title"] === thing){
+            if (device["title"] === thing["title"]){
+                // check if field exists
                 if (device["securityDefinitions"]){
                     // basic security definition
                     if(device["securityDefinitions"]["basic_sc"]
@@ -344,12 +393,9 @@ function getCredentials(thing: string): string[]{
                     }
                     //toDo implement other security definitions
                 }
-                else credentials.push("none") // no security definition in config
             }
         }
     }
-    //toDo delete only for testing
-    credentials.push("none")
     return credentials
 }
 
@@ -550,7 +596,7 @@ async function triggerRequest(form: string, credentials: string[]): Promise<stri
     try {
         let response: Response = new Response()
         if (credentials[0] === "none"){
-            // no security definition in config
+            // no security definition
             response = await fetch(urlET, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json'},
