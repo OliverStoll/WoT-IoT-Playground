@@ -16,7 +16,6 @@ function createLog(logData): string {
     // If caller is unknown than set it to controller
     let callerName: string = caller ? caller : 'controller'
 
-
     // Generate logs according to the type
     switch (type) {
         case 'property_read': {
@@ -47,6 +46,29 @@ function createLog(logData): string {
             logMessage += `deleted successfully`
             break
         }
+        case 'externalThingDescription': {
+            logMessage += `added successfully`
+            break
+        }
+        case 'externalLog': {
+            const { href, thingDescriptions } = logData
+            // parse host
+            const filteredDescription: string[] = thingDescriptions.filter((description: string): boolean => {
+                return description.includes(href)
+            })
+            if(filteredDescription.length > 1){
+                console.log(`Error: There are ${filteredDescription.length} devices with href: ${href}`)
+                return ''
+            }
+            const { title } = JSON.parse(filteredDescription[0])
+            // parse type of call
+            let callSplitFirst = href.split('//')[1]
+            let callSplit = callSplitFirst.split('/')
+            const call = callSplit[2]
+            const name = callSplit[3]
+            logMessage = `${timestamp},${title}, ${call} ${name} was called by ${callerName} and returned: ${payload}`
+            break
+        }
         default: {
             logMessage = ''
         }
@@ -54,5 +76,6 @@ function createLog(logData): string {
 
     return logMessage
 }
+
 
 module.exports = createLog
