@@ -1,6 +1,10 @@
 import {Request, Response, Router} from 'express'
 const callRouter = new Router()
 const sendRequest = require('../utils/sendRequest')
+const thingDescriptions = require('./logs').thingDescriptions
+const logs = require('./logs').logs
+const createLog = require('../utils/logger')
+const isRemoteDevice = require('../utils/checkIfExternalDevice')
 
 /**
  * @swagger
@@ -60,6 +64,19 @@ callRouter.post('/', (req: Request, res: Response): void => {
         let parsedResponse: string = ""
         if(resp){
             parsedResponse = JSON.stringify(JSON.parse(resp))
+        }
+        // create log in case it is an external device
+        const { href, sender } = req.body
+        if(isRemoteDevice(href, thingDescriptions)){
+            const logObject = {
+                type: 'externalLog',
+                href: href,
+                caller: sender,
+                host: {id: 'unknown'},
+                thingDescriptions: thingDescriptions,
+                payload: parsedResponse
+            }
+            logs.push(createLog(logObject))
         }
         res.status(200).send(parsedResponse)
     })

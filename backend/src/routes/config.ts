@@ -1,4 +1,4 @@
-import {Request, Response} from "express";
+import {Request, Response} from "express"
 
 const { spawn } = require('child_process')
 const path = require('path')
@@ -6,6 +6,7 @@ const express = require('express')
 const fs = require('fs')
 const thingDescriptions = require('./logs').thingDescriptions
 const logs = require('./logs').logs
+const createLog = require('../utils/logger')
 const sendRequest = require('../utils/sendRequest')
 
 const configRouter = express.Router()
@@ -132,11 +133,20 @@ configRouter.post('/', (req: Request, res: Response): void => {
                 const requestObject: {href: string} = {
                     href: externalDeviceUrl
                 }
+                //send request to thingDescription endpoint of device
                 sendRequest(requestObject).then(resp => {
                     if(resp){
                         let externalDevice = JSON.parse(resp)
+                        // Mark device as external
                         externalDevice['external'] = true
+                        // add to thingDescriptions
                         thingDescriptions.push(JSON.stringify(externalDevice))
+                        // add log
+                        const logObject = {
+                            type: 'externalThingDescription',
+                            host: {id: externalDevice['title']}
+                        }
+                        logs.push(createLog(logObject))
                     }
                 })
             }

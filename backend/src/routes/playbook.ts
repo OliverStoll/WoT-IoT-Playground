@@ -89,7 +89,7 @@ playbookRouter.post('/', async (req: Request, res: Response): Promise<void> => {
 
             // check if devices have already been created
             console.log(`playbook: ${step.deviceId} ${step.type} ${step.value}`)
-            const filteredDescription = thingDescriptions.filter((description) => {
+            const filteredDescription = thingDescriptions.filter((description: string): boolean => {
                 const parsedDescription = JSON.parse(description)
                 return parsedDescription.title == step.deviceId
             })
