@@ -127,6 +127,6 @@
     }
   ],
   "externalDevices": [
-    "http://plugfest.thingweb.io:8083/testthing"
+    "http://plugfest.thingweb.io:8083/smart-coffee-machine"
   ]
 }

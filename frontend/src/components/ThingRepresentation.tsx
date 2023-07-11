@@ -86,10 +86,6 @@ function getThings(): JSX.Element[] {
                                      // No, or basic security definition
                                      getValues(JSON.stringify(thing), "controller")
                                      displayAttributes(thing["id"], "none", "block")
-                                     // scroll to the right of the input field
-                                     const inputField: HTMLInputElement | null =
-                                         document.getElementById(thing["id"] + "-field-controller") as HTMLInputElement
-                                     if (inputField) inputField.scrollLeft = inputField.scrollWidth
                                  }else alert("No correct security definition.")
                              }
                          }}
@@ -152,7 +148,7 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                                                    // if http protocol we have to change the method
                                                    // to be able to set a value
                                                    form["htv:methodName"] = "PUT"
-                                                   if (sender !== "controller"){
+                                                   if (sender !== "controller") {
                                                        // when sender is another device => set property with
                                                        // make_request action from the other device
                                                        form["htv:methodName"] = "POST"
@@ -169,14 +165,13 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                                                        .then((result: string): void => {
                                                            if (result !== "Error") {
                                                                console.log("Property \"" + values[i] + "\" from "
-                                                                   + thing["title"] +  " got changed to \""
+                                                                   + thing["title"] + " got changed to \""
                                                                    + value + "\" by " + sender)
                                                            }
                                                        })
                                                } else alert("No correct security definition.")
-                                           }
-                                           else alert("Wrong input type! Input should be from type: " + type)
-                                       }else alert("This property is read only!")
+                                           } else alert("Wrong input type! Input should be from type: " + type)
+                                       } else alert("This property is read only!")
                                        displayAttributes(currentDevice, "block", "none")
                                    }
                                }}
@@ -184,20 +179,21 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                     </div>
                 )
             }
-            if (form && (att_key == "actions" || (att_key == "events" && sender !== "controller"))) {
-                // handle actions, or events if they are called by another device
+            if (form && !thing[att_key][values[i]]["uriVariables"] && (att_key == "actions"
+                || (att_key == "events" && sender !== "controller"))) {
+                // generate button for actions, or events if they are accessed by another device
                 const bId: string = thing["id"] + "-" + values[i] + "-" + "button- " + sender
                 return (
                     <button id={bId} onClick={(): void => {
                         form["sender"] = sender
-                        if (sender !== "controller" && preferredProtocol === "http"){
+                        if (sender !== "controller" && preferredProtocol === "http") {
                             // when sender is another device => call action with make_request action from the other device
-                            form["href"] = getMakeRequestHref(sender, "POST")+ form["href"]
+                            form["href"] = getMakeRequestHref(sender, "POST") + form["href"]
                         }
                         const credentials: string[] = getCredentials(thing_string)
                         if (credentials.length > 0) {
                             // No, or basic security definition
-                            if (att_key === "events"){
+                            if (att_key === "events") {
                                 // the answer will only come when the Event happened, so we have to do this before.
                                 console.log(sender + " subscribed to event \"" + values[i] + "\" from " + thing["title"])
                                 displayAttributes(currentDevice, "block", "none")
@@ -212,52 +208,62 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                                     alert(thing["title"] + " emitted event \"" + values[i] + "\" and "
                                         + sender + " received it.")
                                     if (result !== "") console.log("Result: " + result)
-                                }else alert("Something went wrong. Please try again.")
+                                } else alert("Something went wrong. Please try again.")
                             })
                         } else alert("No correct security definition.")
                     }} key={i} className={"button"}>{values[i]}
                     </button>
                 )
             }
+            const parameterForm = getForm(thing[att_key][values[i]], true)
+            // add input field for actions with uri parameter
+            if (att_key === "actions" && parameterForm) {
+                const iId: string = thing["id"] + "-" + values[i] + "-" + "input- " + sender
+                // get beginning of the address of the thing
+                //toDo add actions with parameters in input field and for other protocols
+                if (preferredProtocol === "http"){
+                    let baseAddress: string = parameterForm["href"].split("actions/")[0] + "actions/"
+                    if (sender !== "controller") {
+                        // when sender is another device and protocol http => get make request href
+                        baseAddress = getMakeRequestHref(sender, "POST") + baseAddress
+                    }
+                    let input = values[i] + "?"
+                    const variables = Object.keys(thing[att_key][values[i]]["uriVariables"])
+                    for (let i = 0; i < variables.length; i++){
+                        if (i <variables.length-1) input = input.concat(variables[i] + "=&")
+                        else input = input.concat(variables[i] + "=")
+                    }
+                    return (
+                        <input id={iId} className={"action-input"}
+                               defaultValue={input} key={"action-input"}
+                               onKeyDown={(event): void => {
+                                   if (event.key == "Enter") {
+                                       const value: string = event.currentTarget.value
+                                       const credentials: string[] = getCredentials(thing_string)
+                                       const inputField: HTMLInputElement | null = document.getElementById(iId) as HTMLInputElement
+                                       if (inputField) inputField.value = input
+                                       if (credentials.length > 0) {
+                                           // No, or basic security definition
+                                           parameterForm["href"] = baseAddress + value
+                                           parameterForm["sender"] = sender
+                                           triggerRequest(JSON.stringify(parameterForm), credentials).then((result: string): void => {
+                                               if (result !== "Error") {
+                                                   console.log("action from " + thing["title"] + " got called by " + sender)
+                                                   if (result !== "") console.log("Result: " + result)
+                                                   displayAttributes(currentDevice, "block", "none")
+                                               }
+                                           })
+                                       }
+                                   }
+                               }}>
+                        </input>
+                    )
+                }
+            }
             // handle other attributes
             const aId: string = thing["id"] + "-" + values[i] + "-" + att_key + "-" + sender
             return (<div id={aId} key={i} className={"thing-others"}>{values[i]}</div>)
         })
-    // add input field for customs actions
-    if (att_key === "actions"){
-        // get beginning of the address of the thing
-        const exampleForm = getForm(thing["actions"][values[0]])
-        let address: string = exampleForm["href"].split("actions/")[0] + "actions/"
-        if (sender !== "controller" && preferredProtocol === "http"){
-            // when sender is another device => get make request href
-            address = getMakeRequestHref(sender, "POST")+ address
-        }
-        attributes.push(
-            <input id={thing["id"] + "-field-" + sender} className={"action-input"}
-                   defaultValue={address} key={"action-input"} onKeyDown={(event): void => {
-                       if (event.key == "Enter") {
-                           const value: string = event.currentTarget.value
-                           const credentials: string[] = getCredentials(thing_string)
-                           const inputField: HTMLInputElement | null =
-                               document.getElementById(thing["id"] + "-field") as HTMLInputElement
-                           if (inputField) inputField.value = address
-                           if (credentials.length > 0) {
-                               // No, or basic security definition
-                               exampleForm["href"] = value
-                               exampleForm["sender"] = sender
-                               triggerRequest(JSON.stringify(exampleForm), credentials).then((result: string): void => {
-                                   if (result !== "Error") {
-                                       console.log("action from " + thing["title"] + " got called by " + sender)
-                                       if (result !== "") console.log("Result: " + result)
-                                       displayAttributes(currentDevice, "block", "none")
-                                   }
-                               })
-                           }
-                       }
-                   }}>
-            </input>
-        )
-    }
     return (<div id={thing["id"] + "-" + att_key + "-" + sender} key={ind}> {att_key}: {attributes}</div>)
 }
 
@@ -298,10 +304,6 @@ function getOtherDevices(thing: string): JSX.Element {
                 const thingDevices: HTMLElement | null = document.getElementById(thing + "devices")
                 if (thingDevices) thingDevices.style.display = "none"
                 getValues(thingDescriptions[i], thing)
-                // scroll to the right of the input field
-                const inputField: HTMLInputElement | null =
-                    document.getElementById(currentDevice["id"] + "-field-" + thing) as HTMLInputElement
-                if (inputField) inputField.scrollLeft = inputField.scrollWidth
             }}>{currentDevice["title"]}
             </button>
         deviceButtons.push(button)
@@ -424,14 +426,19 @@ function getMakeRequestHref(sender: string, method: string): string {
  * Gets the form for a specific protocol for an API call
  * => only takes actions without parameter since they are not implemented yet
  * @param {any} attribute - The attribute where you want to get the form
+ * @param {boolean} withInput - Specifies if we want a form with inputs or not
  * @return The form property for the specified protocol
  */
-function getForm(attribute: any) {
+function getForm(attribute: any, withInput = false) {
     const forms = attribute["forms"]
     for (let i = 0; i < forms.length; i++){
         const form: any = forms[i]
-        if (form["href"].startsWith(preferredProtocol) && !form["href"].includes("{?")
-            && !form["uriVariables"] && !attribute["input"]) return form
+        if (form["href"].startsWith(preferredProtocol) && !attribute["input"]){
+            // only form with the right protocol, and a correct implementation of uriVariables or without any parameter
+            if (!form["href"].includes("{?") || withInput){
+                return form
+            }
+        }
     }
     return
 }
