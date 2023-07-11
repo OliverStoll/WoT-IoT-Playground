@@ -65,8 +65,8 @@ callRouter.post('/', (req: Request, res: Response): void => {
         if(resp){
             parsedResponse = JSON.stringify(JSON.parse(resp))
         }
-        // create log
-        const { href, sender} = req.body
+        // create log in case it is an external device
+        const { href, sender } = req.body
         if(isRemoteDevice(href, thingDescriptions)){
             const logObject = {
                 type: 'externalLog',

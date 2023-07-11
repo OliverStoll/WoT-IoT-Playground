@@ -5,6 +5,7 @@
  * @returns True if the href belongs to a external device else false
  */
 function isRemoteDevice(href: string, thingDescriptions: string[]): boolean {
+    // filter the thingDescription containing the href url
     const filteredDescription: string[] = thingDescriptions.filter((description: string): boolean => {
         return description.includes(href)
     })
@@ -12,6 +13,7 @@ function isRemoteDevice(href: string, thingDescriptions: string[]): boolean {
         console.log(`Error: There are ${filteredDescription.length} devices with href: ${href}`)
         return false
     }
+    // check if it is an external device
     try {
         const obj = JSON.parse(filteredDescription[0])
         return obj.hasOwnProperty("external") && obj.external === true

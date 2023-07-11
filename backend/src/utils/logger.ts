@@ -61,10 +61,21 @@ function createLog(logData): string {
                 return ''
             }
             const { title } = JSON.parse(filteredDescription[0])
-            // parse type of call
+            // parse type of call. example: http://example.com:3001/thing/action/boil_water
             let callSplitFirst = href.split('//')[1]
             let callSplit = callSplitFirst.split('/')
-            const call = callSplit[2]
+
+            // get call type: property/action/event
+            let call: string = ''
+            if(callSplit[2] == 'properties'){
+                call = 'property'
+            }
+            else{
+                // get call type: action/event and remove last character
+                call = callSplit[2].substring(0, callSplit[2].length - 1)
+            }
+
+            // get name of property/action/event
             const name = callSplit[3]
             logMessage = `${timestamp},${title}, ${call} ${name} was called by ${callerName} and returned: ${payload}`
             break
