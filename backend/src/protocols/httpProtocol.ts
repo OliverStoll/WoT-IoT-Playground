@@ -39,7 +39,8 @@ export class HttpProtocol implements ProtocolInterface {
      * @param url to send request to
      * @param data - The data to send.
      */
-    async send(url: string, data: any): Promise<void> {
+    async send(url: string, data: any): Promise<string> {
+        let responseValue: string = ''
         const {contentType, value} = data
         const method = data['htv:methodName']
         const urlCleaned: string = url.replace(/localhost/gi, 'host.docker.internal');
@@ -50,17 +51,20 @@ export class HttpProtocol implements ProtocolInterface {
                 method: method,
                 headers: { 'Content-Type': contentType },
                 body: value
-            });
-
+            })
             if (response.status === 200) {
+                // wait until the body is loaded
+                const responseBody = await response.text()
+                const parsedBody = JSON.parse(responseBody)
+                responseValue = JSON.stringify(parsedBody)
                 console.log("Action/Event/Property successfully called");
-                return;
             } else {
                 console.log("Action/Event/Property call failed with status:", response.status);
             }
         } catch (error) {
             console.error("An error occurred during the HTTP request:", error);
         }
+        return responseValue
 
     }
 

@@ -51,7 +51,9 @@ function createLog(logData): string {
             break
         }
         case 'externalLog': {
-            const { href, thingDescriptions } = logData
+            let { href, thingDescriptions } = logData
+            // remove parameters as there is another format in the thingDescriptions
+            href = href.split('?')[0]
             // parse host
             const filteredDescription: string[] = thingDescriptions.filter((description: string): boolean => {
                 return description.includes(href)

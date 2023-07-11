@@ -19,7 +19,7 @@ async function sendRequest(data: { href: string, 'htv:methodName'?: string }): P
         if (!method || method === "GET") {
             response = await protocol.receive(href)
         } else {
-            protocol.send(href, data)
+            response = await protocol.send(href, data)
         }
     } else {
         // TODO: Implement other protocols
