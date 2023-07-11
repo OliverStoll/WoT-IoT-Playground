@@ -335,16 +335,16 @@ function getValues(thing_string: string, sender = "controller"): void {
         // show property again, maybe it was hidden the last time because of an error
         if(property) property.style.display = "inline-block"
         const form = getForm(thing["properties"][values[i]])
+        if (preferredProtocol === "http" && sender !== "controller" && form) {
+            // when sender is another device => get property with make_request action from the other device
+            // if http protocol we have to change the method to call the make_request action
+            form["htv:methodName"] = "POST"
+            form["href"] = getMakeRequestHref(sender, "GET") + form["href"]
+            //toDo implement make_request for other protocols
+        }
         // if there is no form with the right protocol hide the property
         if (!form && property) property.style.display = "none"
         else {
-            if (preferredProtocol === "http" && sender !== "controller" ) {
-                // when sender is another device => get property with make_request action from the other device
-                // if http protocol we have to change the method to call the make_request action
-                form["htv:methodName"] = "POST"
-                form["href"] = getMakeRequestHref(sender, "GET") + form["href"]
-            }
-            //toDo implement make_request for other protocols
             form["sender"] = sender
             const credentials: string[] = getCredentials(thing_string)
             if (credentials.length > 0) {
