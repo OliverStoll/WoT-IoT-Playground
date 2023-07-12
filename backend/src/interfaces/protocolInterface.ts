@@ -9,7 +9,7 @@ export interface ProtocolInterface {
      * @param url - The destination URL.
      * @param data - The data to send.
      */
-    send(url: string, data: any): void
+    send(url: string, data: any): any
 
     /**
      * Receives data via the protocol.
