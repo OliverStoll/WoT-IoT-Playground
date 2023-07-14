@@ -1,9 +1,10 @@
 /**
  * Create a log message based on the provided log data.
  * @param logData - The data object containing log information.
+ * @param originalCaller - The caller information (optional)
  * @returns The generated log message as a string.
  */
-function createLog(logData): string {
+function createLog(logData, originalCaller?: string): string {
     // Parse JSON log
     const { type, host, caller, payload } = logData
 
@@ -15,6 +16,10 @@ function createLog(logData): string {
 
     // If caller is unknown than set it to controller
     let callerName: string = caller ? caller : 'controller'
+    callerName = originalCaller ? originalCaller : callerName
+    console.log("LOG HERE:")
+    console.log(caller)
+    console.log(callerName)
 
     // Generate logs according to the type
     switch (type) {

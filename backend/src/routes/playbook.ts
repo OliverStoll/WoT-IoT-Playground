@@ -114,8 +114,21 @@ playbookRouter.post('/', async (req: Request, res: Response): Promise<void> => {
                     break
                 case 'action':
                     console.log('action')
+                    let href_element: string = ''
+
+                    // parameterized actions have to handled separately
+                    // example: step.value = "make_request?method=GET&url=http://localhost:3000/coffee-machine/properties/temperature"
+                    if(step.value.includes("?")){
+                        console.log("Parameterized action")
+                        const actionName = step.value.split('?')[0]
+                        const hrefs = filteredDescriptionParsed.actions[actionName].forms.map(form => form.href)
+                        const url = hrefs[0].split('{')[0]
+                        href_element = url + '?' + step.value.split('?')[1]
+                    }
                     // get the url of the action endpoint for the thing
-                    const href_element: string = filteredDescriptionParsed.actions[step.value].forms[0].href
+                    else{
+                        href_element = filteredDescriptionParsed.actions[step.value].forms[0].href
+                    }
 
                     // create the request object
                     const requestObjectAction = {
@@ -126,10 +139,6 @@ playbookRouter.post('/', async (req: Request, res: Response): Promise<void> => {
                     // send the request with the request object
                     const resp_action = sendRequest(requestObjectAction)
                     console.log('actionResponse: ', resp_action)
-                    break
-                case 'event':
-                    // TODO implement
-                    console.log('event')
                     break
                 default: {
                     res.status(400).send('Invalid playbook format')
