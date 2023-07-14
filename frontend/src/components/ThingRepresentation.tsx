@@ -351,6 +351,8 @@ function getValues(thing_string: string, sender = "controller"): void {
                 // No, or basic security definition
                 triggerRequest(JSON.stringify(form), credentials).then((result: string): void => {
                     if (result !== "Error"){
+                        // the make_request action add "[]" around the result, and we have to remove it again
+                        if (sender !== "controller" && result.startsWith("\"[")) result =  result.slice(2,-2)
                         if (result !== ""){
                             const attribute: HTMLInputElement | null =
                                 document.getElementById(aId + "-field") as HTMLInputElement
