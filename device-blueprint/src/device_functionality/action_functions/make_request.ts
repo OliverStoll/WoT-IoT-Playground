@@ -5,6 +5,7 @@ export async function execute_action_make_request(execute_action_data: ExecuteAc
     let variables = execute_action_data.variables as unknown as { url: string, method: string };
     let url = variables['url'];
     let method = variables['method'];
+    let body = variables['body'];
 
     // append url with id as caller query param, if method is not GET
     if (method !== 'GET') {
@@ -14,7 +15,7 @@ export async function execute_action_make_request(execute_action_data: ExecuteAc
     console.log(`Making ${method} request to ${url}`);
 
     // make a fetch get request to the url
-    let return_data = await fetchData(url, method).then(data => {
+    let return_data = await fetchData(url, method, body).then(data => {
         return data;
     })
 
@@ -31,6 +32,13 @@ async function fetchData(url: string, method: string, body=undefined): Promise<a
         });
         return await response.json();
     } catch (error) {
-        console.error(error);
+        // catch json parse error
+        if (error instanceof SyntaxError) {
+            console.log("No JSON returned from request.");
+            // as this happens for set properties, return a string
+            return "Success";
+        } else {
+            console.error(error);
+        }
     }
 }

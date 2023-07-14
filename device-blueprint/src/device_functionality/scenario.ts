@@ -42,11 +42,12 @@ export function get_device_scenario_file() {
         "uriVariables": {
             "url": {
                 "type": "string",
-                "description": "The URL / Port to make the request to.",
             },
             "method": {
                 "type": "string",
-                "description": "The HTTP method to use.",
+            },
+            "body": {
+                "type": "number",
             }
         },
         "action_list": [

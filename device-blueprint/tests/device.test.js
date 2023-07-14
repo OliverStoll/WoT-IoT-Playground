@@ -3,7 +3,8 @@ const axios = require('axios');
 const shell = require('shelljs');
 
 const base_url = 'http://localhost:3010/coffee-machine';
-const base_url_2 = 'http://host.docker.internal:3011/smart-fridge';
+const docker_url = 'http://host.docker.internal:3010/coffee-machine';
+const docker_url_2 = 'http://host.docker.internal:3011/smart-fridge';
 const base_config = {headers: {'Content-Type': 'application/json'}}
 
 // remove the docker container wot_device_1 before running the test, using a shell command
@@ -72,7 +73,7 @@ test('GET subscribe Event & trigger -> [200]', async () => {
 
 // Test make request
 test('POST make_request (property) -> [200]', async () => {
-    let url = `${base_url}/actions/make_request?method=GET&url=${base_url_2}/properties/waterLevel`
+    let url = `${base_url}/actions/make_request?method=GET&url=${docker_url_2}/properties/waterLevel`
     const response = await axios.post(url, {}, base_config);
     console.log(response.data);
     expect(response.status).toBe(200);
@@ -80,7 +81,15 @@ test('POST make_request (property) -> [200]', async () => {
 
 // Test make request
 test('POST make_request (action) -> [200]', async () => {
-    let url = `${base_url}/actions/make_request?method=POST&url=${base_url_2}/actions/makeIce`
+    let url = `${base_url}/actions/make_request?method=POST&url=${docker_url_2}/actions/makeIce`
+    const response = await axios.post(url, {}, base_config);
+    console.log(response.data);
+    expect(response.status).toBe(200);
+});
+
+// TODO make request set-property
+test('POST make_request (set-property) -> [204]', async () => {
+    let url = `${docker_url_2}/actions/make_request?method=PUT&body=70&url=${docker_url}/properties/temperature`
     const response = await axios.post(url, {}, base_config);
     console.log(response.data);
     expect(response.status).toBe(200);
