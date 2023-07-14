@@ -24,7 +24,7 @@ function createLog(logData, originalCaller?: string): string {
     // Generate logs according to the type
     switch (type) {
         case 'property_read': {
-            logMessage += `property "${payload.name}" with a value of ${payload.value} was accessed by: ${callerName}`
+            logMessage += `property "${payload.name}" with a value of ${payload.value} was accessed`
             break
         }
         case 'property_changed': {

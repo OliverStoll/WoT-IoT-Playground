@@ -53,21 +53,41 @@ const isRemoteDevice = require('../utils/checkIfExternalDevice')
  *               type: string
  *             example: "Empty request body"
  */
-callRouter.post('/', (req: Request, res: Response): void => {
+callRouter.post('/', async (req: Request, res: Response): Promise<any> => {
     if (!req.body) {
         res.status(400).send('Empty request body')
         return
     }
 
     // use the send request util
-    sendRequest(req.body).then(resp => {
+    // sendRequest(req.body).then(resp => {
+    //     let parsedResponse: string = ""
+    //     if(resp){
+    //         parsedResponse = JSON.stringify(JSON.parse(resp))
+    //     }
+    //     // create log in case it is an external device
+    //     const { href, sender } = req.body
+    //     if(isRemoteDevice(href, thingDescriptions)){
+    //         const logObject = {
+    //             type: 'externalLog',
+    //             href: href,
+    //             caller: sender,
+    //             host: {id: 'unknown'},
+    //             thingDescriptions: thingDescriptions,
+    //             payload: parsedResponse
+    //         }
+    //         logs.push(createLog(logObject))
+    //     }
+    //     res.status(200).send(parsedResponse)
+    // })
+    const response = await sendRequest(req.body).then(resp => {
         let parsedResponse: string = ""
-        if(resp){
+        if (resp) {
             parsedResponse = JSON.stringify(JSON.parse(resp))
         }
         // create log in case it is an external device
-        const { href, sender } = req.body
-        if(isRemoteDevice(href, thingDescriptions)){
+        const {href, sender} = req.body
+        if (isRemoteDevice(href, thingDescriptions)) {
             const logObject = {
                 type: 'externalLog',
                 href: href,
@@ -79,8 +99,8 @@ callRouter.post('/', (req: Request, res: Response): void => {
             logs.push(createLog(logObject))
         }
         res.status(200).send(parsedResponse)
+        //return parsedResponse
     })
-
 
 })
 
