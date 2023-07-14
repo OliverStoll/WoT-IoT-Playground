@@ -190,6 +190,7 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                             // when sender is another device => call action with make_request action from the other device
                             if(att_key === "events"){
                                 form["href"] = getMakeRequestHref(sender, "GET") + form["href"]
+                                form["htv:methodName"] = "POST"
                             }
                             else {
                                 form["href"] = getMakeRequestHref(sender, "POST") + form["href"]
