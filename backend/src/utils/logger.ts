@@ -17,9 +17,6 @@ function createLog(logData, originalCaller?: string): string {
     // If caller is unknown than set it to controller
     let callerName: string = caller ? caller : 'controller'
     callerName = originalCaller ? originalCaller : callerName
-    console.log("LOG HERE:")
-    console.log(caller)
-    console.log(callerName)
 
     // Generate logs according to the type
     switch (type) {

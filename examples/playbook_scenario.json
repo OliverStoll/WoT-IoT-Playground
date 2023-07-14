@@ -29,6 +29,11 @@
       "value": "make_request?method=GET&url=http://localhost:3000/coffee-machine/properties/temperature"
     },
     {
+      "deviceId": "Smart Fridge",
+      "type": "action",
+      "value": "make_request?method=POST&url=http://localhost:3000/coffee-machine/actions/brew_coffee"
+    },
+    {
       "deviceId": "Smart-Coffee-Machine",
       "type": "property",
       "value": "possibleDrinks"
