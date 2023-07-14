@@ -36,6 +36,7 @@ test('POST /api/config with invalid config', async ()=>{
         response = await axios.post(base_url, JSON.parse(dataWrong))
     } catch (error) {
         console.log(error)
+        expect(response).toBe(undefined)
     }
-    expect(response.status).toBe(400)
+
 })

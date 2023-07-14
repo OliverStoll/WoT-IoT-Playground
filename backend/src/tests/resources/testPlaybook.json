@@ -1,0 +1,42 @@
+{
+  "steps": [
+    {
+      "deviceId": "Coffee-machine",
+      "type": "property",
+      "value": "temperature"
+    },
+    {
+      "deviceId": "Coffee-machine",
+      "type": "action",
+      "value": "brew_coffee"
+    },
+    {
+      "sleep": 5
+    },
+    {
+      "deviceId": "Smart Fridge",
+      "type": "property",
+      "value": "milkBottles"
+    },
+    {
+      "deviceId": "Smart Fridge",
+      "type": "action",
+      "value": "makeIce"
+    },
+    {
+      "deviceId": "Smart Fridge",
+      "type": "action",
+      "value": "make_request?method=GET&url=http://localhost:3000/coffee-machine/properties/temperature"
+    },
+    {
+      "deviceId": "Smart-Coffee-Machine",
+      "type": "property",
+      "value": "possibleDrinks"
+    },
+    {
+      "deviceId": "Smart-Coffee-Machine",
+      "type": "action",
+      "value": "makeDrink?drinkId=espresso&size=s&quantity=3"
+    }
+  ]
+}

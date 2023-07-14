@@ -87,6 +87,7 @@ export class HttpProtocol implements ProtocolInterface {
                 });
 
                 res.on('end', (): void => {
+                    console.log(data)
                     resolve(data);
                 });
 

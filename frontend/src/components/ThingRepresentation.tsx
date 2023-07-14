@@ -188,7 +188,13 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                         form["sender"] = sender
                         if (sender !== "controller" && preferredProtocol === "http") {
                             // when sender is another device => call action with make_request action from the other device
-                            form["href"] = getMakeRequestHref(sender, "POST") + form["href"]
+                            if(att_key === "events"){
+                                form["href"] = getMakeRequestHref(sender, "GET") + form["href"]
+                            }
+                            else {
+                                form["href"] = getMakeRequestHref(sender, "POST") + form["href"]
+                            }
+
                         }
                         const credentials: string[] = getCredentials(thing_string)
                         if (credentials.length > 0) {

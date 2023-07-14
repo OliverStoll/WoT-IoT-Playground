@@ -7,48 +7,21 @@
         "temperature": {
           "type": "number",
           "description": "Current temperature of the coffee machine",
+          "startValue": 21
+        },
+        "coffee_ground_counter": {
+          "type": "number",
+          "description": "Counter that counts the amount of coffee grounds",
           "startValue": 0
+        },
+        "milk_level": {
+          "type": "number",
+          "description": "Counter that counts the amount of milk [%]",
+          "startValue": 100
         }
       },
       "actions": {
         "brew_coffee": {
-          "description": "Sets the temperature of the coffee machine using an action",
-          "temperature": {
-            "type": "integer",
-            "description": "Temperature to set the coffee machine to",
-            "minimum": 0,
-            "maximum": 100
-          },
-          "action_list": [
-            {
-              "action_type": "set",
-              "property": "temperature",
-              "value": 97
-            }
-          ]
-        }
-      },
-      "events": {
-        "temperatureSet": {
-          "description": "Temperature set event",
-          "data": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    {
-      "title": "Smart Kettle",
-      "description": "A smart water-boiler with a range of capabilities",
-      "properties": {
-        "temperature": {
-          "type": "number",
-          "description": "Current temperature of the coffee machine",
-          "startValue": 0
-        }
-      },
-      "actions": {
-        "makeHotWater": {
           "description": "Sets the temperature of the coffee machine using an action",
           "action_list": [
             {
@@ -58,28 +31,28 @@
             },
             {
               "action_type": "increment",
-              "property": "temperature",
+              "property": "coffee_ground_counter",
               "value": 1
             },
             {
-              "action_type": "sleep",
-              "value": 4
+              "action_type": "increment",
+              "property": "milk_level",
+              "value": -10
             },
             {
               "action_type": "emit_event",
-              "event_name": "temperatureSet",
-              "payload_property": "temperature"
+              "event_name": "isHot"
             },
             {
               "action_type": "condition",
-              "property": "temperature",
+              "property": "coffee_ground_counter",
               "condition": {
                 "operator": ">",
-                "value": 99,
+                "value": 10,
                 "action_list_true": [
                   {
                     "action_type": "emit_event",
-                    "event_name": "temperatureSet"
+                    "event_name": "coffeeGroundFull"
                   }
                 ]
               }
@@ -88,8 +61,64 @@
         }
       },
       "events": {
-        "temperatureSet": {
-          "description": "Temperature set event",
+        "isHot": {
+          "description": "Temperature set to hot value event",
+          "data": {
+            "type": "string"
+          }
+        },
+        "coffeeGroundFull": {
+          "description": "Event that is emitted when the coffee ground container is full",
+          "data": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "title": "Smart Fridge",
+      "description": "A smart fridge with a range of capabilities",
+      "properties": {
+        "milkBottles": {
+          "type": "number",
+          "description": "Current number of milk bottles in the fridge",
+          "startValue": 2
+        },
+        "waterLevel": {
+          "type": "number",
+          "description": "Current water level in the fridge [%]. Used to make ice cubes",
+          "startValue": 100
+        }
+      },
+      "actions": {
+        "makeIce": {
+          "description": "Sets the temperature of the coffee machine using an action",
+          "action_list": [
+            {
+              "action_type": "increment",
+              "property": "waterLevel",
+              "value": -5
+            },
+            {
+              "action_type": "condition",
+              "property": "waterLevel",
+              "condition": {
+                "operator": "<",
+                "value": 10,
+                "action_list_true": [
+                  {
+                    "action_type": "emit_event",
+                    "event_name": "waterLevelLow"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "events": {
+        "waterLevelLow": {
+          "description": "Event that is emitted when the water level is low",
           "data": {
             "type": "string"
           }
