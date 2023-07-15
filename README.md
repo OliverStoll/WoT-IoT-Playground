@@ -107,11 +107,11 @@ Values of properties are automatically retrieved and can be changed by clicking 
 In the logs one can see all the requests which where triggered. This means by clicking on a Thing representation, property logs will be added automatically. In case you want to reduce the number of logs, we suggest to use a playbook, as described below. 
 
 ### Calling an action of a Thing
-When calling actions there are two types of actions, which are supported by our application: actions without parameters and actions with parameters.
+When calling actions there are two types of actions, which are supported by our application: actions without parameters and actions with parameters in the url. Actions with paramerts in the body are currently not supported.
 #### Calling actions without parameters
 Actions which do not include parameters can be called by opening a Thing representation and clicking on the specific action. Actions without parameters do not have a question mark and will update properties and emit events, depending on the action definition. 
-#### Calling actions with parameters
-Actions with parameters can also be called by opening a Thing representation, but they include a question mark and the url parameters. The user needs to insert the values by editing the prefilled String. To submit the parameterized action call press enter.
+#### Calling actions with uri parameters
+Actions with parameters can also be called by opening a Thing representation, but they include a question mark and the url parameters. The user needs to insert the values by editing the prefilled string. To submit the parameterized action call press enter.
 
 An example parameterized action call based on the examples/scenario.json works like described here. Click on the remote Thing: Smart-Coffee-Machine and paste the following text to the makeDrink action field:
 ```
