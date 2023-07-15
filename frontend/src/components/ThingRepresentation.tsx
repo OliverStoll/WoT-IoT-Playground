@@ -201,17 +201,17 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                             // No, or basic security definition
                             if (att_key === "events") {
                                 // the answer will only come when the Event happened, so we have to do this before.
-                                console.log(sender + " subscribed to event \"" + values[i] + "\" from " + thing["title"])
+                                console.log(getSenderTitle(sender) + " subscribed to event \"" + values[i] + "\" from " + thing["title"])
                                 displayAttributes(currentDevice, "block", "none")
                             }
                             triggerRequest(JSON.stringify(form), credentials).then((result: string): void => {
                                 if (att_key == "actions" && result !== "Error") {
                                     console.log(att_key.slice(0, -1) + " \"" + values[i] + "\" from " + thing["title"]
-                                        + " got called by " + sender)
+                                        + " got called by " + getSenderTitle(sender))
                                     displayAttributes(currentDevice, "block", "none")
                                 } else if (att_key == "events" && result !== "Error" && result.includes("Success")) {
                                     alert(thing["title"] + " emitted event \"" + values[i] + "\" and "
-                                        + sender + " received it.")
+                                        + getSenderTitle(sender) + " received it.")
                                 } else alert("Something went wrong. Please try again.")
                             })
                         } else alert("No correct security definition.")
@@ -252,7 +252,7 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                                            parameterForm["sender"] = sender
                                            triggerRequest(JSON.stringify(parameterForm), credentials).then((result: string): void => {
                                                if (result !== "Error") {
-                                                   console.log("action from " + thing["title"] + " got called by " + sender)
+                                                   console.log("action from " + thing["title"] + " got called by " + getSenderTitle(sender))
                                                    displayAttributes(currentDevice, "block", "none")
                                                }
                                            })
@@ -452,6 +452,20 @@ function getForm(attribute: any, withInput = false) {
         }
     }
     return
+}
+
+
+/**
+ * Gets title of a sending device by its ID, or "controller" if the device is not existing
+ * @param {string} sender - the ID of the device that is sending a request
+ * @return The title of the device
+ */
+function getSenderTitle(sender: string): string {
+    for (let i = 0; i < thingDescriptions.length; i++) {
+        const thing = JSON.parse(thingDescriptions[i])
+        if (thing["id"] === sender) return thing["title"]
+    }
+    return "controller"
 }
 
 
