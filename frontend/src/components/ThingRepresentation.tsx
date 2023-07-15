@@ -209,9 +209,13 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                                     console.log(att_key.slice(0, -1) + " \"" + values[i] + "\" from " + thing["title"]
                                         + " got called by " + getSenderTitle(sender))
                                     displayAttributes(currentDevice, "block", "none")
-                                } else if (att_key == "events" && result !== "Error" && result.includes("Success")) {
-                                    alert(thing["title"] + " emitted event \"" + values[i] + "\" and "
-                                        + getSenderTitle(sender) + " received it.")
+                                } else if (att_key == "events" && result !== "Error") {
+                                    if (result.includes("Success")){
+                                        alert(thing["title"] + " emitted event \"" + values[i] + "\" and "
+                                            + getSenderTitle(sender) + " received it.")
+                                    }
+                                    else (console.log("The subscription from " + getSenderTitle(sender)+ " to event \""
+                                        + values[i] + "\" timed out."))
                                 } else alert("Something went wrong. Please try again.")
                             })
                         } else alert("No correct security definition.")
