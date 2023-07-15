@@ -92,10 +92,13 @@ An example config file is provided in **examples/scenario.json**
 #### Upload the file
 The config file can either be uploaded via drag-and-drop to the file upload or by clicking on the File Upload and selecting a file from the filesystem. 
 
-Add picture here
+![File upload window](./examples/applicationScreenshots/configFileUpload.png)
 
 After the config was successfully processed you will see logs on the creation of the devices and the devices will pop up right below the File Upload.
 Remote Things can be identified in the logs with the keyword "added", while local Things are "created". Also the Thing representation between the file upload and the log window highlights remote Things as "remote".
+
+![After uploading the config](./examples/applicationScreenshots/configUploaded.png)
+
 
 ### Getting and updating a property
 After the Things have been added or created and the Thing representation is visible the user can click on any of the listed devices. 
