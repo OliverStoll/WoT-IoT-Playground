@@ -29,11 +29,15 @@ https://tu-berlin.zoom.us/j/68314260453?pwd=bFZkV3VDU0pJd0NXYXVCQlNBNlNGUT09
 
 [Explain the overall architecture of your project. Describe the components, modules, or services involved, and how they interact with each other. You can use diagrams or flowcharts to illustrate the architecture if necessary.]
 
-## Requirements
-- Docker
-- Docker compose
 
 ## Install and Run
+Due to the dockerization the installation is quite simple. Docker handles all internal insalations and the only prior Requirements are git and docker installed on your system.
+
+### Requirements
+- Docker
+- Docker compose
+- Git
+
 In order to install the playground clone the repository. 
 
 ```
@@ -47,6 +51,9 @@ Run the application via docker compose
 ```
 docker-compose up
 ```
+The Docker Images will be initialized and afterwards the the application will be available under the following link:
+
+http://localhost:5173
 
 ## User Manual
 The following section is intended to explain the functionalities of the Playground and gives
@@ -181,7 +188,7 @@ The API documentation of the controller is available, when running with docker c
 URL: http://localhost:5001/api-docs
 
 ## Local Development
-If you want to run the services locally (without docker) use the commands here: 
+If you want to run the services locally (without docker-compose) use the commands here: 
 
 Start the backend:
 ```
@@ -204,8 +211,6 @@ For more detailed descriptions check the README files provided for each service.
 
 - Marc-Fabio Niemella
   - E-mail: niemella@campus.tu-berlin.de
-  - Opt. Linkedin:
-  - Opt. Github
 - Frederic Risling
   - E-mail: f.risling@campus.tu-berlin.de
   - LinkedIn: [Frederic Risling](https://www.linkedin.com/in/frederic-risling-32092b234/)
