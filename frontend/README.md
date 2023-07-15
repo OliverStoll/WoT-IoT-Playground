@@ -8,11 +8,22 @@ It allows you to upload a JSON based configuration file. Afterwards the playgrou
 will be initialized with the given Web of Things devices. You can access and set their
 properties, call actions and subscribe to their events from another device.
 
-### Structure
-- resources: all image resources
-- src: main code directory
-- src/components: code directory with the different components used in the React app
-- src/components/component_css: directory with the .css files for styling
+## Structure
+    resources: 
+        External resources (images, icons..)
+    src:
+        Main code directory
+        src/components: 
+            Directory with the different components used in the React app.
+            FileUpload.tsx:
+                Render the file upload component for the configuration and playbook file
+            LogRepresentation:
+                Render the log container to show the interaction between the devices. 
+            ThingRepresentation:
+                Render the container to show the different devices and control them.
+
+        src/components/component_css: 
+            Directory with the .css files for the styling of the components.
 
 ## Requirements to run locally
 - Node
@@ -30,5 +41,5 @@ While running the frontend is available under:
 
 Local: http://localhost:5173/
 
- Network: http://192.168.178.128:5173/
+Network: http://192.168.178.128:5173/
 
