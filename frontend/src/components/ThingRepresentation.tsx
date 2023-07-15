@@ -63,8 +63,8 @@ function getThings(): JSX.Element[] {
         //create a button for the important attributes of every thing description
         const attributes: JSX.Element[] = Array.from({length: att_keys.length},
             function (_, ind: number): JSX.Element {
-            return getAttributes(JSON.stringify(thing), att_keys[ind], ind)
-        })
+                return getAttributes(JSON.stringify(thing), att_keys[ind], ind)
+            })
         // change icon depending on local or remote device
         const icon: string = thing["external"] ? "../../resources/wot_remote.png" : "../../resources/wot_icon.png"
         // create div for every thing description with a symbol and all attributes
@@ -179,8 +179,9 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                     </div>
                 )
             }
-            if (form && !thing[att_key][values[i]]["uriVariables"] && (att_key == "actions"
-                || (att_key == "events" && sender !== "controller"))) {
+            if (form && (!thing[att_key][values[i]]["uriVariables"]
+                    || (thing[att_key][values[i]]["uriVariables"] && Object.keys(thing[att_key][values[i]]["uriVariables"].length === 0)))
+                && (att_key == "actions" || (att_key == "events" && sender !== "controller"))) {
                 // generate button for actions, or events if they are accessed by another device
                 const bId: string = thing["id"] + "-" + values[i] + "-" + "button- " + sender
                 return (
@@ -192,9 +193,7 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                                 form["href"] = getMakeRequestHref(sender, "GET") + form["href"]
                                 form["htv:methodName"] = "POST"
                             }
-                            else {
-                                form["href"] = getMakeRequestHref(sender, "POST") + form["href"]
-                            }
+                            else form["href"] = getMakeRequestHref(sender, "POST") + form["href"]
 
                         }
                         const credentials: string[] = getCredentials(thing_string)
@@ -209,12 +208,10 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                                 if (att_key == "actions" && result !== "Error") {
                                     console.log(att_key.slice(0, -1) + " \"" + values[i] + "\" from " + thing["title"]
                                         + " got called by " + sender)
-                                    if (result !== "") console.log("Result: " + result)
                                     displayAttributes(currentDevice, "block", "none")
-                                } else if (att_key == "events" && result !== "Error") {
+                                } else if (att_key == "events" && result !== "Error" && result.includes("Success")) {
                                     alert(thing["title"] + " emitted event \"" + values[i] + "\" and "
                                         + sender + " received it.")
-                                    if (result !== "") console.log("Result: " + result)
                                 } else alert("Something went wrong. Please try again.")
                             })
                         } else alert("No correct security definition.")
@@ -235,7 +232,7 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                         baseAddress = getMakeRequestHref(sender, "POST") + baseAddress
                     }
                     let input = values[i] + "?"
-                    const variables = Object.keys(thing[att_key][values[i]]["uriVariables"])
+                    const variables: string[] = Object.keys(thing[att_key][values[i]]["uriVariables"])
                     for (let i = 0; i < variables.length; i++){
                         if (i <variables.length-1) input = input.concat(variables[i] + "=&")
                         else input = input.concat(variables[i] + "=")
@@ -256,7 +253,6 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                                            triggerRequest(JSON.stringify(parameterForm), credentials).then((result: string): void => {
                                                if (result !== "Error") {
                                                    console.log("action from " + thing["title"] + " got called by " + sender)
-                                                   if (result !== "") console.log("Result: " + result)
                                                    displayAttributes(currentDevice, "block", "none")
                                                }
                                            })
@@ -433,7 +429,6 @@ function getMakeRequestHref(sender: string, method: string): string {
 
 /**
  * Gets the form for a specific protocol for an API call
- * => only takes actions without parameter since they are not implemented yet
  * @param {any} attribute - The attribute where you want to get the form
  * @param {boolean} withInput - Specifies if we want a form with inputs or not
  * @return The form property for the specified protocol
@@ -442,9 +437,16 @@ function getForm(attribute: any, withInput = false) {
     const forms = attribute["forms"]
     for (let i = 0; i < forms.length; i++){
         const form: any = forms[i]
+        // we only support input over uriVariables not over body input
         if (form["href"].startsWith(preferredProtocol) && !attribute["input"]){
+            // every action has a caller parameter, it is also ignored since it is only needed internally
+            if (attribute["uriVariables"] && attribute["uriVariables"]["caller"]) delete attribute["uriVariables"]["caller"]
             // only form with the right protocol, and a correct implementation of uriVariables or without any parameter
-            if (!form["href"].includes("{?") || withInput){
+            if (!form["href"].includes("{?") || (attribute["uriVariables"] &&
+                (Object.keys(attribute["uriVariables"]).length === 0 || (withInput && form["href"].includes("{?"))))) {
+                if (attribute["uriVariables"] && Object.keys(attribute["uriVariables"]).length === 0){
+                    form["href"] = form["href"].split("{?")[0]
+                }
                 return form
             }
         }
