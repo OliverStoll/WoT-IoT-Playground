@@ -11,10 +11,18 @@ https://tu-berlin.zoom.us/j/68314260453?pwd=bFZkV3VDU0pJd0NXYXVCQlNBNlNGUT09
 - [Install and Run](#install-and-run)
 - [User Manual](#user-manual)
   - [Uploading a Configuration file](#uploading-a-configuration-file)
+    - [Configuration file](#configuration-file)
+    - [Upload the Configuration file](#upload-the-file)
   - [Getting and updating a property of a Thing](#getting-and-updating-a-property)
   - [Calling an action of a Thing](#calling-an-action-of-a-thing)
+    - [Calling actions without parameters](#calling-actions-without-parameters)
+    - [Calling actions with URI parameters](#calling-actions-with-uri-parameters)
   - [Interaction between Things](#interaction-between-things)
+    - [Properties and actions](#get--update-properties-and-call-actions)
+    - [Subscribing to events](#subscribing-to-events)
   - [Executing a playbook](#executing-a-playbook)
+    - [Playbook file](#playbook-file)
+    - [Uploading and executing a playbook file](#uploading-and-executing-the-playbook-file)
   - [Downloading logs](#downloading-logs)
   - [Shutdown Things](#shutdown-things)
 - [Local Development](#local-development)
@@ -113,6 +121,9 @@ The Thing representation for the selected device will open up and illustrate all
 Values of properties are automatically retrieved and can be changed by clicking on a selected property field and by typing in the new value. In order to submit the change the user needs to press enter. After pressing enter the Thing representation of the device will close and the logs will display the changes. 
 In the logs one can see all the requests which where triggered. This means by clicking on a Thing representation, property logs will be added automatically. In case you want to reduce the number of logs, we suggest to use a playbook, as described below. 
 
+![thingRepresentationLocal](./examples/applicationScreenshots/thingRepresentationLocal.png)
+
+
 ### Calling an action of a Thing
 When calling actions there are two types of actions, which are supported by our application: actions without parameters and actions with parameters in the url. Actions with paramerts in the body are currently not supported.
 #### Calling actions without parameters
@@ -124,7 +135,7 @@ An example parameterized action call based on the examples/scenario.json works l
 ```
 makeDrink?drinkId=espresso&size=s&quantity=3
 ```
-
+![thingRepresentationRemote](./examples/applicationScreenshots/thingRepresentationRemote.png)
 
 ### Interaction between Things
 In addition to interaction between the controller and Things, our application also supports interaction between devices.
@@ -180,7 +191,7 @@ For uploading and executing use the file upload. After uploading each of the ste
 In case one wants to download the logs before shutting down or simulating another scenario, one can download the logs as a text file by clicking on the **"Download"** button on the top right of the log window.
 
 ### Shutdown Things
-If one wants to simulate another scenario or just shut down the application, one has to click the **"Power"** button on the right next to the file upload. After clicking the button all the Thing containers and the Thing image will be stopped and deleted.
+If one wants to simulate another scenario or just shut down the application, one has to click the **Shutdown** button on the right next to the file upload. After clicking the button all the Thing containers and the Thing image will be stopped and deleted.
 After the shutdown one can either upload another Configuration file or stop the whole application by stopping the docker compose setup.
 
 ## API Documentation
