@@ -41,9 +41,17 @@ export class HttpProtocol implements ProtocolInterface {
      */
     async send(url: string, data: any): Promise<string> {
         let responseValue: string = ''
-        const {contentType, value} = data
+        const {contentType, value, sender} = data
         const method = data['htv:methodName']
-        const urlCleaned: string = url.replace(/localhost/gi, 'host.docker.internal');
+        let urlCleaned: string = url.replace(/localhost/gi, 'host.docker.internal')
+
+        // If setting properties over make_request then the body has to be passed through url parameters, because of the wot-device implementation
+        if (sender !== 'controller' && urlCleaned.includes('method=PUT')) {
+            const [baseUrl, ...queryParamsArr] = urlCleaned.split('?')
+            const queryParams: string = queryParamsArr.join('?')
+            urlCleaned = `${baseUrl}?body=${value}&${queryParams}`
+        }
+
         console.log(`Sending data via HTTP to url ${urlCleaned} using content type: ${contentType}, value ${value} and method: ${method}`)
 
         try {
@@ -57,12 +65,12 @@ export class HttpProtocol implements ProtocolInterface {
                 const responseBody = await response.text()
                 const parsedBody = JSON.parse(responseBody)
                 responseValue = JSON.stringify(parsedBody)
-                console.log("Action/Event/Property successfully called");
+                console.log("Action/Event/Property successfully called")
             } else {
-                console.log("Action/Event/Property call failed with status:", response.status);
+                console.log("Action/Event/Property call failed with status:", response.status)
             }
         } catch (error) {
-            console.error("An error occurred during the HTTP request:", error);
+            console.error("An error occurred during the HTTP request:", error)
         }
         return responseValue
 
@@ -76,31 +84,31 @@ export class HttpProtocol implements ProtocolInterface {
     async receive(url: string): Promise<any> {
         return new Promise((resolve, reject): void => {
             // TODO: remove, when href sends the correct IP
-            const urlCleaned: string = url.replace(/localhost/gi, 'host.docker.internal');
-            console.log('Receiving data via HTTP for URL: ', urlCleaned);
+            const urlCleaned: string = url.replace(/localhost/gi, 'host.docker.internal')
+            console.log('Receiving data via HTTP for URL: ', urlCleaned)
 
             const req = http.get(urlCleaned, res => {
                 let data: string = ''
 
                 res.on('data', chunk => {
-                    data += chunk;
-                });
+                    data += chunk
+                })
 
                 res.on('end', (): void => {
                     console.log(data)
-                    resolve(data);
-                });
+                    resolve(data)
+                })
 
                 res.on('error', error => {
-                    reject(error);
-                });
-            });
+                    reject(error)
+                })
+            })
 
             req.on('error', error => {
-                reject(error);
-            });
+                reject(error)
+            })
         }).catch(error => {
-            console.error('An error occurred during the HTTP request:', error);
+            console.error('An error occurred during the HTTP request:', error)
             return '' // Return an empty string when an error occurs
         });
     }
