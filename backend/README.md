@@ -32,36 +32,8 @@ The controller uses a technology stack that was selected based on established de
 ### Structure of the project
 The express server is structured as follows:
 
-backend/
-├── node_modules/
-├── src/
-│   ├── interfaces/
-│   │   └── protocolInterface.ts
-│   ├── protocols/
-│   │   └── httpProtocol.ts
-│   ├── routes/
-│   │   ├── calls.ts 
-│   │   ├── config.ts 
-│   │   ├── logs.ts 
-│   │   └── playbook.ts
-│   ├── tests/
-│   │   ├── resources/
-│   │   └── calls.test.js
-│   ├── utils/
-│   │   └── checkIfExternalDevice.ts
-│   │   └── logger.ts
-│   │   └── sendRequest.ts
-│   ├── api-docs.json
-│   ├── app.ts
-│   ├── build-docs.ts
-│   ├── delete_containers.sh
-│   └── start_containers.sh
-├── Dockerfile
-├── nodemon.json
-├── package.json
-├── package-lock.json
-├── README.md
-└── tsconfig.json
+![Backend folder structure](./../examples/applicationScreenshots/backendStructure.png)
+
 
 The source code for the backend server is located in the **src** folder.
 The entrypoint for the server is the **app.ts** file, which imports the modules. Modules are structured into interfaces, protocols, routes, tests and utils.
