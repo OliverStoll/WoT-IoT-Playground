@@ -81,6 +81,7 @@ function setPropertyHandler(thing: ExposedThing, properties_dict: PropertiesDict
     for (let property in properties_dict) {
         thing.setPropertyWriteHandler(property, async (val) => {
             properties_dict[property].value = await val.value() as number | boolean | string;
+            console.log(`\n\nPROPERTY [${property}] set to ${properties_dict[property].value}`)
             sendLog(LogType.PROPERTY_CHANGED, properties_dict[property], logging_info);
         });
         thing.setPropertyReadHandler(property, async () => {
@@ -122,6 +123,11 @@ function setActionHandler(thing: any, actions_dict: ActionsDict, properties_dict
             // Execute the action
             let return_values = await executeEntireAction(properties_dict, thing, action_list, variables);
             console.log(`Action [${action_name}] executed with return values: ${JSON.stringify(return_values)}`);
+
+            // check if return values is list with one element, if so, return that element
+            if (return_values.length === 1) {
+                return_values = return_values[0];
+            }
 
             return JSON.stringify(return_values);
         });
