@@ -7,6 +7,7 @@ export enum LogType {
     ACTION_CALLED = 'action_called',
     EVENT_SUBSCRIBED = 'event_subscribed',
     EVENT_EMITTED = 'event_emitted',
+    EVENT_RECEIVED = 'event_received',
     CREATED = 'created',
     DELETED = 'deleted'
 }
