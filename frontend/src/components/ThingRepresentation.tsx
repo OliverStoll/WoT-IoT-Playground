@@ -363,7 +363,7 @@ function getValues(thing_string: string, sender = "controller"): void {
                         if (result !== ""){
                             const attribute: HTMLInputElement | null =
                                 document.getElementById(aId + "-field") as HTMLInputElement
-                            if (attribute) attribute.value = result
+                            if (attribute) attribute.value = sender !== "controller"? JSON.parse(result): result
                         }else if (property){
                             // if property has no value, hide it
                             property.style.display = "none"
