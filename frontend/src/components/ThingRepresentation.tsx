@@ -154,6 +154,8 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                                                        form["htv:methodName"] = "POST"
                                                        form["href"] = getMakeRequestHref(sender, "PUT")
                                                            + form["href"]
+                                                       // make_request need the value in a different format
+                                                       form["value"] = JSON.parse("{ \"body\": " + form["value"]+ "}")
                                                    }
                                                }
                                                //toDo implement set property for other protocols
@@ -358,12 +360,10 @@ function getValues(thing_string: string, sender = "controller"): void {
                 // No, or basic security definition
                 triggerRequest(JSON.stringify(form), credentials).then((result: string): void => {
                     if (result !== "Error"){
-                        // the make_request action add "[]" around the result, and we have to remove it again
-                        if (sender !== "controller" && result.startsWith("\"[")) result =  result.slice(2,-2)
                         if (result !== ""){
                             const attribute: HTMLInputElement | null =
                                 document.getElementById(aId + "-field") as HTMLInputElement
-                            if (attribute) attribute.value = result
+                            if (attribute) attribute.value = sender !== "controller"? JSON.parse(result): result
                         }else if (property){
                             // if property has no value, hide it
                             property.style.display = "none"
