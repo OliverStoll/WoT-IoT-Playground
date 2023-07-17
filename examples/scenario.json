@@ -1,7 +1,7 @@
 {
   "devices": [
     {
-      "title": "Coffee-machine",
+      "title": "Coffee-Machine",
       "description": "A smart coffee machine with a range of capabilities",
       "properties": {
         "temperature": {
