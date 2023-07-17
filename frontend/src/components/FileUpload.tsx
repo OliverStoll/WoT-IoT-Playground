@@ -44,7 +44,7 @@ function FileUpload(): JSX.Element {
 
 
 
-//--------------------------- functions that handles the input file ----------------------------------------------------
+//--------------------------- function that handles the input file -----------------------------------------------------
 
 /**
  Handles the files added event in the file upload component.
@@ -74,7 +74,7 @@ function handleFilesAdded(files: File[]): void {
                         sendPostRequest(file, urlScenario).then((result: string): void => {
                             if (uploadDiv) uploadDiv.innerText =
                                 "Drag 'n' drop a playbook file here, or click to select file"
-                            if(result === "Error") alert("Wrong playbook file. Please try another one.")
+                            if (result === "Error") alert("Wrong playbook file. Please try another one.")
                         })
                         break
                     }
@@ -125,7 +125,7 @@ function checkContentType(file: string): string {
     const div: HTMLElement | null = document.getElementById("thing-container")
     //content type is json
     if (type === "application/json"){
-        const content: string[]= Object.keys(JSON.parse(file))
+        const content: string[] = Object.keys(JSON.parse(file))
         // the uploaded file was a configuration file, and we didn't have one before
         if (content[0] === "devices" && div && div.innerHTML == "" ) contentType = "config"
         // the uploaded file was a scenario playbook file, and we already have a config
