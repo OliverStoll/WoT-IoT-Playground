@@ -9,7 +9,10 @@ function createLog(logData, originalCaller?: string): string {
     const { type, host, caller, payload } = logData
 
     // Generate timestamp for log
-    const timestamp: string = new Date().toISOString()
+    let timestamp: string = new Date().toISOString().replace('Z', '')
+    // remove date
+    timestamp = `[${timestamp.split('T')[1]}]`
+
 
     // Define general log message
     let logMessage: string = `${timestamp},${host.id},`
@@ -18,42 +21,47 @@ function createLog(logData, originalCaller?: string): string {
     let callerName: string = caller ? caller : 'controller'
     callerName = originalCaller ? originalCaller : callerName
 
+    // if callerName is not controller, make it all caps
+    if(callerName != 'controller'){
+        callerName = `{${callerName.toUpperCase()}}`
+    }
+
     // Generate logs according to the type
     switch (type) {
         case 'property_read': {
-            logMessage += `property "${payload.name}" with a value of ${payload.value} was accessed`
+            logMessage += `PROPERTY  {${payload.name}} was accessed with a value of [${payload.value}]`
             break
         }
         case 'property_changed': {
-            logMessage += `property "${payload.name}" was changed to ${payload.value}`
+            logMessage += `PROPERTY {${payload.name}} was changed to [${payload.value}]`
             break
         }
         case 'action_called': {
-            logMessage += `action "${payload}" was called by: ${callerName}`
+            logMessage += `ACTION {${payload}} was called by ${callerName}`
             break
         }
         case 'event_emitted': {
-            logMessage += `event "${payload}" was emitted`
+            logMessage += `EVENT {${payload}} was emitted`
             break
         }
         case 'event_subscribed': {
-            logMessage += `event "${payload}" was subscribed`
+            logMessage += `EVENT {${payload}} was subscribed`
             break
         }
         case 'event_received': {
-            logMessage += `event "${payload.event_name}" from "${payload.device_id}" was received`
+            logMessage += `EVENT {${payload.event_name}} from [${payload.device_id}] was received`
             break
         }
         case 'created': {
-            logMessage += `created successfully`
+            logMessage += `CREATED successfully`
             break
         }
         case 'deleted': {
-            logMessage += `deleted successfully`
+            logMessage += `DELETED successfully`
             break
         }
         case 'externalThingDescription': {
-            logMessage += `added successfully`
+            logMessage += `EXTERNAL DEVICE ADDED successfully`
             break
         }
         case 'externalLog': {
@@ -68,7 +76,9 @@ function createLog(logData, originalCaller?: string): string {
                 console.log(`Error: There are ${filteredDescription.length} devices with href: ${href}`)
                 return ''
             }
-            const { title } = JSON.parse(filteredDescription[0])
+            // capitalize title and fill spaces to 20 characters
+            let { title } = JSON.parse(filteredDescription[0])
+
             // parse type of call. example: http://example.com:3001/thing/action/boil_water
             let callSplitFirst = href.split('//')[1]
             let callSplit = callSplitFirst.split('/')

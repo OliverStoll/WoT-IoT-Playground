@@ -55,16 +55,16 @@ const LogRepresentation = () => {
       return deviceColors.get(deviceId)
     } else {
       const colors: string[] = [
-        'blue',
-        'red',
-        'yellow',
-        'green',
-        'purple',
+        'lime',
         'orange',
-        'pink',
+        'turquoise',
+        'yellow',
+        'purple',
+        'red',
+        'green',
         'cyan',
         'magenta',
-        'lime',
+        'blue',
       ] // Array with the desired colors
       const colorIndex: number = deviceColors.size % colors.length
       const color: string = colors[colorIndex]
@@ -103,7 +103,7 @@ const LogRepresentation = () => {
 
   // div to show all the logs
   return (
-    <div className="log-wrapper">
+    <div style={{marginTop: '1em'}} className="log-wrapper">
         <div className="header">
           Logs
           <button className="btn btn-primary" onClick={downloadLogs}>DOWNLOAD</button>
@@ -116,10 +116,10 @@ const LogRepresentation = () => {
             const logText: string = logParts.slice(2).join(',')
             const logColor = getLogColor(deviceId)
             return (
-              <div key={index} className="log-entry" style={{ color: logColor }}>
-                <span className="timestamp">{timestamp}: </span>
-                <span className="device-id">{deviceId}: </span>
-                <span className="log-text">{logText}</span>
+              <div key={index} className="log-entry" style={{ color: logColor}}>
+                <span style={{fontFamily: "monospace" }} className="timestamp">{timestamp}</span>
+                <span style={{fontFamily: "monospace" }} className="device-id">{deviceId} -</span>
+                <span style={{fontFamily: "monospace" }} className="log-text">{logText}</span>
               </div>
             )
           })}

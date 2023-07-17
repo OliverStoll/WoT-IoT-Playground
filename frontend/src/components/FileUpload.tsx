@@ -1,4 +1,4 @@
-import { Accept, useDropzone } from "react-dropzone"
+import {Accept, useDropzone} from "react-dropzone"
 import './component_css/FileUploadStyle.css'
 
 const urlConfig = 'http://localhost:5001/api/config'
@@ -23,7 +23,7 @@ function FileUpload(): JSX.Element {
         accept: allowedFileTypes
     })
     return (
-        <div className="file-upload-container">
+        <div style={{marginBottom: '0.7em'}} className="file-upload-container">
             <div {...getRootProps()} className="file-upload">
                 <input {...getInputProps()} />
                 <p id="upload">
