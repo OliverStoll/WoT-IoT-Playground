@@ -39,9 +39,7 @@ The source code for the backend server is located in the **src** folder.
 The entrypoint for the server is the **app.ts** file, which imports the modules. Modules are structured into interfaces, protocols, routes, tests and utils.
 Routers handle requests for a specific endpoint. Calls.ts handles requests from the frontend to send a request to a Thing. Uploading a config is done via the config.ts route, while logs.ts provides an endpoint for Things to send logs to the controller.
 The playbook.ts router handles the uploading of playbook files. Tests, which test the main functionalities of the routes are located in the **tests** folder.
-There are two bash scripts located in the src folder. They are utilized by the config route to start and delete D
-
-ocker containers from the host system.
+There are two bash scripts located in the src folder. They are utilized by the config route to start and delete Docker containers from the host system.
 In addition to the source code in the src folder there is a Dockerfile for building the image of the controller and node specific configuration files.
 
 
