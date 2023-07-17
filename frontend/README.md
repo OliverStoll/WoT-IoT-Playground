@@ -47,7 +47,6 @@ In the **src/components/component_css** folder you can find rhe corresponding cs
 ### Requirements
 - Node (tested with 20.2.0)
 - npm (tested with 9.6.6)
-- REACT (tested with 18.2.0)
 
 ### Installation commands
 > **Info:** Assuming that you cloned the web-of-things-playground and current directory is web-of-things-playground
