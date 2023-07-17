@@ -59,36 +59,23 @@ callRouter.post('/', async (req: Request, res: Response): Promise<any> => {
         return
     }
 
-    // use the send request util
-    // sendRequest(req.body).then(resp => {
-    //     let parsedResponse: string = ""
-    //     if(resp){
-    //         parsedResponse = JSON.stringify(JSON.parse(resp))
-    //     }
-    //     // create log in case it is an external device
-    //     const { href, sender } = req.body
-    //     if(isRemoteDevice(href, thingDescriptions)){
-    //         const logObject = {
-    //             type: 'externalLog',
-    //             href: href,
-    //             caller: sender,
-    //             host: {id: 'unknown'},
-    //             thingDescriptions: thingDescriptions,
-    //             payload: parsedResponse
-    //         }
-    //         logs.push(createLog(logObject))
-    //     }
-    //     res.status(200).send(parsedResponse)
-    // })
-    const response = await sendRequest(req.body).then(resp => {
+
+    await sendRequest(req.body).then(resp => {
         let parsedResponse: string = ""
         if (resp) {
             parsedResponse = JSON.stringify(JSON.parse(resp))
         }
         // create log in case it is an external device
         const {href, sender} = req.body
-        if (isRemoteDevice(href, thingDescriptions)) {
-            const logObject = {
+
+        // if local Calls Remote then logs have to be added in another way
+        let localCallsRemote: boolean = false
+        if(href.includes('?')){
+            localCallsRemote = !href.split('?')[1].includes('localhost')
+        }
+        console.log(localCallsRemote)
+        if (isRemoteDevice(href, thingDescriptions) || localCallsRemote) {
+            let logObject = {
                 type: 'externalLog',
                 href: href,
                 caller: sender,
@@ -96,12 +83,17 @@ callRouter.post('/', async (req: Request, res: Response): Promise<any> => {
                 thingDescriptions: thingDescriptions,
                 payload: parsedResponse
             }
-            logs.push(createLog(logObject))
+            if(localCallsRemote){
+                logObject.href = href.split('url=')[1]
+                logs.push(createLog(logObject, href.split('?')[0]))
+            }
+            else{
+                logs.push(createLog(logObject))
+            }
         }
-        res.status(200).send(parsedResponse)
-        //return parsedResponse
-    })
 
+        res.status(200).send(parsedResponse)
+    })
 })
 
 module.exports = callRouter

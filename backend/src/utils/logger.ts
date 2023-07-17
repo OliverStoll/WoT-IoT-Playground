@@ -69,15 +69,7 @@ function createLog(logData, originalCaller?: string): string {
             // remove parameters as there is another format in the thingDescriptions
             href = href.split('?')[0]
             // parse host
-            const filteredDescription: string[] = thingDescriptions.filter((description: string): boolean => {
-                return description.includes(href)
-            })
-            if(filteredDescription.length > 1){
-                console.log(`Error: There are ${filteredDescription.length} devices with href: ${href}`)
-                return ''
-            }
-            // capitalize title and fill spaces to 20 characters
-            let { title } = JSON.parse(filteredDescription[0])
+            const title = getTitleFromHref(href, thingDescriptions)
 
             // parse type of call. example: http://example.com:3001/thing/action/boil_water
             let callSplitFirst = href.split('//')[1]
@@ -93,6 +85,11 @@ function createLog(logData, originalCaller?: string): string {
                 call = callSplit[2].substring(0, callSplit[2].length - 1)
             }
 
+            // if caller over make_request of a local device the caller has to be changed
+            if(originalCaller){
+                callerName = getTitleFromHref(originalCaller, thingDescriptions)
+            }
+
             // get name of property/action/event
             const name = callSplit[3]
             logMessage = `${timestamp},${title}, ${call} ${name} was called by ${callerName} and returned: ${payload}`
@@ -104,6 +101,19 @@ function createLog(logData, originalCaller?: string): string {
     }
 
     return logMessage
+}
+
+function getTitleFromHref(href, thingDescriptions): string{
+    const filteredDescription: string[] = thingDescriptions.filter((description: string): boolean => {
+        return description.includes(href)
+    })
+    if(filteredDescription.length > 1){
+        console.log(`Error: There are ${filteredDescription.length} devices with href: ${href}`)
+        return ''
+    }
+    // capitalize title and fill spaces to 20 characters
+    const { title } = JSON.parse(filteredDescription[0])
+    return title
 }
 
 
