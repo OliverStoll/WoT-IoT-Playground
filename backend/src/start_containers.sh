@@ -28,7 +28,7 @@ sleep 1
 echo "Building the image..."
 sleep 1
 cd ../device-blueprint || exit
-# docker build -t wot-device .      # CURRENTLY NOT REBUILDING THE IMAGE !
+docker build -t wot-device .      # CURRENTLY NOT REBUILDING THE IMAGE !
 cd - || exit
 for (( i=0; i<num_devices; i++ ))
 do
