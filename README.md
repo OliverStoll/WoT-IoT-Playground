@@ -1,12 +1,7 @@
-TODO REMOVE: Zoom-Meeting beitreten:
-
-https://tu-berlin.zoom.us/j/68314260453?pwd=bFZkV3VDU0pJd0NXYXVCQlNBNlNGUT09
-
-
 # Web of Things playground @ IoSL (SNET TU Berlin)
 
 ## Table of Contents
-- [Introduction/Overview](#introductionoverview)
+- [Introduction](#introduction)
 - [Architecture](#architecture)
 - [Install and Run](#install-and-run)
 - [User Manual](#user-manual)
@@ -29,9 +24,15 @@ https://tu-berlin.zoom.us/j/68314260453?pwd=bFZkV3VDU0pJd0NXYXVCQlNBNlNGUT09
 - [Contact Information](#contact-information)
 - [Additional Documentation](#additional-documentation)
 
-## Introduction/Overview
+## Introduction
 
-[Provide a brief introduction to your project. Describe its purpose, key features, and any relevant background information. Mention what problem your project aims to solve and how it adds value.]
+This repository hosts a Docker based Web of Things Playground, a comprehensive platform designed to explore and interact with both local and remote Internet of Things (IoT) devices. The primary objective of this university project is to provide an scientific and interactive environment that aids users in understanding the [W3C Web of Things](https://www.w3.org/WoT/) standard better.
+
+The Internet of Things is a vast and diverse ecosystem, with various devices, protocols, and technologies that aim to connect and interact seamlessly. However, the absence of a unified standard has resulted in several challenges and inefficiencies for developers, manufacturers, and end-users.
+The WoT standard aims to overcome these challenges by promoting interoperability, standardizing data formats, enhancing security, and simplifying development, WoT offers a comprehensive solution to create a more connected, secure, and efficient IoT ecosystem.
+
+This application allows a user to define multiple devices in a configuration file, interact with them, and track the communication to better undestand the standard.
+
 
 ## Architecture
 
@@ -39,7 +40,7 @@ https://tu-berlin.zoom.us/j/68314260453?pwd=bFZkV3VDU0pJd0NXYXVCQlNBNlNGUT09
 
 
 ## Install and Run
-Due to the dockerization the installation is quite simple. Docker handles all internal insalations and the only prior Requirements are git and docker installed on your system.
+Due to the dockerization the installation is quite simple. Docker handles all internal installations and the only prior requirements are git and docker installed on your system.
 
 ### Requirements
 - Docker
@@ -228,13 +229,8 @@ For more detailed descriptions check the README files provided for each service.
   - GitHub: [FredericRisling](https://github.com/FredericRisling)
 - Oliver Stoll
   - E-mail: 
-  - Opt. LinkedIn
-  - Opt. GitHub
 
 
-## Additional Documentation
-
-[If there are additional documents or resources related to your project, list them here with brief descriptions and links.]
 
 
 
