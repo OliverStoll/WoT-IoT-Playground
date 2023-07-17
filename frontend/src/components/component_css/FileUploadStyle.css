@@ -9,6 +9,7 @@
     display: inline-block;
     flex: auto;
 }
+
 .file-upload-container{
     display: flex;
     flex-wrap: wrap;
@@ -30,6 +31,7 @@
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
+
 #kill-button:hover {
     background-color: lightgray;
 }

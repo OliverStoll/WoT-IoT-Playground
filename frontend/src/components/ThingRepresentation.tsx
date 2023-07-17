@@ -16,8 +16,7 @@ const preferredProtocol = "http"
 
 /**
  Renders a component that fetches and displays a list of thing representations.
- The component periodically fetches thing descriptions and updates the list if there are changes.
- @returns {JSX.Element} The rendered component displaying the thing representations.
+ @returns {JSX.Element} The rendered component displaying the Thing representations.
  */
 const ThingRepresentation = () => {
     const [things, setThings] = useState<JSX.Element[]>([])
@@ -38,14 +37,17 @@ const ThingRepresentation = () => {
         })
     },[])
 
-    // container will all things to display
-    return <div className={"thing-container"} id="thing-container" onLoad={(): void => {
-        // when a config is loaded, change the text of the upload div and show the kill button
-        const div: HTMLElement | null = document.getElementById("upload")
-        if (div) div.innerText = "Drag 'n' drop a playbook file here, or click to select file"
-        const button: HTMLElement | null = document.getElementById("kill-button")
-        if (button) button.style.display = "inline-block"
-    }}>{things}</div>
+    // container with all things to display
+    return (
+        <div className={"thing-container"} id="thing-container" onLoad={(): void => {
+            // when a config is loaded, change the text of the upload div and show the kill button
+            const div: HTMLElement | null = document.getElementById("upload")
+            if (div) div.innerText = "Drag 'n' drop a playbook file here, or click to select file"
+            const button: HTMLElement | null = document.getElementById("kill-button")
+            if (button) button.style.display = "inline-block"
+            }}>{things}
+        </div>
+    )
 }
 
 
@@ -53,8 +55,8 @@ const ThingRepresentation = () => {
 //---------------------- functions that creates the things and their attributes-----------------------------------------
 
 /**
- Converts a list of thing configurations into an array of JSX elements representing each thing.
- Each thing element includes an icon, along with selected attributes of the thing.
+ Converts a list of thing configurations into an array of JSX elements representing each Thing.
+ Each Thing element includes an icon, along with selected attributes of the thing.
  @returns {JSX.Element[]} An array of JSX elements representing the things.
  */
 function getThings(): JSX.Element[] {
@@ -107,7 +109,7 @@ function getThings(): JSX.Element[] {
 }
 
 /**
- * Generates elements for displaying attributes of a thing. The buttons can trigger the corresponding request
+ * Generates elements for displaying attributes of a Thing. The buttons can trigger the corresponding request
  * and for properties the result is shown.
  * @param {string} thing_string - The thing configuration in string format.
  * @param {string} att_key - The attribute key.
@@ -125,8 +127,10 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
     const attributes: JSX.Element[] = Array.from({length: values.length},
         function (_, i: number): JSX.Element {
             const form = getForm(thing[att_key][values[i]])
+
+
+            // handle properties
             if (att_key == "properties") {
-                // handle properties
                 const pId: string = thing["id"] + "-" + values[i] + "-" + sender
                 return (
                     //input field for values => shows current value and sets new value on enter
@@ -181,6 +185,9 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                     </div>
                 )
             }
+
+
+            // handle normal actions, and events if they are called by another device
             if (form && (!thing[att_key][values[i]]["uriVariables"]
                     || (thing[att_key][values[i]]["uriVariables"] && Object.keys(thing[att_key][values[i]]["uriVariables"].length === 0)))
                 && (att_key == "actions" || (att_key == "events" && sender !== "controller"))) {
@@ -226,7 +233,9 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                 )
             }
             const parameterForm = getForm(thing[att_key][values[i]], true)
-            // add input field for actions with uri parameter
+
+
+            // handle actions with uri parameter
             if (att_key === "actions" && parameterForm) {
                 const iId: string = thing["id"] + "-" + values[i] + "-" + "input- " + sender
                 // get beginning of the address of the thing
@@ -269,6 +278,8 @@ function getAttributes(thing_string: string, att_key: string, ind: number, sende
                     )
                 }
             }
+
+
             // handle other attributes
             const aId: string = thing["id"] + "-" + values[i] + "-" + att_key + "-" + sender
             return (<div id={aId} key={i} className={"thing-others"}>{values[i]}</div>)

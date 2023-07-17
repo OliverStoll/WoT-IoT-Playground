@@ -1,10 +1,10 @@
-
 .thing-container {
     width: 800px;
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
 }
+
 .thing {
     flex: 0 0 calc(33.33% - 20px);
     width: fit-content;
@@ -26,6 +26,7 @@
     color: black;
     text-align: center;
 }
+
 .thing-icon{
     width: 120px;
     display: block;
@@ -119,6 +120,7 @@
     color: black;
     font-size: 20px;
 }
+
 .device-attributes{
     display: none;
 }
