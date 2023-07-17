@@ -114,3 +114,7 @@ With the current architecture the logging of external devices is implemented sep
 Currently, the logging of external devices is done after a response was sent by the Thing and the log is parsed from the response value. 
 - **Security issues by using a mounted Docker socket**:
 From a security perspective, it cannot be considered a best practice to launch additional Docker containers on the host from a Docker container by attaching the Docker socket to the container. The container gains privileged rights and therefore lacks of security. 
+- **Bash script on Windows**:
+Even though the application is running completely in Docker, the underlying OS can effect the functionality.
+It seems like the bash script we are using for starting and deleting the Thing containers is not deterministic on 
+Windows systems. While it is perfectly working on Mac OS and Linux, we can not ensure a complete compatibility on Windows.
