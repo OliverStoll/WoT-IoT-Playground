@@ -27,7 +27,6 @@ This application allows a user to define multiple devices in a configuration fil
   - [Shutdown Things](#shutdown-things)
 - [Local Development](#local-development)
 - [Contact Information](#contact-information)
-- [Additional Documentation](#additional-documentation)
 
 
 
@@ -71,9 +70,9 @@ There are examples and sample files provided for each step.
 
 ### Uploading a Configuration file
 #### Configuration file
-The first step to simulate a Web of THings scenario is to upload a configuration file.
-Our application allows to create things locally as well as to access things from the Internet. Both types of Things have to be listed in a single Config file.
-The configuration file is a JSON file which consists of two lists. 
+The first step to simulate a Web of Things scenario is to upload a configuration file.
+Our application allows to create things locally as well as to access things from the Internet. Both types of Things have to be listed in a single Configuration file.
+The Configuration file is a JSON file which consists of two lists. 
 
 The list **"devices"** includes the Things to be created locally. Each Thing has to be an object and requires the properties: **title, description, properties, actions and events**.
 When adding multiple local Things make sure to use unique titles to ensure consistency. 
@@ -103,13 +102,13 @@ The second list **"externalDevices"** is optional and can be used to add Things 
 }
 ```
 
-An example config file is provided in **examples/scenario.json**
+An example Configuration file is provided in **examples/scenario.json**
 #### Upload the file
 The config file can either be uploaded via drag-and-drop to the file upload or by clicking on the File Upload and selecting a file from the filesystem. 
 
 ![File upload window](./examples/applicationScreenshots/configFileUpload.png)
 
-After the config was successfully processed you will see logs on the creation of the devices and the devices will pop up right below the File Upload.
+After the Configuration was successfully processed you will see logs on the creation of the devices and the devices will pop up right below the File Upload.
 Remote Things can be identified in the logs with the keyword "added", while local Things are "created". Also the Thing representation between the file upload and the log window highlights remote Things as "remote".
 
 ![After uploading the config](./examples/applicationScreenshots/configUploaded.png)
