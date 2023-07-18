@@ -78,7 +78,7 @@ const LogRepresentation = () => {
    */
   useEffect(() => {
     fetchLogs().then((r: void) => r)
-    const interval: any = setInterval(fetchLogs, 5000)
+    const interval: any = setInterval(fetchLogs, 1000)
     return (): void => {
       clearInterval(interval)
     }
