@@ -70,10 +70,9 @@ callRouter.post('/', async (req: Request, res: Response): Promise<any> => {
 
         // if local Calls Remote then logs have to be added in another way
         let localCallsRemote: boolean = false
-        if(href.includes('?')){
-            localCallsRemote = !href.split('?')[1].includes('localhost')
+        if(sender !== 'controller'){
+            localCallsRemote = !href.split('url=')[1].includes('localhost')
         }
-        console.log(localCallsRemote)
         if (isRemoteDevice(href, thingDescriptions) || localCallsRemote) {
             let logObject = {
                 type: 'externalLog',
