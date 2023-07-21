@@ -1,12 +1,9 @@
 # Web of Things User Interface
 
-The frontend hosts our Web of Things Playground user interface. It manages all the user in-
-teractions and works as the entry point for the application. There is no direct communication
+The frontend hosts our Web of Things Playground user interface. It manages all the user interactions and works as the entry point for the application. There is no direct communication
 between the frontend and the specific Things, the whole communication is running over the
-backend controller via REST API. The frontend handles the upload of configuration and play-
-book files, parses the Thing Descriptions to visualize the devices, and enables a visualized
+backend controller via REST API. The frontend handles the upload of configuration and playbook files, parses the Thing Descriptions to visualize the devices, and enables a visualized
 interaction with them.
-9
 
 
 ## Table of Contents
