@@ -63,6 +63,7 @@ The Docker Images will be initialized automatically and afterwards the the appli
 be available under the following links:
 
 Local: http://localhost:5173/
+
 Network: http://192.168.178.128:5173/
 
 
