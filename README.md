@@ -38,12 +38,13 @@ This application allows a user to define multiple devices in a configuration fil
 
 
 ## Install and Run
-Due to the dockerization the installation is quite simple. Docker handles all internal installations and the only prior requirements are git and docker installed on your system.
+While the different components can also be installed and run separately for development purposes, the dockorization of our application allows us the start everything with one command.
+Docker will handle all the internal installations and run the app independently. The only prior requirements are git and docker installed on your system.
 
 ### Requirements
-- Docker
+- Docker (tested with 20.2.0, Docker as root user)
 - Docker compose
-- Git
+- Git (tested with 1.6)
 
 In order to install the playground clone the repository. 
 
@@ -58,9 +59,12 @@ Run the application via docker compose
 ```
 docker-compose up
 ```
-The Docker Images will be initialized and afterwards the the application will be available under the following link:
+The Docker Images will be initialized automatically and afterwards the the application will
+be available under the following links:
 
-http://localhost:5173
+Local: http://localhost:5173/
+Network: http://192.168.178.128:5173/
+
 
 ## User Manual
 The following section is intended to explain the functionalities of the Playground and gives
