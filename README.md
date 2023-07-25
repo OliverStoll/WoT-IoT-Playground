@@ -224,13 +224,14 @@ For more detailed descriptions check the README files provided for each service.
 ## Contact Information
 
 - Marc-Fabio Niemella
-  - E-mail: niemella@campus.tu-berlin.de
+  - Email: niemella@campus.tu-berlin.de
 - Frederic Risling
-  - E-mail: f.risling@campus.tu-berlin.de
+  - Email: f.risling@campus.tu-berlin.de
   - LinkedIn: [Frederic Risling](https://www.linkedin.com/in/frederic-risling-32092b234/)
   - GitHub: [FredericRisling](https://github.com/FredericRisling)
 - Oliver Stoll
-  - E-mail: 
+  - Email: o.stoll@tu-berlin.de
+  - LinkedIn: [Oliver Stoll](https://www.linkedin.com/in/o-stoll/)
 
 
 
