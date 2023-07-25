@@ -83,7 +83,6 @@ export class HttpProtocol implements ProtocolInterface {
      */
     async receive(url: string): Promise<any> {
         return new Promise((resolve, reject): void => {
-            // TODO: remove, when href sends the correct IP
             const urlCleaned: string = url.replace(/localhost/gi, 'host.docker.internal')
             console.log('Receiving data via HTTP for URL: ', urlCleaned)
 

@@ -15,7 +15,7 @@ export function execute_action_condition(execute_action_data: ExecuteActionData)
         executeEntireAction(properties_dict, thing, action.condition.action_list_false, variables);
         return "False"
     }
-    // tODO: return doesnt work
+
 }
 
 export function evaluateCondition(condition: Condition, property: _Property) {

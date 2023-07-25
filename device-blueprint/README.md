@@ -28,9 +28,8 @@ For communication protocols, HTTP is currently supported, but has been designed 
 ### Technology Stack
 The devices use a technology stack that was selected based on established de-facto IoT standards.
 - **Node.js**: Node.js is used as a runtime environment for the code as it supports JavaScript. Additionally, it allows to use asynchronous communication, which is often used in the IoT context in the form of events.
-- **Docker**: As the container technology we use Docker, as it is the de-facto industry standard even beyond IoT. It is used by the backend to create containerized Things.
+- **Docker**: As the container technology we use Docker, as it is the de-facto industry standard even beyond IoT. It is used to create containerized Things, that can be run as multiple containers.
 - **TypeScript**: We use Typescript as our programming language, which extends the JavaScript syntax with static typing, enabling improved code quality and maintainability.
-- **Bash**: Bash is used to execute Docker commands on the host machine.
 
 ### Structure of the project
 The Device Blueprint is structured as follows:
@@ -61,7 +60,7 @@ Currently, the following action types are supported:
 - **Sleep**: The sleep action type is used to pause the execution of the action for a specific amount of time.
 - **Condition**: The condition action type is used to execute an action based on a condition. The condition is specified in the configuration file.
 - **Make_request**: The make_request action type is used to send a request to a specific URL. This is a special action used to control devices from the backend.
-- **Shut_down**: The shut_down action type is used to shut down the device. This is a special action used to power-down devices from the backend.
+- **Shutdown**: The shut_down action type is used to shut down the device. This is a special action used to power-down devices from the backend.
 
 #### How to add more Action Type functions
 If your use-case requires adding more action types, this section describes how to do it.
@@ -114,5 +113,9 @@ Tests are designed to run for the devices specified in the *scenario_backup.json
 This way, single device containers can be run without any additional configuration or interaction with the backend.
 
 
-## Known issues
-- **
+## Known Limitations
+- The Node-WoT framework internally does not expose the actual endpoint request, but instead only property-/action-/event-handlers.
+This means that aspects of the request such as the headers cannot be accessed.
+- 'host.docker.internal' is used as the hostname for the backend controller, which use varies slightly between operating systems.
+- Aspects of the configuration file are not validated, such as the action type or the action payload (for example event names to emit).
+- make_request action type is currently only supported for HTTP requests.

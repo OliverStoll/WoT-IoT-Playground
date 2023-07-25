@@ -22,7 +22,6 @@ async function sendRequest(data: { href: string, 'htv:methodName'?: string }): P
             response = await protocol.send(href, data)
         }
     } else {
-        // TODO: Implement other protocols
         return "Error: Only HTTP implemented. Add more protocols by extending the ProtocolInterface"
     }
 

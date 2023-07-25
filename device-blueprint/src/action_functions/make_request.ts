@@ -19,7 +19,7 @@ export async function execute_action_make_request(execute_action_data: ExecuteAc
     console.log(`Making ${method} request to ${url}`);
 
     // make a fetch get request to the url
-    let return_data_string = await fetchData(url, method, body).then(data => {
+    let return_data_string = await fetchDataHTTP(url, method, body).then(data => {
         return data;
     })
 
@@ -44,7 +44,7 @@ export async function execute_action_make_request(execute_action_data: ExecuteAc
 }
 
 
-async function fetchData(url: string, method: string, body=undefined): Promise<any> {
+async function fetchDataHTTP(url: string, method: string, body=undefined): Promise<any> {
     try {
         const response = await fetch(url, {
             method: method,
@@ -63,3 +63,5 @@ async function fetchData(url: string, method: string, body=undefined): Promise<a
         }
     }
 }
+
+/** Here, other implementations of fetchData can be added, e.g. for CoAP */

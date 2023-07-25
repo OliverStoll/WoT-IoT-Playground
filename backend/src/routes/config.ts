@@ -105,7 +105,6 @@ configRouter.post('/', (req: Request, res: Response): void => {
         fileName = path.join(__dirname, '../../../device-blueprint/config.json')
         let configRaw = req.body
 
-        // TODO: Add log_server URLs for other protocols
         configRaw['log_server'] = 'http://host.docker.internal:5001/api/logs'
         config = JSON.stringify(configRaw)
     }
