@@ -1,6 +1,6 @@
-import {ExecuteActionData} from "../actions";
-import {LogType, sendLog} from "../../logging/logging";
-import {logging_info} from "../../device";
+import {ExecuteActionData} from "../device_functionality/actions";
+import {LogType, sendLog} from "../logging/logging";
+import {logging_info} from "../device";
 
 export function execute_action_emit_event(execute_action_data: ExecuteActionData) {
     let action = execute_action_data.action;

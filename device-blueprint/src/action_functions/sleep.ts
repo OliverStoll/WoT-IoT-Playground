@@ -1,4 +1,4 @@
-import {ExecuteActionData} from "../actions";
+import {ExecuteActionData} from "../device_functionality/actions";
 
 export async function execute_action_sleep(execute_action_data: ExecuteActionData) {
     // TODO: fix sleep being async

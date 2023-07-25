@@ -1,5 +1,5 @@
-import {ExecuteActionData, executeEntireAction} from "../actions";
-import {_Property, Condition} from "../../device";
+import {ExecuteActionData, executeEntireAction} from "../device_functionality/actions";
+import {_Property, Condition} from "../device";
 
 export function execute_action_condition(execute_action_data: ExecuteActionData) {
     let action = execute_action_data.action;

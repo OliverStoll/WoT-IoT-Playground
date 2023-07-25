@@ -1,6 +1,6 @@
-import {ExecuteActionData} from "../actions";
-import {LogType, sendLog} from "../../logging/logging";
-import {logging_info} from "../../device";
+import {ExecuteActionData} from "../device_functionality/actions";
+import {LogType, sendLog} from "../logging/logging";
+import {logging_info} from "../device";
 
 export async function execute_action_make_request(execute_action_data: ExecuteActionData) {
     // check if url present variables

@@ -1,13 +1,13 @@
 import {_Property, ActionStep, PropertiesDict, VariablesDict,} from "../device";
 
 import {ExposedThing} from "@node-wot/core";
-import {execute_action_set} from "./action_functions/set";
-import {execute_action_increment} from "./action_functions/increment";
-import {execute_action_sleep} from "./action_functions/sleep";
-import {execute_action_emit_event} from "./action_functions/emit_event";
-import {execute_action_condition} from "./action_functions/condition";
-import {execute_action_shutdown} from "./action_functions/shutdown";
-import {execute_action_make_request} from "./action_functions/make_request";
+import {execute_action_set} from "../action_functions/set";
+import {execute_action_increment} from "../action_functions/increment";
+import {execute_action_sleep} from "../action_functions/sleep";
+import {execute_action_emit_event} from "../action_functions/emit_event";
+import {execute_action_condition} from "../action_functions/condition";
+import {execute_action_shutdown} from "../action_functions/shutdown";
+import {execute_action_make_request} from "../action_functions/make_request";
 
 export interface ExecuteActionData {
     action: ActionStep;
