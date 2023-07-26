@@ -1,8 +1,14 @@
 # Web of Things playground @ IoSL (SNET TU Berlin)
 This repository hosts a Docker based Web of Things Playground, a comprehensive platform designed to explore and interact with both local and remote Internet of Things (IoT) devices. The primary objective of this university project is to provide an scientific and interactive environment that aids users in understanding the [W3C Web of Things](https://www.w3.org/WoT/) standard better.
 
-The Internet of Things is a vast and diverse ecosystem, with various devices, protocols, and technologies that aim to connect and interact seamlessly. However, the absence of a unified standard has resulted in several challenges and inefficiencies for developers, manufacturers, and end-users.
-The WoT standard aims to overcome these challenges by promoting interoperability, standardizing data formats, enhancing security, and simplifying development, WoT offers a comprehensive solution to create a more connected, secure, and efficient IoT ecosystem.
+The Internet of Things is a complex ecosystem, with various devices, protocols, and tech-
+nologies that aim to connect and interact seamlessly. However, the absence of a unified stan-
+dard has resulted in several challenges and inefficiencies for developers, manufacturers, and
+end-users. The W3C Web of Things standard aims to overcome these challenges by
+promoting interoperability, standardizing data formats, enhancing security, and simplifying
+development, WoT offers a comprehensive solution to create a more connected, secure, and ef-
+ficient IoT ecosystem. This is done by defining an abstract description of a device, which then
+can be obtained by other devices.
 
 This application allows a user to define multiple devices in a configuration file, interact with them, and track the communication to better undestand the standard.
 
