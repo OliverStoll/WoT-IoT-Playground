@@ -17,13 +17,11 @@ interaction with them.
 - [Known issues](#known-issues)
 
 ## Implementation
-The frontend user interface is implemented as a React based single-page web application and
-written in Typescript. Since it is only communicating with the controller and not with the
-devices directly, there is no need for different protocols here. The communication is completely
+The frontend user interface is implemented as a React-based single-page web application and
+written in Typescript. Since it is only communicating with the controller and not with the devices directly, there is no need for different protocols here. The communication is completely
 based on our HTTP REST API. But because we extract the endpoints for the interactions with
-the devices from the Thing Descriptions here, we could not ignore the extensible of the frontend
-completely. As with the rest of our application, we limited our current implementation to Http,
-but everything is build to make an extansion as easy as possible.
+the devices from the Thing Descriptions here, we could not ignore the extensibility of the frontend completely. As with the rest of our application, we limited our current implementation to
+HTTP, but everything is built to make an extension as easy as possible.
 
 ### Technology Stack
 The frontend uses a technology stack that was selected based on established industry standards.
@@ -45,8 +43,7 @@ And the most important component is the ThingRepresentation, which is responsibl
 
 
 ## Installation and Running instructions
-The forntend can also be started without Docker for local development. The following pack-
-ages are required to be installed on your machine.
+The frontend can also be started without Docker for local development. The following packages are required to be installed on your machine.
 
 ### Requirements
 - Node (tested with 20.2.0)
@@ -86,7 +83,15 @@ limitations. In this part we want to look trough them and how they could effect 
 - **Error Handling**:
 The error handling might not be sufficient in every case. Currently we are checking user input in form of uploaded files and text input for the correct type, but there is no proper valiation. For example, files are checked for a correct json syntax and if they are a configuration
 or playbook file, but it is not checked in detail, if the content is in line with our requirements.
-This could end up in errors and crashes if mandatory fields are missing.
+Missing fields in the configuration file could lead to unexpected behavior.
+
+- **Tests**:
+While we were able to easily implement unit tests for the backend and the devices, it is way
+more complicated to properly automate the testing of a graphical user interface. Because of our
+limited time frame, we decided to only go for manual UI tests in the frontend. While they are
+good to ensure a hassle-free user experience, they do not provide the functional safety of unit
+tests.
+
 - **Extensibility:**
 A big focus of our application was the extensible. Even though the frontend is only communicating with the backend, we can not ignore the extensible completely. Currently, the implementation only supports devices communicating in http and with no, or a basic in-header
 security definition. To implement other protocols and security definitions, several changes
