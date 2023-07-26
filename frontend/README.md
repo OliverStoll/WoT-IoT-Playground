@@ -70,9 +70,7 @@ npm run dev
 
 While running the frontend is available under:
 
-Local: http://localhost:5173/
-
-Network: http://192.168.178.128:5173/
+http://localhost:5173/
 
 ## Known issues
 
