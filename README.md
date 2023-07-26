@@ -73,9 +73,9 @@ Run the application via docker compose
 docker-compose up
 ```
 The Docker Images will be initialized automatically and afterwards the the application will
-be available under the following links:
+be available under the following link:
 
-Local: http://localhost:5173/
+http://localhost:5173/
 
 
 
