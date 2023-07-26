@@ -17,7 +17,7 @@ interaction with them.
 - [Known issues](#known-issues)
 
 ## Implementation
-The frontend user interface is implemented as a React-based1 single-page web application and
+The frontend user interface is implemented as a React-based single-page web application and
 written in Typescript. Since it is only communicating with the controller and not with the devices directly, there is no need for different protocols here. The communication is completely
 based on our HTTP REST API. But because we extract the endpoints for the interactions with
 the devices from the Thing Descriptions here, we could not ignore the extensibility of the frontend completely. As with the rest of our application, we limited our current implementation to
