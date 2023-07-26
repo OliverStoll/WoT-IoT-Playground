@@ -34,8 +34,18 @@ This application allows a user to define multiple devices in a configuration fil
 
 ## Architecture
 
-[Explain the overall architecture of your project. Describe the components, modules, or services involved, and how they interact with each other. You can use diagrams or flowcharts to illustrate the architecture if necessary.] # TODO @Oliver
+Our architecture consists of three major components, the frontend, the backend, and the docker playground which can contain multiple simulated WoT devices.
+Each component has its own focus and main task, such as user-interactability for the frontend, logging and central authority for the backend, and the simulation of desired IoT devices for the docker playground.
 
+For these purposes, we can observe some important paths of interactions between the three components.
+The frontend is the starting point for component interaction, with it both polling the log data from the backend, as well as passing both user-defined configuration files and playbook files to the backend.
+Once the backend has received a configuration file detailing the WoT devices, it runs a respective amount of containerized instances of the device blueprint image.
+These devices each receive their aspect of the configuration file describing their internal properties, which they use to simulate the desired device and its capabilities, exposing matching endpoints.
+Now, the user can either upload a playbook file or choose an interaction in the frontend.
+The frontend passes these requested calls on the device endpoints, also called Thing-API in this context, to the backend where they get executed.
+Following you can see an overview of the architecture:
+
+![Architecture](./examples/applicationScreenshots/Architecture%20Diagram.png)
 
 ## Install and Run
 While the different components can also be installed and run separately for development purposes, the dockorization of our application allows us the start everything with one command.
