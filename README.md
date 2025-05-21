@@ -66,7 +66,7 @@ be available under the following url:
 
 `http://localhost:5173/`
 
-## 📖 User Manual
+# 📖 User Manual
 
 This section explains how to use the Playground to simulate Web of Things (WoT) scenarios. Sample files are included for each feature.
 
@@ -221,16 +221,14 @@ Controller API docs are accessible at:
 
 To run the frontend and backend locally (without Docker Compose):
 
-- **Backend**: 
+**Backend**: 
 ```
 cd backend
 npm install
 npx nodemon
 ```
 
-Start the frontend:
-
-- **Frontend**: 
+**Frontend**: 
 ```
 cd frontend
 npm install
