@@ -12,7 +12,6 @@ The Web of Things standard promotes interoperability, standardization of data fo
 - [📖 User Manual](#-user-manual)
 - [🛠️ Local Development](#️-local-development)
 - [📡 API Documentation](#-api-documentation)
-- [📬 Contact Information](#-contact-information)
 
 
 ## 🧱 Architecture
