@@ -4,7 +4,6 @@ This repository hosts a Docker-based Web of Things (WoT) Playground — a platfo
 
 The Web of Things standard promotes interoperability, standardization of data formats, and secure communication between devices by defining abstract descriptions of Things. This application allows users to define multiple devices via configuration files, interact with them, and observe communication flows.
 
----
 
 ## 🧭 Table of Contents
 
@@ -15,7 +14,6 @@ The Web of Things standard promotes interoperability, standardization of data fo
 - [📡 API Documentation](#-api-documentation)
 - [📬 Contact Information](#-contact-information)
 
----
 
 ## 🧱 Architecture
 
@@ -33,7 +31,6 @@ Interaction flow:
 
 ![Architecture](./examples/applicationScreenshots/Architecture%20Diagram.png)
 
----
 
 ## 🚀 Install and Run
 
@@ -76,7 +73,7 @@ This section explains how to use the Playground to simulate Web of Things (WoT) 
 
 > ℹ️ Ensure the application is running properly (Docker Compose recommended).
 
----
+
 
 ### 📝 Uploading a Configuration File
 
@@ -116,7 +113,7 @@ For further examples: See `examples/scenario.json`.
 
 Upload via drag-and-drop or by selecting the file. After processing, local Things are shown as `created`, remote ones as `added`. The interface marks remote Things accordingly.
 
----
+
 
 ### 🧾 Getting and Updating a Property
 
@@ -127,7 +124,6 @@ Upload via drag-and-drop or by selecting the file. After processing, local Thing
 
 💡 For reduced log verbosity, use a playbook (see below).
 
----
 
 ### 🎛️ Calling an Action
 
@@ -137,7 +133,7 @@ Two types are supported:
 
 📌 Actions with parameters in the body are **not supported**.
 
----
+
 
 ### 🔄 Interaction Between Things
 
@@ -155,7 +151,7 @@ Things can interact with each other using the **remote** icon at the top-right o
 2. The Thing subscribes and waits.
 3. Trigger the corresponding event from the emitting Thing (via action call).
 
----
+
 
 ### 🧩 Executing a Playbook
 
@@ -200,19 +196,19 @@ Further example available in `examples/playbook_scenario.json`.
 
 Upload a playbook using the file upload interface. Steps will be executed sequentially. You may upload another playbook after completion.
 
----
+
 
 ### 📥 Downloading Logs
 
 Click the **Download** button at the top-right of the log window to save logs as a `.txt` file.
 
----
+
 
 ### 🛑 Shutdown Things
 
 Click **Shutdown** to terminate all simulated Things. This stops and removes the containers. You can then upload a new configuration or exit Docker Compose.
 
----
+
 
 ## 📡 API Documentation
 
@@ -220,7 +216,7 @@ Controller API docs are accessible at:
 
 [http://localhost:5001/api-docs](http://localhost:5001/api-docs)
 
----
+
 
 ## 🛠️ Local Development
 
